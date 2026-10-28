@@ -9,7 +9,7 @@ envs:
       targetEnv: DATABASE_URL
       format: url
     apps:
-      api:
+      bot:
         repo: cu3rd/rss2tg
         image: git.cu3rd.ru/cu3rd/rss2tg
         tag: initial
