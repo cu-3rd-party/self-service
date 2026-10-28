@@ -11,9 +11,8 @@ jobs:
         with:
           persist-credentials: false
       - run: |
-          python3 -m venv "$RUNNER_TEMP/self-service-venv"
-          "$RUNNER_TEMP/self-service-venv/bin/pip" install --disable-pip-version-check -r requirements.txt
-          echo "$RUNNER_TEMP/self-service-venv/bin" >> "$GITHUB_PATH"
+          python3 -m pip install --target "$RUNNER_TEMP/self-service-python" --disable-pip-version-check -r requirements.txt
+          echo "PYTHONPATH=$RUNNER_TEMP/self-service-python" >> "$GITHUB_ENV"
       - run: python3 scripts/validate.py
       - run: python3 -m unittest discover -s tests -v
       # No cluster, database, state or S3 administration credentials in Actions.
