@@ -27,6 +27,7 @@ locals {
     for name, app in local.apps : name => try(yamldecode(file("${var.root}/deployments/${var.config.project}/${var.config.env}/${name}.yaml")), {
     })
   }
+  metrics_ports = toset([for app in values(local.apps) : try(coalesce(try(app.metrics.port, null), try(app.port, null), try(app.ingress[0].targetPort, null)), 9090) if try(app.metrics.enabled, false)])
   resource_secrets = concat(
     try(var.config.postgres.enabled, false) ? ["${var.name}-db"] : [],
     try(var.config.s3.enabled, false) ? ["${var.name}-s3"] : []
@@ -131,6 +132,22 @@ resource "kubernetes_network_policy_v1" "project" {
 
       }
 
+    }
+    dynamic "ingress" {
+      for_each = length(local.metrics_ports) > 0 ? [1] : []
+      content {
+        from {
+          namespace_selector { match_labels = { "kubernetes.io/metadata.name" = "monitoring" } }
+          pod_selector { match_labels = { "app.kubernetes.io/name" = "prometheus" } }
+        }
+        dynamic "ports" {
+          for_each = local.metrics_ports
+          content {
+            port     = tostring(ports.value)
+            protocol = "TCP"
+          }
+        }
+      }
     }
     egress {
       to {
@@ -261,6 +278,9 @@ resource "kubernetes_manifest" "argo_project" {
           group = "networking.k8s.io", kind = "Ingress"
         },
         {
+          group = "monitoring.coreos.com", kind = "PodMonitor"
+        },
+        {
           group = "traefik.io", kind = "Middleware"
         }
       ]
@@ -313,8 +333,10 @@ resource "kubernetes_manifest" "application" {
             ingress = {
               enabled = try(each.value.host, "") != "", host = try(each.value.host, ""), paths = try(each.value.paths, ["/"])
             }
-            routes = try(each.value.ingress, [])
-            port   = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), null)
+            routes      = try(each.value.ingress, [])
+            selfService = { project = var.config.project, env = var.config.env, application = each.key }
+            metrics     = merge({ enabled = false, path = "/metrics", interval = "30s", port = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), 9090) }, try(each.value.metrics, {}))
+            port        = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), null)
 
           }))
 

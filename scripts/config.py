@@ -106,7 +106,7 @@ def validate_project(p, filename):
             named(name)
             if len(p['name'] + '-' + env + '-' + name) > 53:
                 raise Invalid("Combined release name exceeds 53 characters")
-            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "secrets", "variables", "values"}, {"repo", "image", "tag"})
+            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "metrics", "secrets", "variables", "values"}, {"repo", "image", "tag"})
             if not isinstance(app["repo"], str) or not re.fullmatch(r"cu3rd/[A-Za-z0-9_.-]+", app["repo"]):
                 raise Invalid("repo must belong to cu3rd")
             if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/cu3rd/[a-z0-9_.-]+", app["image"]):
@@ -131,6 +131,18 @@ def validate_project(p, filename):
                     raise Invalid('Declare each domain once per application; combine paths in one entry')
                 seen.add(route['domain'])
             route_paths(app.get('paths', ['/']))
+            metrics = app.get('metrics', {})
+            keys(metrics, {'enabled', 'port', 'path', 'interval'})
+            if type(metrics.get('enabled', False)) is not bool:
+                raise Invalid('metrics.enabled must be boolean')
+            if 'port' in metrics and (type(metrics['port']) is not int or not 1024 <= metrics['port'] <= 65535):
+                raise Invalid('metrics.port must be 1024–65535')
+            if not isinstance(metrics.get('path', '/metrics'), str) or not metrics.get('path', '/metrics').startswith('/'):
+                raise Invalid('metrics.path must start with /')
+            if metrics.get('interval', '30s') not in {'15s', '30s', '60s'}:
+                raise Invalid('metrics.interval must be 15s, 30s or 60s')
+            if metrics.get('enabled') and 'metrics' in app.get('values', {}).get('extraPorts', {}):
+                raise Invalid('Port name metrics is reserved when metrics are enabled')
             secrets, variables = app.get("secrets", {}), app.get("variables", {})
             mappings(secrets)
             mappings(variables)

@@ -11,7 +11,9 @@ spec:
     matchLabels: {{- include "app.selector" . | nindent 6 }}
   template:
     metadata:
-      labels: {{- include "app.selector" . | nindent 8 }}
+      labels:
+        {{- include "app.selector" . | nindent 8 }}
+        {{- include "app.identity" . | nindent 8 }}
       annotations:
         self-service/config-revision: {{ .Values.configRevision | quote }}
         # перезапуск подов при смене секретов/переменных
@@ -62,15 +64,21 @@ spec:
                 name: {{ . }}
             {{- end }}
           {{- end }}
-          {{- if .Values.port }}
+          {{- if or .Values.port .Values.metrics.enabled }}
           ports:
+            {{- if .Values.port }}
             - name: http
               containerPort: {{ .Values.port }}
             {{- range $name, $p := .Values.extraPorts }}
             - name: {{ $name }}
               containerPort: {{ $p }}
             {{- end }}
-          {{- if .Values.probes.path }}
+            {{- end }}
+            {{- if and .Values.metrics.enabled (ne (int .Values.metrics.port) (int (.Values.port | default 0))) }}
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+            {{- end }}
+          {{- if and .Values.port .Values.probes.path }}
           readinessProbe:
             httpGet: {path: {{ .Values.probes.path }}, port: http}
           livenessProbe:

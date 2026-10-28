@@ -1,0 +1,23 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "app.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "app.selector" . | nindent 6 }}
+  podMetricsEndpoints:
+    - port: {{ if eq (int .Values.metrics.port) (int (.Values.port | default 0)) }}http{{ else }}metrics{{ end }}
+      path: {{ .Values.metrics.path | quote }}
+      interval: {{ .Values.metrics.interval }}
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_cu3rd_ru_project]
+          targetLabel: project
+        - sourceLabels: [__meta_kubernetes_pod_label_cu3rd_ru_env]
+          targetLabel: environment
+        - sourceLabels: [__meta_kubernetes_pod_label_cu3rd_ru_application]
+          targetLabel: application
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+{{- end }}

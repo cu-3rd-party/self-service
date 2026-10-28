@@ -111,6 +111,48 @@ envs:
 обновляет `zone_addresses` в `dns.tf`. Удаление маршрута удаляет его DNS-запись, Ingress, маршрутный Service и сертификат.
 Служебные TLS Secrets очищаются после удаления сертификата.
 
+## Метрики и логи
+
+Для **всех приложений**, включая воркеры без HTTP, автоматически доступны:
+CPU, память, сеть, рестарты, readiness и stdout/stderr. Общий Prometheus собирает
+метрики Kubernetes, Alloy на каждом узле отправляет логи в Loki. Агент/sidecar
+в приложение не добавляется; права Kubernetes приложению не нужны.
+
+Дашборд: [cu3rd / Self-service](https://grafana.iamamaev.ru/d/cu3rd-self-service).
+Фильтры: namespace (`cu3rd-<project>-<env>`), pod и поиск по логам. Срок хранения
+задаётся общей платформой: сейчас 30 дней для Prometheus и Loki. Логи из файлов
+внутри контейнера не собираются: приложение должно писать в stdout/stderr.
+
+Для бизнес-метрик приложение должно отдавать Prometheus/OpenMetrics endpoint.
+Добавьте в **приложение** в любом окружении:
+
+```yaml
+metrics:
+  enabled: true
+  port: 9090       # необязательно: основной port приложения, либо 9090 для воркера
+  path: /metrics  # значение по умолчанию
+  interval: 30s   # 15s, 30s или 60s
+```
+
+Платформа создаёт PodMonitor и открывает только этот порт для Prometheus из
+namespace monitoring. Отдельный Service/Ingress или публичный домен для метрик
+не нужен. Работает и с `port: null` у ботов/воркеров. `enabled: false` или удаление
+`metrics` удаляет PodMonitor и разрешение в сети; базовые метрики и логи остаются.
+Если endpoint отсутствует, метрики нельзя получить одной настройкой: добавьте
+экспортер в приложение. По умолчанию HTTP scrape выключен, чтобы не создавать 404.
+
+В Loki доступны `namespace`, `pod`, `container`, `app`, `node`, а для новых подов
+self-service также `platform="self-service"`, `project`, `environment`, `application`:
+
+```logql
+{job="pods", platform="self-service", project="my-project", environment="dev"}
+```
+
+В Prometheus у метрик приложения есть те же project/environment/application,
+namespace/pod и node. Произвольные идентификаторы запросов и текст логов в labels
+не переносятся. Доступ к Grafana пока общий платформенный; выдача прав командам
+не меняется этим подключением.
+
 ## Автоматически создаваемые переменные
 
 | Опция | Переменные контейнера |

@@ -77,3 +77,11 @@ configRevision: ""
 
 # Public HTTP routes. Each route service listens on 80 and forwards to targetPort.
 routes: []
+
+# Managed identity labels for metrics and logs; immutable selectors stay unchanged.
+selfService: {}
+metrics:
+  enabled: false
+  port: 9090
+  path: /metrics
+  interval: 30s
