@@ -2,4 +2,10 @@ repository: cu3rd/rss2tg
 tag: 7b901c66e73c637e3ed702d9f3e7f4e326a828a2
 env:
   APP_NAME: rss2tg
-sealedEnv: {}
+  CONFIG_JSON: '{
+
+    "interval":"5m","routes":[{"feed":"https://git.cu3rd.ru/cu3rd/self-service.rss","chat_id":"-5070382195"}]
+
+    }'
+sealedEnv:
+  TELEGRAM_BOT_TOKEN: AgATWz16ezAkmmBdssBA69ugycGXdXZx3VFDfKsDYf9LL98jgNXA9kJDitXHH+1jmoV1p9vzE5l4KN8nqtpiHnpqoMDybmL0Y8nqA+/ztj2/xd7NuPkRlRXx4BKA6DhEfkCySUsoVHfHwBq0r2YZESzvT5aaJNKufeGrF0se/Dr4iEqTWOPf2yAWuwTStJGX9J6R55hUuyV6vBnWdiNQRIUErpzSyYpjz8rtup2C2QKLqCPvGb+YWwZylzkPyhpojgP4KMLROVAOs/xTqHGFQHkcswFjWTiTAcNBW0xf8NPdYXj29cn3ekM000nJW5CxJUcr0y4xmKYf1Oo0vf7H8HoSVLyUbdE253pq8jdjCftrg4F3cho8XLW9JzlI7luJJioWfRo2IImfV+T4ufcOyGyx5dGGOFZHil+LCX8y+97aZbybNnVHS5UTTux4iZGZVDxj+winyFs1lOS2OinlQG6hp0Jb5x7gsytG+mQGAcWxseGhV5BrnmqOD0vNuTewTU48HRPavCstPVX+uekX27ah9fuQGUOep8nOw53+5hukuh/b0HqlZ+FD30j2uIaefnJv5iUVBJtv6uwUSff1AEMZBgxNXSSj6F2e2C7Rj/tv5zdcXReNDFqelS0d+l1Ze8fB5juVAmUpkcjcEFBJ5MclYijNuhcQJiLDfEaNUsuHyGJs26qu4H5vINeP8rUM6pmO9Qc0YKvxzCS2yrL58f5GPunTdJbsbN21c093xNolcVr/CbGg/SlFw6sVb1h/
