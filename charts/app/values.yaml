@@ -74,3 +74,6 @@ ingress:
 # Managed by self-service; resource credentials never enter Helm values.
 secretRefs: []
 configRevision: ""
+
+# Public HTTP routes. Each route service listens on 80 and forwards to targetPort.
+routes: []

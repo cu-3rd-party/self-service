@@ -18,6 +18,10 @@ jobs:
           python3 -m pip install --target "$RUNNER_TEMP/self-service-python" --disable-pip-version-check -r requirements.txt
           echo "PYTHONPATH=$RUNNER_TEMP/self-service-python" >> "$GITHUB_ENV"
       - run: python3 scripts/validate.py
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+      - run: helm lint charts/app
       - run: python3 -m unittest discover -s tests -v
       # No cluster, database, state or S3 administration credentials in Actions.
       # The dedicated reconciler on nxs plans/applies reviewed master.

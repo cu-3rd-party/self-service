@@ -15,3 +15,6 @@ provider "minio" {
   minio_password = var.s3_secret_key
   minio_ssl      = true
 }
+
+# Authentication is read from CLOUDFLARE_API_TOKEN on nxs, never Actions.
+provider "cloudflare" {}

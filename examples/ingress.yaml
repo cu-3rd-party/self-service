@@ -1,0 +1,23 @@
+name: web-service
+team: members
+envs:
+  dev:
+    zone: nxs
+    apps:
+      backend:
+        repo: cu3rd/my-app
+        image: git.cu3rd.ru/cu3rd/my-app
+        tag: initial
+        ingress:
+          - domain: testcontainer.dev.cu3rd.ru
+            targetPort: 8080
+  prod:
+    zone: grm
+    apps:
+      backend:
+        repo: cu3rd/my-app
+        image: git.cu3rd.ru/cu3rd/my-app
+        tag: initial
+        ingress:
+          - domain: testcontainer.cu3rd.ru
+            targetPort: 8080

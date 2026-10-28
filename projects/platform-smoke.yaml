@@ -19,6 +19,9 @@ envs:
         image: git.cu3rd.ru/cu3rd/self-service-smoke
         tag: initial
         port: 8080
+        ingress:
+          - domain: platform-smoke.dev.cu3rd.ru
+            targetPort: 8080
         secrets:
           SMOKE_TOKEN: SMOKE_TOKEN
         variables:

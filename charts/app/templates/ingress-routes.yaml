@@ -1,0 +1,62 @@
+{{- if .Values.routes }}
+{{- $root := . }}
+{{- $ports := dict }}
+{{- $hosts := list }}
+{{- range .Values.routes }}
+{{- $_ := set $ports (printf "%v" .targetPort) .targetPort }}
+{{- $hosts = append $hosts .domain }}
+{{- end }}
+{{- range $key := keys $ports | sortAlpha }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $root.Release.Name }}-p{{ $key }}
+  labels: {{- include "app.labels" $root | nindent 4 }}
+spec:
+  selector: {{- include "app.selector" $root | nindent 4 }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ index $ports $key }}
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-routes
+  labels: {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-%s-routes-https@kubernetescrd" .Release.Namespace .Release.Name | quote }}
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts: {{ toJson $hosts }}
+      secretName: {{ .Release.Name }}-routes-tls
+  rules:
+    {{- range .Values.routes }}
+    {{- $service := printf "%s-p%v" $root.Release.Name .targetPort }}
+    - host: {{ .domain | quote }}
+      http:
+        paths:
+          {{- range (.paths | default (list "/")) }}
+          - path: {{ . | quote }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $service }}
+                port:
+                  number: 80
+          {{- end }}
+    {{- end }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-routes-https
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}

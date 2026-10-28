@@ -42,6 +42,28 @@ def quantity(value, unit):
         raise Invalid("Memory/storage must use Mi or Gi")
     return int(m[1]) * (1024 if m[2] == "Gi" else 1)
 
+def ingress_routes(app):
+    """Normalize the legacy host syntax for global ownership checks."""
+    if 'ingress' in app:
+        return app['ingress']
+    if app.get('host'):
+        return [{'domain': app['host'], 'targetPort': app.get('port'), 'paths': app.get('paths', ['/'])}]
+    return []
+
+def domain(value):
+    if not isinstance(value, str) or len(value) > 253 or not value.endswith('.cu3rd.ru'):
+        raise Invalid('Ingress domain must be below cu3rd.ru')
+    if any(not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?', label) for label in value.split('.')):
+        raise Invalid('Invalid ingress domain: use lowercase DNS labels, no schemes, wildcards or ports')
+    if value in {'git.cu3rd.ru', 'vault.cu3rd.ru', 'argocd.cu3rd.ru', 'grafana.cu3rd.ru'}:
+        raise Invalid('Ingress domain is reserved for platform services')
+
+def route_paths(paths):
+    if not isinstance(paths, list) or not paths or any(not isinstance(x, str) or not x.startswith('/') for x in paths):
+        raise Invalid('paths must start with /')
+    if len(set(paths)) != len(paths):
+        raise Invalid('Duplicate ingress paths')
+
 def validate_project(p, filename):
     keys(p, {"name", "team", "envs"}, {"name", "team", "envs"})
     named(p["name"])
@@ -84,7 +106,7 @@ def validate_project(p, filename):
             named(name)
             if len(p['name'] + '-' + env + '-' + name) > 53:
                 raise Invalid("Combined release name exceeds 53 characters")
-            keys(app, {"repo", "image", "tag", "port", "host", "paths", "secrets", "variables", "values"}, {"repo", "image", "tag"})
+            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "secrets", "variables", "values"}, {"repo", "image", "tag"})
             if not isinstance(app["repo"], str) or not re.fullmatch(r"cu3rd/[A-Za-z0-9_.-]+", app["repo"]):
                 raise Invalid("repo must belong to cu3rd")
             if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/cu3rd/[a-z0-9_.-]+", app["image"]):
@@ -94,12 +116,21 @@ def validate_project(p, filename):
             port = app.get("port")
             if port is not None and (type(port) is not int or not 1024 <= port <= 65535):
                 raise Invalid("port must be null or 1024–65535")
-            host = app.get("host", "")
-            if host and (not isinstance(host, str) or not re.fullmatch(r"[a-z0-9-]+(?:\.[a-z0-9-]+)*\.cu3rd\.ru", host)):
-                raise Invalid("host must be below cu3rd.ru")
-            paths = app.get("paths", ["/"])
-            if not isinstance(paths, list) or not paths or any(not isinstance(x, str) or not x.startswith("/") for x in paths):
-                raise Invalid("paths must start with /")
+            if 'ingress' in app and ('host' in app or 'paths' in app):
+                raise Invalid('Use ingress or legacy host/paths, not both')
+            if 'ingress' in app and not isinstance(app['ingress'], list):
+                raise Invalid('ingress must be a list')
+            seen = set()
+            for route in ingress_routes(app):
+                keys(route, {'domain', 'targetPort', 'paths'}, {'domain', 'targetPort'})
+                domain(route['domain'])
+                if type(route['targetPort']) is not int or not 1024 <= route['targetPort'] <= 65535:
+                    raise Invalid('Ingress targetPort must be 1024–65535')
+                route_paths(route.get('paths', ['/']))
+                if route['domain'] in seen:
+                    raise Invalid('Declare each domain once per application; combine paths in one entry')
+                seen.add(route['domain'])
+            route_paths(app.get('paths', ['/']))
             secrets, variables = app.get("secrets", {}), app.get("variables", {})
             mappings(secrets)
             mappings(variables)
@@ -111,17 +142,23 @@ def validate_project(p, filename):
 def projects(root):
     result = {}
     hosts = {}
+    routes = set()
     for path in sorted((Path(root) / "projects").glob("*.yaml")):
         p = validate_project(load(path), path)
         result[p["name"]] = p
         for env, e in p['envs'].items():
             for a in e['apps'].values():
-                h = a.get('host')
-                owner = (p['name'], env)
-                if h and h in hosts and hosts[h] != owner:
-                    raise Invalid("Host is already claimed by another project/environment")
-                if h:
+                for route in ingress_routes(a):
+                    h = route['domain']
+                    owner = (p['name'], env)
+                    if h in hosts and hosts[h] != owner:
+                        raise Invalid('Host is already claimed by another project/environment')
                     hosts[h] = owner
+                    for path in route.get('paths', ['/']):
+                        key = (h, path)
+                        if key in routes:
+                            raise Invalid('Domain/path is already routed by another application')
+                        routes.add(key)
     return result
 
 def validate_delivery(d, app):

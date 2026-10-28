@@ -9,6 +9,7 @@ exec 9>/var/lib/cu3rd-self-service/reconcile.lock
 flock -n 9 || exit 0
 set -a
 source /etc/cu3rd-self-service/runtime.env
+if [[ -f /etc/cu3rd-self-service/cloudflare.env ]]; then source /etc/cu3rd-self-service/cloudflare.env; fi
 set +a
 cd /opt/cu3rd-self-service/repo
 git fetch --quiet origin master

@@ -55,3 +55,26 @@ PR проверяет Owners; автослияние доставок не вк�
 пока не установлено отсутствие работающего apply. Обычные удаления блокируются даже
 после удаления `prevent_destroy` из конфигурации; maintenance выполняется вручную
 командой платформы после отдельного review и backup.
+
+## Cloudflare DNS и ingress
+
+В `/etc/cu3rd-self-service/cloudflare.env` (root, chmod 600):
+
+```sh
+CLOUDFLARE_API_TOKEN='<token>'
+TF_VAR_cloudflare_zone_id='<zone-id-cu3rd.ru>'
+```
+
+Токен: Zone → DNS → Edit, ограниченный cu3rd.ru. Zone → Zone → Read нужен только
+для автоматического обнаружения Zone ID, если он ещё неизвестен. Привилегированные
+ключи не записываются в Git, Variables или Secrets приложений. После изменения
+установить актуальный `ops/reconcile.sh` в `/opt/cu3rd-self-service/reconcile.sh`,
+удалить `/var/lib/cu3rd-self-service/applied-revision` и запустить service, чтобы
+не ждать часовой проверки неизменившейся ревизии.
+
+DNS создаётся OpenTofu, маршруты — Argo CD, сертификаты — cert-manager. Выпуск
+сертификата ждёт распространения DNS и доступности HTTP-01 на внешнем порту 80.
+Проверка: `kubectl -n <namespace> get ingress,certificate,challenge`.
+Новые ingress без настроенной Cloudflare зоны останавливают plan до apply.
+Наличие записи в Cloudflare проверяется обычным plan/create; существующие записи
+импортируются вручную после проверки владельца, без allow-overwrite.

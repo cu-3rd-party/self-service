@@ -35,3 +35,9 @@ variable "chart_revision" {
   description = "Immutable commit containing the reviewed application chart."
   type        = string
 }
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare zone ID for cu3rd.ru; configured outside Git on nxs."
+  type        = string
+  default     = ""
+}

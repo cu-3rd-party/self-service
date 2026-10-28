@@ -5,6 +5,7 @@ terraform {
     kubernetes = { source = "hashicorp/kubernetes", version = "~> 2.38" }
     postgresql = { source = "cyrilgdn/postgresql", version = "~> 1.25" }
     random     = { source = "hashicorp/random", version = "~> 3.7" }
+    cloudflare = { source = "cloudflare/cloudflare", version = "~> 5.0" }
     minio      = { source = "aminueza/minio", version = "~> 3.6" }
   }
   encryption {

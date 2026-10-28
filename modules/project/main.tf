@@ -315,7 +315,8 @@ resource "kubernetes_manifest" "application" {
             ingress = {
               enabled = try(each.value.host, "") != "", host = try(each.value.host, ""), paths = try(each.value.paths, ["/"])
             }
-            port = try(each.value.port, null)
+            routes = try(each.value.ingress, [])
+            port   = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), null)
 
           }))
 
