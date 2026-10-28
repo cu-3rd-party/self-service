@@ -44,6 +44,13 @@ resource "postgresql_grant" "public" {
   object_type = "database"
   privileges  = []
 }
+# pg-grm-backup (pg_dumpall as role backup) fails on any database it cannot connect to.
+resource "postgresql_grant" "backup" {
+  database    = postgresql_database.app.name
+  role        = "backup"
+  object_type = "database"
+  privileges  = ["CONNECT"]
+}
 resource "kubernetes_secret_v1" "db" {
   metadata {
     name      = "${var.name}-db"
