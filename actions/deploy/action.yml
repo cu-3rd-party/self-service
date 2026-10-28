@@ -33,7 +33,10 @@ runs:
         path: .self-service
         persist-credentials: false
     - shell: bash
-      run: python3 -m pip install --disable-pip-version-check -r .self-service/requirements.txt
+      run: |
+        python3 -m venv "$RUNNER_TEMP/self-service-venv"
+        "$RUNNER_TEMP/self-service-venv/bin/pip" install --disable-pip-version-check -r .self-service/requirements.txt
+        echo "$RUNNER_TEMP/self-service-venv/bin" >> "$GITHUB_PATH"
     - shell: bash
       run: python3 .self-service/scripts/install-kubeseal.py
     - shell: bash
