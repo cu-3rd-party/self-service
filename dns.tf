@@ -15,8 +15,6 @@ locals {
     # akh (РФ) без своего Traefik: сайты зоны akh входят через Traefik nxs,
     # дальше до пода по туннелю (homelab hosts/awgk).
     akh = "85.192.48.255"
-    # nki: своего Traefik нет — вход через Traefik nxs
-    nki = "85.192.48.255"
     # xmsk: своего Traefik нет — вход через Traefik nxs
     xmsk = "85.192.48.255"
     # xgrm: своего Traefik нет — вход через Traefik grm
