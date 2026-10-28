@@ -1,5 +1,5 @@
 repository: cu3rd/rss2tg
-tag: 3654ccf2e565cd4a07c0c3f0061b729384e2acbf
+tag: 7b901c66e73c637e3ed702d9f3e7f4e326a828a2
 env:
   APP_NAME: rss2tg
 sealedEnv: {}
