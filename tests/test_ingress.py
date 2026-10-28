@@ -82,3 +82,13 @@ class RenderIngress(unittest.TestCase):
         self.assertEqual(rules['admin.dev.cu3rd.ru'][0]['backend']['service'], {'name': 'sample-dev-api-p9090', 'port': {'number': 80}})
         self.assertEqual(rules['testcontainer.dev.cu3rd.ru'][0]['path'], '/')
         self.assertTrue(any(d['kind'] == 'Middleware' and d['spec']['redirectScheme']['scheme'] == 'https' for d in manifests))
+
+    def test_persistent_volume_is_prunable(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml') as f:
+            yaml.safe_dump({'persistence': {'scratch': {'path': '/scratch', 'size': '128Mi'}}}, f)
+            f.flush()
+            text = subprocess.check_output(['helm', 'template', 'sample-dev-api', str(ROOT / 'charts/app'), '-f', f.name], text=True)
+        pvc = next(d for d in yaml.safe_load_all(text) if d and d['kind'] == 'PersistentVolumeClaim')
+        annotations = pvc['metadata'].get('annotations', {})
+        self.assertNotEqual(annotations.get('helm.sh/resource-policy'), 'keep')
+        self.assertNotIn('Delete=false', annotations.get('argocd.argoproj.io/sync-options', ''))

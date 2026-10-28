@@ -83,8 +83,8 @@ class DeliveryTests(unittest.TestCase):
                 (p / (name + '.yaml')).write_text(yaml.safe_dump(conf))
             with self.assertRaises(Invalid):
                 projects(t)
-    def test_plan_rejects_remove_and_replace(self):
-        for actions, code in [(['create'], 0), (['update'], 0), (['delete'], 1), (['delete', 'create'], 1)]:
+    def test_plan_allows_remove_and_replace(self):
+        for actions, code in [(['create'], 0), (['update'], 0), (['delete'], 0), (['delete', 'create'], 0)]:
             plan = {'resource_changes': [{'change': {'actions': actions}}]}
             p = subprocess.run([sys.executable, str(ROOT / 'scripts/check-plan.py')], input=json.dumps(plan), text=True, capture_output=True)
             self.assertEqual(p.returncode, code)

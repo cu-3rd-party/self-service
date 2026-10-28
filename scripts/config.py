@@ -70,12 +70,12 @@ def validate_project(p, filename):
     if p["name"] != Path(filename).stem:
         raise Invalid("Project name must equal filename")
     named(p["team"])
-    if not isinstance(p["envs"], dict) or not p["envs"]:
-        raise Invalid("envs must be a nonempty mapping")
+    if not isinstance(p["envs"], dict):
+        raise Invalid("envs must be a mapping")
     for env, e in p["envs"].items():
         if env not in {"dev", "prod", "test", "staging"}:
             raise Invalid("Environment: dev/prod/test/staging")
-        keys(e, {"zone", "quota", "postgres", "s3", "apps"}, {"apps"})
+        keys(e, {"zone", "quota", "postgres", "s3", "apps"})
         if e.get("zone", "nxs") not in {"nxs", "grm"}:
             raise Invalid("Unknown zone")
         q = e.get("quota", {})
@@ -100,9 +100,9 @@ def validate_project(p, filename):
             raise Invalid("Invalid S3 prefix")
         if s3.get("enabled"):
             reserved |= {prefix + x for x in ["ACCESS_KEY", "SECRET_KEY", "URL", "BUCKET_NAME"]}
-        if not isinstance(e["apps"], dict) or not e["apps"]:
-            raise Invalid("apps must be a nonempty mapping")
-        for name, app in e["apps"].items():
+        if not isinstance(e.get("apps", {}), dict):
+            raise Invalid("apps must be a mapping")
+        for name, app in e.get("apps", {}).items():
             named(name)
             if len(p['name'] + '-' + env + '-' + name) > 53:
                 raise Invalid("Combined release name exceeds 53 characters")
@@ -147,7 +147,7 @@ def projects(root):
         p = validate_project(load(path), path)
         result[p["name"]] = p
         for env, e in p['envs'].items():
-            for a in e['apps'].values():
+            for a in e.get('apps', {}).values():
                 for route in ingress_routes(a):
                     h = route['domain']
                     owner = (p['name'], env)
@@ -184,6 +184,7 @@ def validate(root):
         try:
             conf = ps[project]['envs'][env]['apps'][app]
         except KeyError:
-            raise Invalid("Orphan delivery file") from None
+            # Deliveries do not declare resources. Ignore inactive app snapshots.
+            continue
         validate_delivery(load(path), conf)
     return ps

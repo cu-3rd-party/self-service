@@ -52,9 +52,7 @@ PR проверяет Owners; автослияние доставок не вк�
 
 Остановить timer, сохранить текущие state и ключ, вернуть конфигурацию отдельным revert PR.
 Не подменять state старой версией без проверки реальных ресурсов. Не удалять lockfile,
-пока не установлено отсутствие работающего apply. Обычные удаления блокируются даже
-после удаления `prevent_destroy` из конфигурации; maintenance выполняется вручную
-командой платформы после отдельного review и backup.
+пока не установлено отсутствие работающего apply. Удаления и замены выполняются автоматически из проверенного master.
 
 ## Cloudflare DNS и ingress
 
@@ -78,3 +76,21 @@ DNS создаётся OpenTofu, маршруты — Argo CD, сертифик�
 Новые ingress без настроенной Cloudflare зоны останавливают plan до apply.
 Наличие записи в Cloudflare проверяется обычным plan/create; существующие записи
 импортируются вручную после проверки владельца, без allow-overwrite.
+
+## Декларативное удаление
+
+`check-plan.py` печатает количества create/update/delete/replacement, но не запрещает
+удаление. БД, роли, бакеты, пользователи и namespaces не имеют `prevent_destroy`.
+S3 bucket/user используют `force_destroy`; Argo Applications — foreground finalizer,
+PVC не имеют keep/Delete=false. Ресурсы вне self-service state и его Argo Applications
+не затрагиваются. После обновления ops установите скрипт отдельно в /opt, как обычно.
+
+`cleanup-tls.py` запускается после apply и на каждом тике таймера, даже при неизменном
+master. В namespaces self-service он удаляет только cert-manager TLS Secrets, у которых
+уже нет Certificate и ссылок из Ingress. Это необходимо, потому что общий cert-manager
+не включает certificate-owner-ref. Namespace deletion самостоятельно удаляет все Secrets.
+
+Для сценария двух PR сначала убедитесь, что первая ревизия появилась в
+`/var/lib/cu3rd-self-service/applied-revision` и ресурсы действительно удалены, затем
+возвращайте YAML. Таймер обрабатывает актуальный master и не воспроизводит каждый
+промежуточный commit. Продолжают действовать блокировка state и review Owners.

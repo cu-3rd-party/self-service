@@ -1,6 +1,6 @@
 locals {
   ingress_domains = flatten([for env in values(local.environments) : [
-    for app in values(env.apps) : [
+    for app in values(try(env.apps, {})) : [
       for domain in concat([for route in try(app.ingress, []) : route.domain], try(app.host, "") != "" ? [app.host] : []) : {
         domain = domain
         zone   = try(env.zone, "nxs")

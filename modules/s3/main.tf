@@ -17,8 +17,7 @@ variable "config" {
 resource "minio_s3_bucket" "app" {
   bucket        = var.name
   acl           = "private"
-  force_destroy = false
-  lifecycle { prevent_destroy = true }
+  force_destroy = true
 }
 resource "minio_s3_bucket_quota" "app" {
   bucket = minio_s3_bucket.app.bucket
@@ -28,13 +27,11 @@ resource "minio_s3_bucket_quota" "app" {
 resource "random_password" "s3" {
   length  = 40
   special = false
-  lifecycle { prevent_destroy = true }
 }
 resource "minio_iam_user" "app" {
   name          = "ss-${var.name}"
   secret        = random_password.s3.result
-  force_destroy = false
-  lifecycle { prevent_destroy = true }
+  force_destroy = true
 }
 resource "minio_iam_policy" "app" {
   name = "ss-${var.name}"

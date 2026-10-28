@@ -17,7 +17,10 @@ git checkout --quiet --detach origin/master
 revision=$(git rev-parse HEAD)
 # Reconcile every hour too, so external drift is eventually repaired.
 last=$(cat /var/lib/cu3rd-self-service/applied-revision 2>/dev/null || true)
-if [[ "$revision" == "$last" ]] && find /var/lib/cu3rd-self-service/applied-revision -mmin -60 | read -r _; then exit 0; fi
+if [[ "$revision" == "$last" ]] && find /var/lib/cu3rd-self-service/applied-revision -mmin -60 | read -r _; then
+  /opt/cu3rd-self-service/venv/bin/python scripts/cleanup-tls.py
+  exit 0
+fi
 /opt/cu3rd-self-service/venv/bin/python scripts/validate.py
 export TF_VAR_chart_revision="$revision"
 export TF_VAR_postgres_host=$(kubectl -n postgres get service pg-grm-rw -o jsonpath='{.spec.clusterIP}')
@@ -28,4 +31,5 @@ tofu validate
 tofu plan -lock-timeout=60s -out=/var/lib/cu3rd-self-service/apply.tfplan
 tofu show -json /var/lib/cu3rd-self-service/apply.tfplan | /opt/cu3rd-self-service/venv/bin/python scripts/check-plan.py
 tofu apply -input=false -lock-timeout=60s /var/lib/cu3rd-self-service/apply.tfplan
+/opt/cu3rd-self-service/venv/bin/python scripts/cleanup-tls.py
 printf '%s\n' "$revision" > /var/lib/cu3rd-self-service/applied-revision

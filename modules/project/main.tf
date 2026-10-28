@@ -47,9 +47,6 @@ resource "kubernetes_namespace_v1" "project" {
     }
 
   }
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 resource "kubernetes_resource_quota_v1" "project" {
 
@@ -284,7 +281,8 @@ resource "kubernetes_manifest" "application" {
     apiVersion = "argoproj.io/v1alpha1"
     kind       = "Application"
     metadata = {
-      name = "cu3rd-${var.name}-${each.key}", namespace = "argocd"
+      name       = "cu3rd-${var.name}-${each.key}", namespace = "argocd"
+      finalizers = ["resources-finalizer.argocd.argoproj.io"]
     }
     spec = {
 

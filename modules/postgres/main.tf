@@ -23,7 +23,6 @@ locals {
 resource "random_password" "db" {
   length  = 48
   special = false
-  lifecycle { prevent_destroy = true }
 }
 resource "postgresql_role" "app" {
   name                = local.database
@@ -34,12 +33,10 @@ resource "postgresql_role" "app" {
   create_role         = false
   replication         = false
   skip_reassign_owned = true
-  lifecycle { prevent_destroy = true }
 }
 resource "postgresql_database" "app" {
   name  = local.database
   owner = postgresql_role.app.name
-  lifecycle { prevent_destroy = true }
 }
 resource "postgresql_grant" "public" {
   database    = postgresql_database.app.name

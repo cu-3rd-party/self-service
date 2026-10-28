@@ -5,10 +5,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ $.Release.Name }}-{{ $name }}
   labels: {{- include "app.labels" $ | nindent 4 }}
-  annotations:
-    # данные не удаляются вместе с приложением
-    helm.sh/resource-policy: keep
-    argocd.argoproj.io/sync-options: Delete=false
 spec:
   accessModes: [ReadWriteOnce]
   resources:
