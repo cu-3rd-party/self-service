@@ -12,6 +12,9 @@ locals {
   zone_addresses = {
     nxs = "85.192.48.255"
     grm = "109.120.137.209"
+    # akh (РФ) без своего Traefik: сайты зоны akh входят через Traefik nxs,
+    # дальше до пода по туннелю (homelab hosts/awgk).
+    akh = "85.192.48.255"
   }
 }
 resource "terraform_data" "dns_configuration" {

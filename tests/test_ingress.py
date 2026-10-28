@@ -19,6 +19,15 @@ class IngressConfiguration(unittest.TestCase):
         self.project['envs']['prod'] = copy.deepcopy(self.project['envs']['dev'])
         self.project['envs']['prod']['apps']['bot']['ingress'][0]['domain'] = 'testcontainer.cu3rd.ru'
         validate_project(self.project, 'telegram-bot.yaml')
+    def test_akh_zone_accepted_and_served_via_nxs(self):
+        self.project['envs']['dev']['zone'] = 'akh'
+        validate_project(self.project, 'telegram-bot.yaml')
+        dns = (ROOT / 'dns.tf').read_text()
+        self.assertRegex(dns, r'akh\s*=\s*"85\.192\.48\.255"')
+    def test_unknown_zone_rejected(self):
+        self.project['envs']['dev']['zone'] = 'mars'
+        with self.assertRaises(Invalid):
+            validate_project(self.project, 'telegram-bot.yaml')
     def test_duplicate_domain_across_environments_rejected(self):
         self.project['envs']['prod'] = copy.deepcopy(self.project['envs']['dev'])
         with tempfile.TemporaryDirectory() as td:
