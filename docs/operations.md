@@ -28,7 +28,7 @@ kubectl -n argocd get applications | grep cu3rd
 
 Бэкенд использует отдельного S3-пользователя, ограниченного state bucket. Доступ к
 RustFS admin и Postgres superuser нужен только процессу apply. Postgres подключается
-через локальный `kubectl port-forward`, TLS require; клиентские URL направлены в pooler.
+к ClusterIP сервиса `pg-grm-rw`, TLS require; клиентские URL направлены в pooler.
 
 В PR выполняются schema/semantic checks и unit tests. Привилегированный tofu plan
 не запускается на коде PR. Полный план доступен в журнале apply после merge; plaintext

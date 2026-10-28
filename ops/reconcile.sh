@@ -19,14 +19,9 @@ last=$(cat /var/lib/cu3rd-self-service/applied-revision 2>/dev/null || true)
 if [[ "$revision" == "$last" ]] && find /var/lib/cu3rd-self-service/applied-revision -mmin -60 | read -r _; then exit 0; fi
 /opt/cu3rd-self-service/venv/bin/python scripts/validate.py
 export TF_VAR_chart_revision="$revision"
-kubectl -n postgres port-forward --address=127.0.0.1 service/pg-grm-rw 15432:5432 >/var/lib/cu3rd-self-service/port-forward.log 2>&1 &
-forward_pid=$!
-trap 'kill "$forward_pid" 2>/dev/null || true; rm -f /var/lib/cu3rd-self-service/apply.tfplan' EXIT
-for attempt in {1..30}; do
-  if (echo > /dev/tcp/127.0.0.1/15432) 2>/dev/null; then break; fi
-  kill -0 "$forward_pid"
-  sleep 1
-done
+export TF_VAR_postgres_host=$(kubectl -n postgres get service pg-grm-rw -o jsonpath='{.spec.clusterIP}')
+export TF_VAR_postgres_port=5432
+trap 'rm -f /var/lib/cu3rd-self-service/apply.tfplan' EXIT
 tofu init -input=false -backend-config=/etc/cu3rd-self-service/backend.hcl
 tofu validate
 tofu plan -lock-timeout=60s -out=/var/lib/cu3rd-self-service/apply.tfplan
