@@ -20,3 +20,13 @@ jobs:
       - run: python3 -m unittest discover -s tests -v
       # No cluster, database, state or S3 administration credentials in Actions.
       # The dedicated reconciler on nxs plans/applies reviewed master.
+      - run: python3 scripts/install-tofu.py
+      - name: Validate OpenTofu without infrastructure credentials
+        env:
+          TF_VAR_state_passphrase: ci-validation-only-never-a-production-key
+          TF_IN_AUTOMATION: '1'
+          TF_INPUT: '0'
+        run: |
+          tofu fmt -check -recursive
+          tofu init -backend=false -lockfile=readonly
+          tofu validate
