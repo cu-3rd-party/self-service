@@ -217,6 +217,36 @@ resource "kubernetes_network_policy_v1" "project" {
     }
     egress {
 
+      # Cluster-hosted sites resolve to node IPs (blocked below); hostPort 80/443
+      # is DNATed to Traefik's container ports, so allow only those.
+      to {
+
+        namespace_selector {
+          match_labels = {
+            "kubernetes.io/metadata.name" = "kube-system"
+          }
+        }
+        pod_selector {
+          match_labels = {
+            "app.kubernetes.io/name" = "traefik"
+          }
+        }
+
+      }
+      ports {
+        port     = "8000"
+        protocol = "TCP"
+
+      }
+      ports {
+        port     = "8443"
+        protocol = "TCP"
+
+      }
+
+    }
+    egress {
+
       to {
         ip_block {
 
