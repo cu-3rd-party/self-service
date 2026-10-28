@@ -1,0 +1,54 @@
+name: Deliver application settings
+description: Seal explicitly mapped Actions Secrets and copy Variables into a reviewed delivery PR.
+inputs:
+  project:
+    required: true
+    description: Project filename without .yaml
+  environment:
+    required: true
+    description: dev/prod/test/staging
+  app:
+    required: true
+    description: Application key
+  tag:
+    required: true
+    description: Published image tag
+  secrets-json:
+    required: true
+    description: toJSON(secrets); only explicitly mapped names are delivered
+  variables-json:
+    required: true
+    description: toJSON(vars); only explicitly mapped names are delivered
+  delivery-token:
+    required: true
+    description: Bot token allowed to propose delivery PRs, never push protected master
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: cu3rd/self-service
+        github-server-url: https://git.cu3rd.ru
+        ref: master
+        path: .self-service
+        persist-credentials: false
+    - shell: bash
+      run: python3 -m pip install --disable-pip-version-check -r .self-service/requirements.txt
+    - shell: bash
+      run: python3 .self-service/scripts/install-kubeseal.py
+    - shell: bash
+      env:
+        PROJECT: ${{ inputs.project }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        APPLICATION: ${{ inputs.app }}
+        IMAGE_TAG: ${{ inputs.tag }}
+        ACTIONS_SECRETS_JSON: ${{ inputs.secrets-json }}
+        ACTIONS_VARIABLES_JSON: ${{ inputs.variables-json }}
+        DELIVERY_TOKEN: ${{ inputs.delivery-token }}
+        SOURCE_REPOSITORY: ${{ github.repository }}
+        SOURCE_REF: ${{ github.ref }}
+        SOURCE_EVENT: ${{ github.event_name }}
+        SOURCE_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      run: |
+        python3 .self-service/scripts/deploy.py --root .self-service \
+          --project "$PROJECT" --environment "$ENVIRONMENT" --app "$APPLICATION" --tag "$IMAGE_TAG"

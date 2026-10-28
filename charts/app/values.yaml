@@ -1,0 +1,76 @@
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# Имена секретов для доступа к приватному registry (например ghcr-pull).
+imagePullSecrets: []
+# Зашифрованный kubeseal'ом .dockerconfigjson; из него чарт создаст секрет
+# <release>-pull и сам добавит его в imagePullSecrets.
+sealedPullSecret: ""
+
+replicas: 1
+# RollingUpdate или Recreate (Recreate — если две копии одновременно
+# работать не могут, например Telegram-бот в режиме polling).
+strategy: RollingUpdate
+
+# Порт приложения. null — без Service и Ingress (воркеры, боты).
+port: 8080
+# Дополнительные порты контейнера (и Service, тот же номер): {имя: порт}
+extraPorts: {}
+
+# Открытые переменные окружения.
+env: {}
+# Секретные переменные: значения зашифрованы kubeseal (scripts/seal.sh).
+sealedEnv: {}
+
+# Ресурсы: requests — обычное потребление (по нему планировщик раскладывает поды,
+# сумма requests = сколько узел реально занят), limits — потолок с запасом.
+# Правило для приложений: memory request ≈ p90 × 1.1, memory limit ≈ пик × 2–2.5,
+# cpu request ≈ p99, cpu limit: бэкенды 1, боты/SSR 500m, статика 200m.
+# Замеры — Prometheus (max_over_time / quantile_over_time по
+# container_memory_working_set_bytes и rate(container_cpu_usage_seconds_total)).
+# Значения ниже — для нового приложения до первых замеров.
+resources:
+  requests: {cpu: 10m, memory: 64Mi}
+  limits: {cpu: 500m, memory: 256Mi}
+
+# HTTP-пробы (нужен port). Пусто — без проб.
+probes:
+  path: ""
+
+# Закрепить поды за узлом, например {homelab/site: nxs} — рядом с Postgres.
+nodeSelector: {}
+
+# Пустые каталоги внутри пода: {имя: путь}
+emptyDirs: {}
+
+# Постоянные тома (PVC local-path, данные на диске узла — нужен nodeSelector
+# и strategy: Recreate): {имя: {path: /data, size: 1Gi}}
+persistence: {}
+
+# Файлы из values (ConfigMap <release>-files, монтируются по одному через subPath):
+# {имя: {path: /app/config.yaml, content: |...}}
+configFiles: {}
+
+ingress:
+  enabled: false
+  host: ""
+  # Дополнительные хосты с теми же путями (попадают в тот же сертификат).
+  extraHosts: []
+  # Пути на хосте, например [/api] — когда хост делят несколько приложений.
+  paths: [/]
+  tls: true
+  # Готовый TLS-секрет того же namespace (сертификат выпускает другое
+  # приложение на этом же хосте). Пусто — выпускает cert-manager в <release>-tls.
+  tlsSecret: ""
+  # Лимит тела запроса в байтах (Traefik buffering). 0 — без лимита.
+  maxBodySize: 0
+  # Хост -> имя порта из extraPorts (остальные хосты — на основной порт http)
+  portByHost: {}
+  # Редирект http -> https
+  redirectHttps: true
+
+# Managed by self-service; resource credentials never enter Helm values.
+secretRefs: []
+configRevision: ""

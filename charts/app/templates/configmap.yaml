@@ -1,0 +1,11 @@
+{{- if .Values.configFiles }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-files
+  labels: {{- include "app.labels" . | nindent 4 }}
+data:
+  {{- range $name, $v := .Values.configFiles }}
+  {{ $name }}: {{ $v.content | quote }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,29 @@
+name: Deliver smoke application
+on:
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Publish probe image
+        env:
+          REGISTRY_USER: ${{ vars.REGISTRY_USER }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          printf '%s' "$REGISTRY_TOKEN" | docker login git.cu3rd.ru --username "$REGISTRY_USER" --password-stdin
+          docker build -t "git.cu3rd.ru/cu3rd/self-service-smoke:$IMAGE_TAG" examples/smoke
+          docker push "git.cu3rd.ru/cu3rd/self-service-smoke:$IMAGE_TAG"
+          docker logout git.cu3rd.ru
+      - uses: https://git.cu3rd.ru/cu3rd/self-service/actions/deploy@master
+        with:
+          project: platform-smoke
+          environment: dev
+          app: probe
+          tag: ${{ github.sha }}
+          secrets-json: ${{ toJSON(secrets) }}
+          variables-json: ${{ toJSON(vars) }}
+          delivery-token: ${{ secrets.SELF_SERVICE_DELIVERY_TOKEN }}

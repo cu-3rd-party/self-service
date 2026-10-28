@@ -1,0 +1,8 @@
+[Unit]
+Description=Watch cu3rd self-service master
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=60s
+RandomizedDelaySec=10s
+[Install]
+WantedBy=timers.target

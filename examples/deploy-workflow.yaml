@@ -1,0 +1,23 @@
+# Put in your application repo: .forgejo/workflows/deploy.yml
+# Prerequisites: image already published, kubeseal available on this runner image,
+# SELF_SERVICE_DELIVERY_TOKEN configured by platform. Pin action to a reviewed SHA.
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published image tag
+        required: true
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://git.cu3rd.ru/cu3rd/self-service/actions/deploy@master
+        with:
+          project: telegram-bot
+          environment: dev
+          app: bot
+          tag: ${{ inputs.tag }}
+          secrets-json: ${{ toJSON(secrets) }}
+          variables-json: ${{ toJSON(vars) }}
+          delivery-token: ${{ secrets.SELF_SERVICE_DELIVERY_TOKEN }}

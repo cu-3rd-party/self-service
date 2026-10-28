@@ -1,0 +1,68 @@
+{{- if and .Values.ingress.enabled .Values.port }}
+{{- $ing := .Values.ingress }}
+{{- $hosts := prepend $ing.extraHosts $ing.host }}
+{{- $mws := list }}
+{{- if and $ing.tls $ing.redirectHttps }}
+{{- $mws = append $mws (printf "%s-%s-redirect-https@kubernetescrd" .Release.Namespace .Release.Name) }}
+{{- end }}
+{{- if $ing.maxBodySize }}
+{{- $mws = append $mws (printf "%s-%s-body@kubernetescrd" .Release.Namespace .Release.Name) }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "app.labels" . | nindent 4 }}
+  {{- if or (and $ing.tls (not $ing.tlsSecret)) $mws }}
+  annotations:
+    {{- if and $ing.tls (not $ing.tlsSecret) }}
+    cert-manager.io/cluster-issuer: letsencrypt
+    {{- end }}
+    {{- with $mws }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ join "," . }}
+    {{- end }}
+  {{- end }}
+spec:
+  ingressClassName: traefik
+  {{- if $ing.tls }}
+  tls:
+    - hosts: {{ toJson $hosts }}
+      secretName: {{ $ing.tlsSecret | default (printf "%s-tls" .Release.Name) }}
+  {{- end }}
+  rules:
+    {{- range $hosts }}
+    {{- $port := index ($ing.portByHost | default dict) . | default "http" }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+          {{- range $ing.paths }}
+          - path: {{ . }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.Release.Name }}
+                port: {name: {{ $port }}}
+          {{- end }}
+    {{- end }}
+{{- if and $ing.tls $ing.redirectHttps }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-redirect-https
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}
+{{- if $ing.maxBodySize }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-body
+spec:
+  buffering:
+    maxRequestBodyBytes: {{ $ing.maxBodySize | int64 }}
+{{- end }}
+{{- end }}

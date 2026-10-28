@@ -1,0 +1,17 @@
+name: Validate self-service
+on:
+  pull_request:
+  push:
+    branches: [master]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 -m pip install --disable-pip-version-check -r requirements.txt
+      - run: python3 scripts/validate.py
+      - run: python3 -m unittest discover -s tests -v
+      # No cluster, database, state or S3 administration credentials in Actions.
+      # The dedicated reconciler on nxs plans/applies reviewed master.

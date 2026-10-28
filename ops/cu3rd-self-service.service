@@ -1,0 +1,17 @@
+[Unit]
+Description=Apply reviewed cu3rd self-service master
+After=network-online.target k3s.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/opt/cu3rd-self-service/reconcile.sh
+TimeoutStartSec=15min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/cu3rd-self-service /var/lib/cu3rd-self-service
+# Bootstrap credentials are root-only. No privileged CI runner is used.

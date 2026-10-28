@@ -1,0 +1,26 @@
+name: telegram-bot
+team: bot-devs
+envs:
+  dev:
+    zone: nxs
+    quota: {cpu: 1, memory: 1Gi, storage: 1Gi}
+    postgres:
+      enabled: true
+      targetEnv: DB_CONNSTRING
+      format: url
+    s3:
+      enabled: true
+      targetEnvPrefix: S3__
+      quotaBytes: 2147483648
+    apps:
+      bot:
+        repo: cu3rd/my-bot
+        image: git.cu3rd.ru/cu3rd/my-bot
+        tag: initial
+        port: null
+        secrets:
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+        variables:
+          TELEGRAM_BOT_NAME: TELEGRAM_BOT_NAME
+        values:
+          strategy: Recreate
