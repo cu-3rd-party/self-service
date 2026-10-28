@@ -1,5 +1,6 @@
 """Strict project/delivery validation shared by CI and deploy tooling."""
 import re
+import sys
 from pathlib import Path
 import yaml
 
@@ -173,18 +174,27 @@ def projects(root):
                         routes.add(key)
     return result
 
-def validate_delivery(d, app):
+def validate_delivery(d, app, pending_ok=False):
+    """Return True when a stored delivery predates newly declared mappings."""
     keys(d, {"repository", "tag", "env", "sealedEnv"}, {"repository", "tag", "env", "sealedEnv"})
     if d["repository"] != app["repo"] or not isinstance(d["tag"], str) or not TAG.fullmatch(d["tag"]):
         raise Invalid("Delivery repository/tag mismatch")
+    pending = False
     for field, mapping_name in [("env", "variables"), ("sealedEnv", "secrets")]:
-        if not isinstance(d[field], dict) or set(d[field]) != set(app.get(mapping_name, {})):
+        declared = set(app.get(mapping_name, {}))
+        if not isinstance(d[field], dict) or not set(d[field]) <= declared:
             raise Invalid(f"Delivery {field} must match declared {mapping_name} exactly")
+        if set(d[field]) != declared:
+            # Mappings added after the last delivery: keep it until CI redelivers.
+            if not pending_ok:
+                raise Invalid(f"Delivery {field} must match declared {mapping_name} exactly")
+            pending = True
         if any(not isinstance(v, str) for v in d[field].values()):
             raise Invalid("Delivery values must be strings")
     for value in d['sealedEnv'].values():
         if len(value) < 200 or not re.fullmatch(r"[A-Za-z0-9+/]+=*", value):
             raise Invalid("Expected kubeseal ciphertext, never plaintext")
+    return pending
 
 def validate(root):
     ps = projects(root)
@@ -198,5 +208,6 @@ def validate(root):
         except KeyError:
             # Deliveries do not declare resources. Ignore inactive app snapshots.
             continue
-        validate_delivery(load(path), conf)
+        if validate_delivery(load(path), conf, pending_ok=True):
+            print(f"Delivery {project}/{env}/{app} is pending redelivery", file=sys.stderr)
     return ps

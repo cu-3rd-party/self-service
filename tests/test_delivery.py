@@ -57,6 +57,14 @@ class DeliveryTests(unittest.TestCase):
         d['env']['REGISTRY_TOKEN'] = 'oops'
         with self.assertRaises(Invalid):
             validate_delivery(d, self.app)
+    def test_delivery_missing_new_mappings_is_pending(self):
+        d = {'repository': self.app['repo'], 'tag': 'abc', 'env': {}, 'sealedEnv': {}}
+        with self.assertRaises(Invalid):
+            validate_delivery(d, self.app)
+        self.assertTrue(validate_delivery(d, self.app, pending_ok=True))
+        d['env']['REGISTRY_TOKEN'] = 'oops'
+        with self.assertRaises(Invalid):
+            validate_delivery(d, self.app, pending_ok=True)
     def test_repository_mismatch(self):
         d = {'repository': 'cu3rd/other', 'tag': 'abc', 'env': {}, 'sealedEnv': {}}
         with self.assertRaises(Invalid):
