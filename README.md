@@ -162,7 +162,9 @@ S3 — RustFS, path-style, region `us-east-1`. Квота S3 задаётся в
 - Между приложениями разрешён доступ внутри своего namespace. Разрешены DNS, Postgres,
   S3 и внешний HTTP(S); private ranges и IP узлов исключены из internet egress.
 - Для каждого окружения создаётся отдельный Argo AppProject с единственным namespace.
-- Actions проверяет YAML и тесты без ключей инфраструктуры. Привилегированный apply
+- Actions self-service запускаются на `homelab-docker`: сейчас это `cu3rd-nxs` и
+  `cu3rd-grm`, без метки `ru`. Раннер `cu3rd-wrk` с меткой `ru` не подходит под
+  этот selector. Actions проверяет YAML и тесты без ключей инфраструктуры. Привилегированный apply
   выполняется отдельным systemd-процессом на nxs, а не общим DinD-раннером.
 - В первой версии apply использует административный kubeconfig и доступы Postgres/S3
   из root-only файлов на nxs. Любые изменения master — доверенный административный код:
