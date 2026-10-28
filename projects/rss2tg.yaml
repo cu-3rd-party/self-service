@@ -19,6 +19,9 @@ envs:
           path: /metrics
         variables:
           APP_NAME: APP_NAME
+          CONFIG_JSON: CONFIG_JSON
+        secrets:
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
         values:
           replicas: 1
           strategy: Recreate
