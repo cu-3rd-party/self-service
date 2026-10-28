@@ -1,0 +1,5 @@
+repository: cu3rd/self-service-template
+tag: 4ead34bea8d3f2ee871c391f5af94ef78358f3d7
+env:
+  APP_NAME: self-service-template
+sealedEnv: {}
