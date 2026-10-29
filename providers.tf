@@ -17,7 +17,7 @@ provider "minio" {
 }
 provider "litellm" {
   api_base = var.litellm_url
-  api_key  = var.litellm_master_key
+  api_key  = local.litellm_master_key
 }
 
 # Authentication is read from CLOUDFLARE_API_TOKEN on nxs, never Actions.

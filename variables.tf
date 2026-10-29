@@ -36,11 +36,10 @@ variable "litellm_url" {
   type        = string
   default     = "https://ai.cu3rd.ru"
 }
-variable "litellm_master_key" {
-  description = "LiteLLM admin key; configured outside Git on nxs. Needed only once a project enables ai."
+variable "litellm_key_secret" {
+  description = "Kubernetes Secret (namespace/name) with LITELLM_MASTER_KEY, delivered with the ai-gateway app; read only while a project enables ai."
   type        = string
-  sensitive   = true
-  default     = ""
+  default     = "cu3rd-ai-gateway-prod/ai-gateway-prod-litellm-env"
 }
 variable "chart_revision" {
   description = "Immutable commit containing the reviewed application chart."
