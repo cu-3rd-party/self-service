@@ -15,6 +15,10 @@ provider "minio" {
   minio_password = var.s3_secret_key
   minio_ssl      = true
 }
+provider "litellm" {
+  api_base = var.litellm_url
+  api_key  = var.litellm_master_key
+}
 
 # Authentication is read from CLOUDFLARE_API_TOKEN on nxs, never Actions.
 provider "cloudflare" {}

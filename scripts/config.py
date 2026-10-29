@@ -8,6 +8,7 @@ NAME = re.compile(r"^[a-z][a-z0-9-]{1,24}[a-z0-9]$")
 ENV = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 SOURCE = re.compile(r"^[A-Z_][A-Z0-9_]*$")
 TAG = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$")
+MODEL = re.compile(r"^[a-z0-9][a-z0-9_.-]*/[A-Za-z0-9_.:-]+$")
 ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts"}
 class Invalid(ValueError):
     pass
@@ -76,7 +77,7 @@ def validate_project(p, filename):
     for env, e in p["envs"].items():
         if env not in {"dev", "prod", "test", "staging"}:
             raise Invalid("Environment: dev/prod/test/staging")
-        keys(e, {"zone", "quota", "postgres", "s3", "apps"})
+        keys(e, {"zone", "quota", "postgres", "s3", "ai", "apps"})
         if e.get("zone", "nxs") not in {"nxs", "grm", "akh", "xmsk", "xgrm"}:
             raise Invalid("Unknown zone")
         q = e.get("quota", {})
@@ -85,8 +86,8 @@ def validate_project(p, filename):
             raise Invalid("Quota limit: 4 CPU, 8Gi memory, 20Gi storage")
         reserved = set()
         db = e.get("postgres", {})
-        keys(db, {"enabled", "targetEnv", "format"})
-        if not isinstance(db.get("enabled", False), bool) or db.get("format", "url") not in {"url", "npgsql"}:
+        keys(db, {"enabled", "targetEnv", "format", "pooler"})
+        if not isinstance(db.get("enabled", False), bool) or db.get("format", "url") not in {"url", "npgsql"} or not isinstance(db.get("pooler", True), bool):
             raise Invalid("Invalid postgres configuration")
         if not ENV.fullmatch(db.get("targetEnv", "DATABASE_URL")):
             raise Invalid("Invalid postgres targetEnv")
@@ -101,6 +102,27 @@ def validate_project(p, filename):
             raise Invalid("Invalid S3 prefix")
         if s3.get("enabled"):
             reserved |= {prefix + x for x in ["ACCESS_KEY", "SECRET_KEY", "URL", "BUCKET_NAME"]}
+        ai = e.get("ai", {})
+        keys(ai, {"enabled", "targetEnvPrefix", "model", "models", "budgetUsd", "budgetPeriod", "rpm", "tpm"})
+        if not isinstance(ai.get("enabled", False), bool):
+            raise Invalid("ai.enabled must be boolean")
+        models = ai.get("models", [])
+        if not isinstance(models, list) or any(not isinstance(m, str) or not MODEL.fullmatch(m) for m in models) or len(set(models)) != len(models):
+            raise Invalid("ai.models: unique OpenRouter model ids, e.g. openai/gpt-4o-mini")
+        if "model" in ai and (not isinstance(ai["model"], str) or not MODEL.fullmatch(ai["model"]) or (models and ai["model"] not in models)):
+            raise Invalid("ai.model must be an OpenRouter model id listed in ai.models")
+        budget = ai.get("budgetUsd")
+        if budget is not None and (type(budget) not in {int, float} or not budget > 0):
+            raise Invalid("ai.budgetUsd must be a positive number")
+        if "budgetPeriod" in ai and (budget is None or not isinstance(ai["budgetPeriod"], str) or not re.fullmatch(r"[1-9][0-9]{0,2}[hd]", ai["budgetPeriod"])):
+            raise Invalid("ai.budgetPeriod (e.g. 1d, 7d, 30d) requires ai.budgetUsd")
+        if any(k in ai and (type(ai[k]) is not int or ai[k] <= 0) for k in ("rpm", "tpm")):
+            raise Invalid("ai.rpm/ai.tpm must be positive integers")
+        prefix = ai.get("targetEnvPrefix", "AI_")
+        if not isinstance(prefix, str) or (prefix and not ENV.fullmatch(prefix)):
+            raise Invalid("Invalid ai prefix")
+        if ai.get("enabled"):
+            reserved |= {prefix + x for x in ["API_KEY", "BASE_URL", "MODEL"]}
         if not isinstance(e.get("apps", {}), dict):
             raise Invalid("apps must be a mapping")
         for name, app in e.get("apps", {}).items():

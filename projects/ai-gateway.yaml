@@ -1,0 +1,38 @@
+name: ai-gateway
+team: members
+envs:
+  prod:
+    zone: grm
+    quota: {cpu: 2, memory: 3Gi, storage: 1Gi}
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      # Prisma-миграции LiteLLM не работают через transaction pooler.
+      pooler: false
+    apps:
+      litellm:
+        repo: cu3rd/ai-gateway
+        image: git.cu3rd.ru/cu3rd/ai-gateway
+        tag: initial
+        port: 4000
+        ingress:
+          - domain: ai.cu3rd.ru
+            targetPort: 4000
+        metrics:
+          enabled: true
+          port: 4001
+          path: /metrics
+        secrets:
+          OPENROUTER_API_KEY: OPENROUTER_API_KEY
+          LITELLM_MASTER_KEY: LITELLM_MASTER_KEY
+          LITELLM_SALT_KEY: LITELLM_SALT_KEY
+        values:
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /health/liveliness}
+          emptyDirs:
+            tmp: /tmp
+          resources:
+            requests: {cpu: 100m, memory: 768Mi}
+            limits: {cpu: "1", memory: 2Gi}

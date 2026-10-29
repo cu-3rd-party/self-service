@@ -30,7 +30,8 @@ locals {
   metrics_ports = toset([for app in values(local.apps) : try(coalesce(try(app.metrics.port, null), try(app.port, null), try(app.ingress[0].targetPort, null)), 9090) if try(app.metrics.enabled, false)])
   resource_secrets = concat(
     try(var.config.postgres.enabled, false) ? ["${var.name}-db"] : [],
-    try(var.config.s3.enabled, false) ? ["${var.name}-s3"] : []
+    try(var.config.s3.enabled, false) ? ["${var.name}-s3"] : [],
+    try(var.config.ai.enabled, false) ? ["${var.name}-ai"] : []
   )
 }
 resource "kubernetes_namespace_v1" "project" {

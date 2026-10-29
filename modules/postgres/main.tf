@@ -12,13 +12,15 @@ variable "config" {
     enabled   = bool
     targetEnv = optional(string, "DATABASE_URL")
     format    = optional(string, "url")
+    pooler    = optional(bool, true)
   })
 }
 locals {
   database = replace(var.name, "-", "_")
-  host     = "pg-grm-pooler-rw.postgres.svc.cluster.local"
-  url      = "postgresql://${local.database}:${random_password.db.result}@${local.host}:5432/${local.database}"
-  npgsql   = "Host=${local.host};Port=5432;Database=${local.database};Username=${local.database};Password=${random_password.db.result};No Reset On Close=true"
+  # Direct connection is for clients that need session features (e.g. Prisma migrations).
+  host   = var.config.pooler ? "pg-grm-pooler-rw.postgres.svc.cluster.local" : "pg-grm-rw.postgres.svc.cluster.local"
+  url    = "postgresql://${local.database}:${random_password.db.result}@${local.host}:5432/${local.database}"
+  npgsql = "Host=${local.host};Port=5432;Database=${local.database};Username=${local.database};Password=${random_password.db.result};No Reset On Close=true"
 }
 resource "random_password" "db" {
   length  = 48

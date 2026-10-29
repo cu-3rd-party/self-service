@@ -152,3 +152,26 @@ provider "registry.opentofu.org/hashicorp/random" {
     "zh:f39d4bce213ed9bba3474bad468136af08ff6c4c33adaafcc10c1f78067adfe3",
   ]
 }
+
+provider "registry.terraform.io/berriai/litellm" {
+  version     = "1.104.4"
+  constraints = "1.104.4"
+  hashes = [
+    "h1:0EpDpILg1ieYYnWWDXLEFc+V3jEIJyxpKYx6YU0Nn30=",
+    "h1:GPOmxtVx0+JssJtIHqMUrkQuLSGUlMsoyjY37qC+OEE=",
+    "h1:UPPWryIKP8FK8502lGEbI10xCwDUzEsenu14QDPlAJA=",
+    "h1:st/pHM/S/XZxLi6R/rF9yl4Xx/l8fERh+Ot+QBXJHFQ=",
+    "h1:vObNghGBxxnV9/LxpO4zhU2//goHSTccAYoxTZq3w84=",
+    "zh:11f8b6d83ed241cd9ee261911fa28c152750393224b94198e6311803a2751bf5",
+    "zh:1a8fc06e0c72440874e8c2d7cf8fcfd2406f763369cae418592a2bf4499ced0f",
+    "zh:27624894a1581b6bb686613ae46a9a206ffc2d4112370342265bb8c8b250561c",
+    "zh:4374659b7ecef2aae877529e68e40184b37729a55724987feb961e965b6ba265",
+    "zh:4f108ffa06adc0b72789d011b6d780fb9d29208e6aaf96575f57380c2fc88fb7",
+    "zh:7f28451c73952a3b3631e4abc069b37daa956625f120379c8bb4d13043e9cf17",
+    "zh:8e75c9e8f5423911f95de03d9ee2793459543a2671f35e95fb1bb42dbb6c9177",
+    "zh:a651f2ad0ec5d2a2d1771ddc7bd9de9a246eb2b041cdaa94523fbd316afc553a",
+    "zh:a7c33746a5a3af4bee3c3579fdbcd7645bf62cac674430a1f6fa50ea023b0206",
+    "zh:d7b69ce0d98b14a2c6a124480cf32a4e14450c99a7bf231ecbe4792c9578c08c",
+    "zh:f809ab383cca0a5f83072981c64208cbd7fa67e986a86ee02dd2c82333221e32",
+  ]
+}

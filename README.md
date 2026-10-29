@@ -162,12 +162,39 @@ namespace/pod и node. Произвольные идентификаторы з�
 | Postgres `targetEnv: DB_CONNSTRING`, `format: url` | `DB_CONNSTRING=postgresql://…` |
 | Postgres `format: npgsql` | `Host=…;Port=5432;Database=…;Username=…;Password=…;No Reset On Close=true` |
 | S3 `targetEnvPrefix: S3__` | `S3__ACCESS_KEY`, `S3__SECRET_KEY`, `S3__URL`, `S3__BUCKET_NAME` |
+| AI `targetEnvPrefix: AI__` | `AI__API_KEY`, `AI__BASE_URL` (`https://ai.cu3rd.ru/v1`), `AI__MODEL` при заданном `model` |
 
 Postgres — существующий кластер `pg-grm` и transaction pooler, независимо от зоны пода.
 S3 — RustFS, path-style, region `us-east-1`. Квота S3 задаётся в байтах. Доступы общие
 для приложений одного окружения; переменные ресурсов нельзя перекрыть mappings.
 Системные пароли лежат в Kubernetes Secrets и зашифрованном OpenTofu state, не в Git
 и не в Forgejo Secrets. Из интерфейса Forgejo их посмотреть нельзя.
+
+## Доступ к LLM (OpenRouter)
+
+Платформа держит общий аккаунт OpenRouter и прокси LiteLLM на `https://ai.cu3rd.ru`
+(проект `ai-gateway`). Окружение заказывает себе ключ:
+
+```yaml
+envs:
+  dev:
+    ai:
+      enabled: true
+      targetEnvPrefix: AI__            # по умолчанию AI_
+      model: openai/gpt-4o-mini        # необязательно: попадёт в AI__MODEL
+      models: [openai/gpt-4o-mini]     # необязательно: разрешённые модели; без списка — все
+      budgetUsd: 10                    # необязательно: лимит расходов в $
+      budgetPeriod: 30d                # период сброса бюджета, по умолчанию 30d
+      rpm: 60                          # необязательно: запросов в минуту
+      tpm: 100000                      # необязательно: токенов в минуту
+```
+
+API OpenAI-совместимый: любой OpenAI SDK с `base_url=$AI__BASE_URL` и
+`api_key=$AI__API_KEY`. Модели называются как в OpenRouter (`anthropic/claude-sonnet-4.5`,
+`google/gemini-2.5-flash`). Embeddings, изображения и аудио идут через тот же ключ.
+Изменение лимитов в YAML обновляет ключ на месте, значение ключа не меняется. Ключ общий
+для приложений окружения. Расходы видны в Grafana и в `https://ai.cu3rd.ru/ui`.
+Ключи для людей (не сервисов) выдают owner'ы платформы в UI LiteLLM.
 
 ## Удаление и пересоздание
 
@@ -177,6 +204,7 @@ S3 — RustFS, path-style, region `us-east-1`. Квота S3 задаётся в
 |---|---|
 | `postgres` или `enabled: false` | База со всеми таблицами, роль, пароль и Secret подключения |
 | `s3` или `enabled: false` | Бакет **со всеми объектами/версиями**, пользователь, политика, ключи и Secret |
+| `ai` или `enabled: false` | Ключ LiteLLM (сразу перестаёт работать) и Secret; история расходов остаётся в LiteLLM |
 | Элемент `ingress` | Его DNS-запись и маршрутизация; сертификат обновляется/удаляется |
 | Элемент `values.persistence` | PVC и данные тома (для текущего local-path с reclaimPolicy Delete) |
 | Приложение в `apps` | Argo Application и его Deployment, Service, Ingress, SealedSecret, PVC и сертификаты |

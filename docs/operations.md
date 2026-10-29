@@ -26,6 +26,11 @@ kubectl -n argocd get applications | grep cu3rd
 от перезаписи, но не заменяет независимую резервную копию RustFS и ключа. Без ключа
 восстановить state невозможно. После ротации postgres/S3 admin обновите runtime.env.
 
+`TF_VAR_litellm_master_key` в runtime.env должен совпадать с Actions Secret
+`LITELLM_MASTER_KEY` репозитория `cu3rd/ai-gateway`. Пока ни одно окружение не заказало
+`ai`, переменная не нужна. Если LiteLLM недоступен, plan не обновит ключи и весь apply
+остановится до восстановления `ai-gateway` (так же, как при недоступном RustFS для `s3`).
+
 Бэкенд использует отдельного S3-пользователя, ограниченного state bucket. Доступ к
 RustFS admin и Postgres superuser нужен только процессу apply. Postgres подключается
 к ClusterIP сервиса `pg-grm-rw`, TLS require; клиентские URL направлены в pooler.

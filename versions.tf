@@ -7,6 +7,7 @@ terraform {
     random     = { source = "hashicorp/random", version = "~> 3.7" }
     cloudflare = { source = "cloudflare/cloudflare", version = "~> 5.0" }
     minio      = { source = "aminueza/minio", version = "~> 3.6" }
+    litellm    = { source = "registry.terraform.io/berriai/litellm", version = "1.104.4" }
   }
   encryption {
     key_provider "pbkdf2" "state" { passphrase = var.state_passphrase }

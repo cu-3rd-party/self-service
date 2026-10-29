@@ -31,6 +31,17 @@ variable "s3_secret_key" {
   type      = string
   sensitive = true
 }
+variable "litellm_url" {
+  description = "Public LiteLLM endpoint (project ai-gateway); apps reach it through cluster Traefik."
+  type        = string
+  default     = "https://ai.cu3rd.ru"
+}
+variable "litellm_master_key" {
+  description = "LiteLLM admin key; configured outside Git on nxs. Needed only once a project enables ai."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
 variable "chart_revision" {
   description = "Immutable commit containing the reviewed application chart."
   type        = string

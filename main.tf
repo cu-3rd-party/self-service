@@ -26,3 +26,13 @@ module "s3" {
   namespace = module.project[each.key].namespace
   config    = each.value.s3
 }
+module "ai" {
+  source    = "./modules/ai"
+  for_each  = { for k, e in local.environments : k => e if try(e.ai.enabled, false) }
+  name      = each.key
+  namespace = module.project[each.key].namespace
+  project   = each.value.project
+  env       = each.value.env
+  base_url  = "${var.litellm_url}/v1"
+  config    = each.value.ai
+}
