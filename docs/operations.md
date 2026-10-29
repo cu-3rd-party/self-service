@@ -32,6 +32,11 @@ kubectl -n argocd get applications | grep cu3rd
 не читается. Если LiteLLM недоступен, plan не обновит ключи и весь apply остановится до
 восстановления `ai-gateway` (так же, как при недоступном RustFS для `s3`).
 
+Ключ `ai` (`litellm_key`) создаётся с значением, которое генерирует сам apply (`random_password`):
+провайдер LiteLLM не возвращает ключ после создания (write-only, нужен OpenTofu 1.11+). Чтобы
+перевыпустить ключ, увеличьте `key_generation` в `modules/ai/main.tf`: после merge Secret получит
+новое значение, поды нужно перезапустить.
+
 Бэкенд использует отдельного S3-пользователя, ограниченного state bucket. Доступ к
 RustFS admin и Postgres superuser нужен только процессу apply. Postgres подключается
 к ClusterIP сервиса `pg-grm-rw`, TLS require; клиентские URL направлены в pooler.

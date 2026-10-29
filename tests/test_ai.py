@@ -49,6 +49,14 @@ class AiTests(unittest.TestCase):
         self.env['ai']['enabled'] = False
         self.env['apps']['bot']['variables']['AI__API_KEY'] = 'OTHER'
         self.check()
+    def test_key_is_generated_not_read_from_provider(self):
+        # litellm_key.key write-only: из провайдера всегда null, Secret остался бы без AI_API_KEY.
+        tf = (ROOT / 'modules/ai/main.tf').read_text(encoding='utf-8')
+        self.assertNotIn('litellm_key.issued.key', tf)
+        self.assertNotRegex(tf, r'litellm_key\.\w+\.key')
+        self.assertIn('random_password', tf)
+        self.assertIn('API_KEY"  = local.api_key', tf)
+        self.assertRegex(tf, r'(?m)^\s+key\s+= local\.api_key$')
     def test_postgres_pooler_flag(self):
         self.env['postgres']['pooler'] = False
         self.check()
