@@ -196,6 +196,8 @@ API OpenAI-совместимый: любой OpenAI SDK с `base_url=$AI__BASE_
 для приложений окружения. Расходы видны в Grafana и в `https://ai.cu3rd.ru/ui`.
 Ключи для людей (не сервисов) выдают owner'ы платформы в UI LiteLLM.
 
+Пример вызова из Python и подробности подключения — в [cu3rd/ai-gateway](https://git.cu3rd.ru/cu3rd/ai-gateway).
+
 ## Удаление и пересоздание
 
 Изменения вступают в силу после merge и завершения apply/Argo sync:
