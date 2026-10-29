@@ -28,6 +28,10 @@ envs:
           OPENROUTER_API_KEY: OPENROUTER_API_KEY
           LITELLM_MASTER_KEY: LITELLM_MASTER_KEY
           LITELLM_SALT_KEY: LITELLM_SALT_KEY
+          GENERIC_CLIENT_ID: GENERIC_CLIENT_ID
+          GENERIC_CLIENT_SECRET: GENERIC_CLIENT_SECRET
+        variables:
+          PROXY_ADMIN_ID: PROXY_ADMIN_ID
         values:
           replicas: 1
           strategy: Recreate
