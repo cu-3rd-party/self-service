@@ -10,6 +10,7 @@ envs:
       format: url
       # Prisma-миграции LiteLLM не работают через transaction pooler.
       pooler: false
+    ai: {enabled: true}
     apps:
       litellm:
         repo: cu3rd/ai-gateway
