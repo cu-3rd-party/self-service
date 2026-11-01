@@ -11,6 +11,8 @@ on:
 jobs:
   deliver:
     runs-on: homelab-docker
+    # Подтверждает происхождение доставки: без этого PR всегда идёт на ревью SRE.
+    enable-openid-connect: true
     container: ghcr.io/catthehacker/ubuntu:act-24.04
     steps:
       - uses: https://git.cu3rd.ru/cu3rd/self-service/actions/deploy@master

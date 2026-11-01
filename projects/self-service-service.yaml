@@ -1,0 +1,23 @@
+name: self-service-service
+team: sre
+envs:
+  prod:
+    zone: nxs
+    quota: {cpu: 1, memory: 128Mi, storage: 128Mi}
+    apps:
+      worker:
+        repo: cu3rd/self-service-service
+        image: git.cu3rd.ru/cu3rd/self-service-service
+        tag: initial
+        port: 8080
+        variables:
+          DRY_RUN: DRY_RUN
+        secrets:
+          FORGEJO_TOKEN: APPROVER_TOKEN
+        values:
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /healthz}
+          resources:
+            requests: {cpu: 2m, memory: 24Mi}
+            limits: {cpu: 100m, memory: 64Mi}

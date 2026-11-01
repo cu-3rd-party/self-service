@@ -2,12 +2,14 @@
 """Seal explicitly mapped Actions values and open a delivery PR. No cluster credentials."""
 import argparse
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 import yaml
@@ -26,6 +28,24 @@ class API:
         except urllib.error.HTTPError as e:
             # API error bodies can echo submitted data. Do not print them.
             raise Invalid(f'Forgejo API returned HTTP {e.code}') from None
+
+def provenance(path, content):
+    """OIDC token of this workflow bound to the exact delivery file; see self-service-service."""
+    url, bearer = os.environ.get('ACTIONS_ID_TOKEN_REQUEST_URL'), os.environ.get('ACTIONS_ID_TOKEN_REQUEST_TOKEN')
+    if not url or not bearer:
+        print('No OIDC token: enable-openid-connect is off, this delivery needs SRE review')
+        return ''
+    digest = hashlib.sha256(f'{path}\n{content}'.encode()).hexdigest()
+    audience = urllib.parse.quote('self-service-delivery:' + digest, safe='')
+    request = urllib.request.Request(url + ('&' if '?' in url else '?') + 'audience=' + audience,
+        headers={'Authorization': 'Bearer ' + bearer})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            token = json.load(response)['value']
+    except (OSError, ValueError, KeyError):
+        print('Could not get an OIDC token, this delivery needs SRE review')
+        return ''
+    return f'\n\n<!-- delivery-provenance: {token} -->'
 
 def select(mapping, available):
     normalized = {k.upper(): v for k, v in available.items()}
@@ -103,7 +123,7 @@ def main():
     api.call('PUT' if old else 'POST', prefix + '/contents/' + path, body)
     pr = api.call('POST', prefix + '/pulls', {'head': branch, 'base': 'master',
         'title': f'deploy: {release} {args.tag}',
-        'body': f'Delivery from `{app["repo"]}`. Only declared variables and sealed secrets are included.\n\nReview and merge to deploy. Generated resource credentials are managed separately.'})
+        'body': f'Delivery from `{app["repo"]}`. Only declared variables and sealed secrets are included.\n\nReview and merge to deploy. Generated resource credentials are managed separately.' + provenance(path, content)})
     print('Delivery PR: ' + pr['html_url'])
 
 if __name__ == '__main__':

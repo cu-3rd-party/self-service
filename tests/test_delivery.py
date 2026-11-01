@@ -1,14 +1,16 @@
 import copy
+import io
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from config import Invalid, load, validate_project, validate_delivery, projects
-from deploy import payload, select
+from deploy import payload, provenance, select
 ROOT = Path(__file__).resolve().parents[1]
 
 class DeliveryTests(unittest.TestCase):
@@ -32,6 +34,18 @@ class DeliveryTests(unittest.TestCase):
         self.assertIn('telegram-bot-dev-bot-env', args[0])
         self.assertIn('strict', args[0])
         self.assertEqual(kwargs['input'], b'private')
+    def test_provenance_binds_token_to_file(self):
+        env = {'ACTIONS_ID_TOKEN_REQUEST_URL': 'https://git/idtoken?placeholder=true', 'ACTIONS_ID_TOKEN_REQUEST_TOKEN': 'bearer'}
+        response = unittest.mock.MagicMock()
+        response.__enter__.return_value = io.BytesIO(b'{"value": "jwt"}')
+        with patch.dict('os.environ', env), patch('deploy.urllib.request.urlopen', return_value=response) as urlopen:
+            self.assertIn('<!-- delivery-provenance: jwt -->', provenance('deployments/a/dev/b.yaml', 'tag: x\n'))
+        # The same vector is checked in self-service-service: both sides must hash alike.
+        self.assertTrue(urlopen.call_args[0][0].full_url.endswith(
+            'audience=self-service-delivery%3A3a5ba5050f7191b5878d2bfdb59a2276c5fe98d87580964466cdc59826e2cb21'))
+    def test_provenance_absent_without_oidc(self):
+        with patch.dict('os.environ', {}, clear=True):
+            self.assertEqual(provenance('p', 'c'), '')
     def test_missing_secret_fails(self):
         with self.assertRaises(Invalid):
             select(self.app['secrets'], {})
