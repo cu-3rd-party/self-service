@@ -19,6 +19,8 @@ locals {
     xmsk = "85.192.48.255"
     # xgrm: своего Traefik нет — вход через Traefik grm
     xgrm = "87.120.126.156"
+    # balbesik: своего Traefik нет — вход через Traefik nxs
+    balbesik = "85.192.48.255"
   }
 }
 resource "terraform_data" "dns_configuration" {

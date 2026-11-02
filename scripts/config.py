@@ -78,7 +78,7 @@ def validate_project(p, filename):
         if env not in {"dev", "prod", "test", "staging"}:
             raise Invalid("Environment: dev/prod/test/staging")
         keys(e, {"zone", "quota", "postgres", "s3", "ai", "apps"})
-        if e.get("zone", "nxs") not in {"nxs", "grm", "akh", "xmsk", "xgrm"}:
+        if e.get("zone", "nxs") not in {"nxs", "grm", "akh", "xmsk", "xgrm", "balbesik"}:
             raise Invalid("Unknown zone")
         q = e.get("quota", {})
         keys(q, {"cpu", "memory", "storage"})
