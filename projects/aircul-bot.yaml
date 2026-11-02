@@ -1,0 +1,142 @@
+name: aircul-bot
+team: sre
+envs:
+  prod:
+    zone: grm
+    quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+    apps:
+      bot:
+        repo: cu3rd/aircul-bot
+        image: git.cu3rd.ru/cu3rd/aircul-bot
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: admin.bot.root-day.cu3rd.ru
+            targetPort: 8081
+        metrics:
+          enabled: true
+          port: 9090
+        secrets:
+          TELEGRAM_TOKEN: TELEGRAM_TOKEN
+          TELEGRAM_WEBHOOK_SECRET: TELEGRAM_WEBHOOK_SECRET
+          OPENROUTER_API_KEY: OPENROUTER_API_KEY
+          ADMIN_USER: ADMIN_USER
+          ADMIN_PASSWORD: ADMIN_PASSWORD
+        values:
+          # бот держит сессии диалогов в памяти процесса
+          replicas: 1
+          strategy: Recreate
+          extraPorts: {admin: 8081}
+          probes: {path: /healthz}
+          resources:
+            requests: {cpu: 10m, memory: 48Mi}
+            limits: {cpu: 500m, memory: 128Mi}
+          configFiles:
+            config.yaml:
+              path: /app/config.yaml
+              content: |
+                server:
+                  public_addr: ":8080"
+                  admin_addr: ":8081"
+                  read_header_timeout: 5s
+                  shutdown_timeout: 10s
+                  admin_ui_dir: "/app/admin"
+                  metrics_addr: ":9090"
+
+                telegram:
+                  mode: "webhook"
+                  admin_chat_id: -5177353621
+                  # api_url не задан: с grm api.telegram.org доступен напрямую
+                  send_timeout: 20s
+                  send_retries: 4
+
+                db:
+                  # DSN — из env DATABASE_URL
+                  max_conns: 10
+                  min_conns: 2
+                  max_conn_lifetime: 30m
+                  max_conn_idle_time: 5m
+                  health_check_period: 30s
+                  connect_timeout: 5s
+
+                llm:
+                  base_url: "https://llm-proxy.spirit.t-education.com/v1"
+                  request_timeout: 120s
+                  max_retries: 4
+                  max_parallel: 32
+                  queue_size: 256
+                  breaker_failures: 3
+                  breaker_cooldown: 5m
+                  fallback_chain:
+                    - model: "openrouter/z-ai/glm-5.3"
+                      providers: []
+
+                dialog:
+                  history_window: 20
+                  session_idle_timeout: 10m
+                  typing_interval: 4s
+
+                rate_limit:
+                  user_per_minute: 120
+                  admin_per_minute: 60
+                  reject_per_minute: 10
+
+                stages:
+                  order: ["launch", "reveal-factions", "reveal-passport", "reveal-heroes", "reveal-vector", "reveal-eclipse", "reveal-bingo", "reveal-rewards", "event-day", "act-1", "act-3", "act-4", "act-5", "finale", "post-event"]
+                  seed_schedule:
+                    event-day: "2026-11-08T14:30:00"
+                    post-event: "2026-11-09T00:00:00"
+                  tick_interval: 1m
+                  timezone: "Europe/Moscow"
+                  warn_long: 24h
+                  warn_short: 1h
+
+                seed:
+                  # в образе: /app/prompts/{knowledge,system}.md
+                  knowledge_path: "/app/prompts/knowledge.md"
+                  prompt_path: "/app/prompts/system.md"
+
+                qr:
+                  bot_username: "central_posvyat_bot"
+                  activation_limit: 10
+                  goal_scans: 750
+                  stamp_threshold: 5
+                  goal_chat_id: -5177353621
+                  progress_bar_width: 20
+                  refresh_interval: 15s
+
+                texts:
+                  start_message: "Централь на связи. Справочная система ЦУ-13 активна — задавайте вопросы прямо тут, в чате."
+                  start_buttons:
+                    - { text: "Канал Посвята", url: "https://t.me/rootday26" }
+                    - { text: "Чат Посвята", url: "https://t.me/+lfmMm6UYUgw0YzVi" }
+                  overloaded_stub: "Системы убежища перегружены. Повторите запрос через минуту."
+                  error_stub: "В работе систем убежища произошла ошибка. Дежурные инженеры оповещены — повторите запрос позже."
+                  retry_notice: "Связь с вычислительным ядром нестабильна. Переключаюсь на резервный контур — ответ займёт чуть больше времени."
+                  rate_limited: "Вы отправляете сообщения слишком часто. Дайте системам убежища передохнуть минуту."
+                  updated_notice: "База данных ЦУ-13 обновлена. Актуальные сведения по изменённым темам:"
+                  hidden_placeholder: "> Сведения по этой теме ещё не опубликованы."
+                  alert_llm_down: "Все провайдеры LLM из цепочки fallback недоступны. Пользователи получают заглушку."
+                  alert_restart: "Централь перезапущена и снова на связи."
+                  alert_stage_warn_long: "До перехода в стадию «%[2]s» осталось %.0f ч (переход в %[3]s)."
+                  alert_stage_warn_short: "До перехода в стадию «%[2]s» осталось %.0f мин."
+                  # Тексты станции QR (обязательны при включённой станции). В fmt-шаблонах должен
+                  # быть хотя бы один индексный аргумент %[N] — иначе Sprintf допишет лишние аргументы.
+                  # progress — Sprintf(бар string, сканов int, цель int, процент int).
+                  qr_progress: "Общий прогресс убежища:\n%[1]s %[2]d/%[3]d"
+                  # accepted/duplicate/exhausted — Sprintf(номер кода int64, прогресс string, кодов у пользователя int, строка о печати string).
+                  qr_scan_accepted: "QR-код №%[1]d зачтён, продолжайте исследовать убежище.\n\n%[2]s\n\nВаших кодов: %[3]d. %[4]s\nСписок — /qr"
+                  qr_scan_duplicate: "QR-код №%[1]d вы уже сканировали, ищите другие.\n\n%[2]s\n\nВаших кодов: %[3]d. %[4]s\nСписок — /qr"
+                  qr_scan_exhausted: "Лимит активаций QR-кода №%[1]d исчерпан, ищите другие.\n\n%[2]s\n\nВаших кодов: %[3]d. %[4]s\nСписок — /qr"
+                  qr_scan_unknown: "Этот QR-код не распознан системами убежища."
+                  # list — Sprintf(кодов у пользователя int, номера string, строка о печати string).
+                  qr_list: "Ваши QR-коды (%[1]d): %[2]s\n\n%[3]s"
+                  qr_list_empty: "У вас пока нет отсканированных QR-кодов. Они спрятаны по кампусу."
+                  qr_stamp_ready: "Кодов хватает на печать — подойдите на станцию."
+                  # stamp_remaining — Sprintf(сколько кодов осталось до печати int).
+                  qr_stamp_remaining: "До печати на станции: %[1]d."
+                  qr_goal_message: "Общий прогресс QR-кодов заполнен — пора публиковать пост в канале."
