@@ -2,7 +2,8 @@ name: aircul-bot
 team: sre
 envs:
   prod:
-    zone: grm
+    # С grm (исходящий 109.120.137.209) LLM-прокси spirit не отвечает с 2026-11-01, с nxs отвечает.
+    zone: nxs
     quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
     postgres:
       enabled: true
@@ -15,6 +16,8 @@ envs:
         tag: initial
         port: 8080
         ingress:
+          - domain: bot.root-day.cu3rd.ru
+            targetPort: 8080
           - domain: admin.bot.root-day.cu3rd.ru
             targetPort: 8081
         metrics:

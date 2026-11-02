@@ -41,3 +41,8 @@ resource "cloudflare_dns_record" "app" {
   comment    = "Managed by cu3rd/self-service; TLS terminates at Traefik"
   depends_on = [terraform_data.dns_configuration]
 }
+# Запись создана вручную до перевода бота в self-service. После первого apply блок можно убрать.
+import {
+  to = cloudflare_dns_record.app["bot.root-day.cu3rd.ru"]
+  id = "${var.cloudflare_zone_id}/db6fc979e33d5a299af598262b7480d1"
+}
