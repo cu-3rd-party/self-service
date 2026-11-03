@@ -12,10 +12,7 @@ locals {
   zone_addresses = {
     nxs = "85.192.48.255"
     grm = "87.120.126.156"
-    # akh (РФ) без своего Traefik: сайты зоны akh входят через Traefik nxs,
-    # дальше до пода по туннелю (homelab hosts/awgk).
-    akh = "85.192.48.255"
-    # xmsk: своего Traefik нет — вход через Traefik nxs
+    # xmsk (РФ) без своего Traefik: вход через Traefik nxs, дальше до пода по туннелю (homelab hosts/awgk)
     xmsk = "85.192.48.255"
     # xgrm: своего Traefik нет — вход через Traefik grm
     xgrm = "87.120.126.156"
