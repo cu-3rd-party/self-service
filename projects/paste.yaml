@@ -1,0 +1,34 @@
+name: paste
+team: sre
+envs:
+  prod:
+    zone: nxs
+    quota: {cpu: 1, memory: 512Mi, storage: 128Mi}
+    # метаданные вставок; lib/pq готовит запросы отдельным шагом, transaction-пулер PgBouncer
+    # может выполнить его на другом соединении, поэтому напрямую
+    postgres:
+      enabled: true
+      targetEnv: PASTE_DB_DSN
+      format: url
+      pooler: false
+    # содержимое вставок: квота бакета ограничивает общий объём, а не диск pg-grm
+    s3:
+      enabled: true
+      targetEnvPrefix: PASTE_S3_
+      quotaBytes: 5368709120
+    apps:
+      web:
+        repo: cu3rd/paste
+        image: git.cu3rd.ru/cu3rd/paste
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: paste.cu3rd.ru
+            targetPort: 8080
+        values:
+          replicas: 1
+          probes: {path: /api/healthz}
+          resources:
+            # загрузка до 10 МБ читается в память целиком
+            requests: {cpu: 5m, memory: 32Mi}
+            limits: {cpu: 500m, memory: 256Mi}
