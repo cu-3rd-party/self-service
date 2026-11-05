@@ -1,7 +1,7 @@
 bucket = "cu3rd-self-service-state"
 key = "cluster.tfstate"
 region = "us-east-1"
-endpoints = { s3 = "https://s3.iamamaev.ru" }
+endpoints = { s3 = "https://storage.cu3rd.ru" }
 use_path_style = true
 use_lockfile = true
 skip_credentials_validation = true

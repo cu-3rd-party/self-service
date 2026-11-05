@@ -163,11 +163,11 @@ namespace/pod и node. Произвольные идентификаторы з�
 |---|---|
 | Postgres `targetEnv: DB_CONNSTRING`, `format: url` | `DB_CONNSTRING=postgresql://…` |
 | Postgres `format: npgsql` | `Host=…;Port=5432;Database=…;Username=…;Password=…;No Reset On Close=true` |
-| S3 `targetEnvPrefix: S3__` | `S3__ACCESS_KEY`, `S3__SECRET_KEY`, `S3__URL`, `S3__BUCKET_NAME` |
+| S3 `targetEnvPrefix: S3__` | `S3__ACCESS_KEY`, `S3__SECRET_KEY`, `S3__URL` (`https://storage.cu3rd.ru`), `S3__BUCKET_NAME` |
 | AI `targetEnvPrefix: AI__` | `AI__API_KEY`, `AI__BASE_URL` (`https://ai.cu3rd.ru/v1`), `AI__MODEL` при заданном `model` |
 
 Postgres — существующий кластер `pg-grm` и transaction pooler, независимо от зоны пода.
-S3 — RustFS, path-style, region `us-east-1`. Квота S3 задаётся в байтах. Доступы общие
+S3 — RustFS на https://storage.cu3rd.ru (xmsk), path-style, region `us-east-1`. Квота S3 задаётся в байтах. Доступы общие
 для приложений одного окружения; переменные ресурсов нельзя перекрыть mappings.
 Системные пароли лежат в Kubernetes Secrets и зашифрованном OpenTofu state, не в Git
 и не в Forgejo Secrets. Из интерфейса Forgejo их посмотреть нельзя.

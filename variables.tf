@@ -21,7 +21,7 @@ variable "postgres_username" {
 }
 variable "s3_server" {
   type    = string
-  default = "s3.iamamaev.ru"
+  default = "storage.cu3rd.ru"
 }
 variable "s3_access_key" {
   type      = string

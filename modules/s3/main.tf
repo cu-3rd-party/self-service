@@ -55,7 +55,7 @@ resource "kubernetes_secret_v1" "s3" {
   data = {
     "${var.config.targetEnvPrefix}ACCESS_KEY"  = minio_iam_user.app.name
     "${var.config.targetEnvPrefix}SECRET_KEY"  = random_password.s3.result
-    "${var.config.targetEnvPrefix}URL"         = "http://rustfs.s3.svc.cluster.local:9000"
+    "${var.config.targetEnvPrefix}URL"         = "https://storage.cu3rd.ru"
     "${var.config.targetEnvPrefix}BUCKET_NAME" = minio_s3_bucket.app.bucket
   }
   depends_on = [minio_iam_user_policy_attachment.app, minio_s3_bucket_quota.app]
