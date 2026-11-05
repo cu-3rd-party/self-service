@@ -1,0 +1,107 @@
+# Библиотека материалов cu3rd: cu3rd/3rd-library (Rust API + React SPA).
+# Один домен на окружение: /api — бэкенд, остальное — фронтенд.
+# dev доставляется с каждого пуша в master, prod — по тегу на master или ручному запуску CI.
+name: library
+team: sre
+envs:
+  dev:
+    zone: nxs
+    quota: {cpu: 2, memory: 1Gi, storage: 512Mi}
+    # sqlx кэширует подготовленные запросы на соединении — transaction-пулер PgBouncer не подходит
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      pooler: false
+    s3:
+      enabled: true
+      targetEnvPrefix: S3_
+      quotaBytes: 2147483648
+    apps:
+      backend:
+        repo: cu3rd/3rd-library
+        image: git.cu3rd.ru/cu3rd/3rd-library-backend
+        tag: initial
+        ingress:
+          - domain: dev.lib.cu3rd.ru
+            targetPort: 8080
+            paths: [/api]
+        metrics:
+          enabled: true
+          port: 9091
+        secrets:
+          HMAC_KEY: DEV_HMAC_KEY
+          SMTP_PASSWORD: SMTP_PASSWORD
+        variables:
+          SMTP_HOST: SMTP_HOST
+          SMTP_USER: SMTP_USER
+        values:
+          # ограничение частоты запросов считается в памяти реплики
+          replicas: 1
+          probes: {path: /api/health}
+          resources:
+            # загружаемые файлы читаются в память целиком
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 1, memory: 512Mi}
+      frontend:
+        repo: cu3rd/3rd-library
+        image: git.cu3rd.ru/cu3rd/3rd-library-frontend
+        tag: initial
+        ingress:
+          - domain: dev.lib.cu3rd.ru
+            targetPort: 8080
+        values:
+          replicas: 1
+          probes: {path: /}
+          resources:
+            requests: {cpu: 2m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}
+  prod:
+    zone: nxs
+    quota: {cpu: 2, memory: 2Gi, storage: 512Mi}
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      pooler: false
+    s3:
+      enabled: true
+      targetEnvPrefix: S3_
+      quotaBytes: 10737418240
+    apps:
+      backend:
+        repo: cu3rd/3rd-library
+        image: git.cu3rd.ru/cu3rd/3rd-library-backend
+        tag: initial
+        ingress:
+          - domain: prod.lib.cu3rd.ru
+            targetPort: 8080
+            paths: [/api]
+        metrics:
+          enabled: true
+          port: 9091
+        secrets:
+          HMAC_KEY: PROD_HMAC_KEY
+          SMTP_PASSWORD: SMTP_PASSWORD
+        variables:
+          SMTP_HOST: SMTP_HOST
+          SMTP_USER: SMTP_USER
+        values:
+          replicas: 1
+          probes: {path: /api/health}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 1, memory: 1Gi}
+      frontend:
+        repo: cu3rd/3rd-library
+        image: git.cu3rd.ru/cu3rd/3rd-library-frontend
+        tag: initial
+        ingress:
+          - domain: prod.lib.cu3rd.ru
+            targetPort: 8080
+        values:
+          replicas: 1
+          probes: {path: /}
+          resources:
+            requests: {cpu: 2m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}
