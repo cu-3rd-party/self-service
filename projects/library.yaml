@@ -1,6 +1,6 @@
 # Библиотека материалов cu3rd: cu3rd/3rd-library (Rust API + React SPA).
 # Один домен на окружение: /api — бэкенд, остальное — фронтенд.
-# dev доставляется с каждого пуша в master, prod — по тегу на master или ручному запуску CI.
+# dev (dev.lib.cu3rd.ru) — с каждого пуша в master, prod (lib.cu3rd.ru) — по тегу на master или ручному запуску CI.
 name: library
 team: sre
 envs:
@@ -74,7 +74,7 @@ envs:
         image: git.cu3rd.ru/cu3rd/3rd-library-backend
         tag: initial
         ingress:
-          - domain: prod.lib.cu3rd.ru
+          - domain: lib.cu3rd.ru
             targetPort: 8080
             paths: [/api]
         metrics:
@@ -97,7 +97,7 @@ envs:
         image: git.cu3rd.ru/cu3rd/3rd-library-frontend
         tag: initial
         ingress:
-          - domain: prod.lib.cu3rd.ru
+          - domain: lib.cu3rd.ru
             targetPort: 8080
         values:
           replicas: 1

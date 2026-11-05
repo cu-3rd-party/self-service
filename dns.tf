@@ -43,3 +43,9 @@ import {
   to = cloudflare_dns_record.app["bot.root-day.cu3rd.ru"]
   id = "${var.cloudflare_zone_id}/db6fc979e33d5a299af598262b7480d1"
 }
+# Запись lib.cu3rd.ru создана вручную для прежнего прода 3rd-library (тот же адрес nxs).
+# После первого apply блок можно убрать.
+import {
+  to = cloudflare_dns_record.app["lib.cu3rd.ru"]
+  id = "${var.cloudflare_zone_id}/c5f8f78b851341db01c885ea451116f9"
+}
