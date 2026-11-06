@@ -1,0 +1,52 @@
+# Сайт Посвята: cu3rd/aircul-site (.NET API + React/nginx). Один домен: /api, /scalar, /openapi — бэкенд, остальное — фронтенд.
+# Образы приватные (git.cu3rd.ru/cu3rd-private), pull-токен cu3rd-private-pull (read:package) запечатан в sealedPullSecret под ns/имя релиза.
+# Раньше жил в homelab (apps/aircul-site-*, namespace aircul-site, база aircul_site).
+name: aircul-site
+team: sre
+envs:
+  prod:
+    zone: grm
+    quota: {cpu: 2, memory: 1Gi, storage: 128Mi}
+    # прежняя строка подключения тоже шла через пулер (No Reset On Close)
+    postgres:
+      enabled: true
+      targetEnv: ConnectionStrings__AirCulDb
+      format: npgsql
+    apps:
+      backend:
+        repo: cu3rd/aircul-site
+        image: git.cu3rd.ru/cu3rd-private/aircul-site-backend
+        tag: initial
+        ingress:
+          - domain: root-day.cu3rd.ru
+            targetPort: 8080
+            paths: [/api, /scalar, /openapi]
+        secrets:
+          Auth__ServiceAdminLogin: SERVICE_ADMIN_LOGIN
+          Auth__ServiceAdminPassword: SERVICE_ADMIN_PASSWORD
+        values:
+          sealedPullSecret: AgBz5UT2ePHOB5L5pld01heeaKAkWO4Li7KKp/a+nHFm+atSiehVXFQkI46+oSx0Lq2hbvLeJ37ALqbxUfZR8MtAHrSlofmuL524GQO7fe7eTcTVfi53E+DalV8kNS5V3ZypVFAkE6TfXZtqRuLVGr/G4SOtdyOJ6dI7I1iDD+cm8pJNaaTuig1hsmvX70xfNWvIriZShUtKRmyZrWc/4mKGSXBq764j2T+676NtZDiuDnv3F9KN4OwSPJVNfMzbx4icQoOWxPGyJhwIm+yCFkM1qPI296cjR3mHrvqUunwOHUdULnfCMWTcpkgap57FI6UgtYXnZhwNJhqnYibOJ0cxYCQR4EPF+iz6zT6fSFgbSTXqwualVgXMKRRunLOd66WV7mJ7s/IVn0r/u6BVmkJjyyFiWnmQbBPfoDZeJ9KiAmrb8H8Oomkja3RpVb+uceWStlyyFAA9eXSr9OyXbNxlGuR5lk1zxKEwOdLiW/012K7HvzjC/KIhH+fsNX7smILA8wB4Tj9ezVRrdhmn49bp9nuVRrtyiJ5IiwwPRbMcDDSx17BQClX6s5EtKsg1SkiMNLd57TQ5YhnWaiXwfa+Myw1cDVa7Z7CEflKi01mdCdrJZaiT2F/1LvaUgtzFgUkhdupBhxXYZVS+DgKO2XPtxS6YchlYRr07K6DlaYZFFdz3awpJfy/VrhHnSJq2ba5LJ28vhXusXcr70drtSq1fma+ydMdeoLqHjDDxnjbRGS+Sv+r2Tw6vx6ab0yuw9D6MAwpyhhR0u+dYKc5TD1oxo/LbWHGW0ISc4Kl/bCSehgP1CXLvoZHSwm3jM9JC5QSni7lpCyHNaxlzFxNdoC3182Bx9HL1JfNUthU1DY+9rmfii6KGmRh3gcxuuPukLKeLYC0DFldOJFIF3KTrXgjiK+j56Jlmj2Qa6XJLfqz5EzZRC9QHYvUIkBZm9iwWelK1Pwm4NgFJQ80xREyS1xVaLeh2
+          replicas: 1
+          probes: {path: /health}
+          resources:
+            requests: {cpu: 200m, memory: 208Mi}
+            limits: {cpu: 1, memory: 512Mi}
+      frontend:
+        repo: cu3rd/aircul-site
+        image: git.cu3rd.ru/cu3rd-private/aircul-site-frontend
+        tag: initial
+        ingress:
+          - domain: root-day.cu3rd.ru
+            targetPort: 8080
+        secrets:
+          ADMIN_PATH: ADMIN_PATH
+        variables:
+          # nginx проверяет ссылки-токены игр запросом к бэкенду (сервис порта 80)
+          BACKEND_URL: BACKEND_URL
+        values:
+          sealedPullSecret: AgANK9s8liabur6borlthLVDEnlPzoxfOT3gSVNJp1aJY1mb3ShvEVF/c671ugOIGwuvRlMtXa4oKnVi7Ue+PvU00Heug4lwYKFrwTR5LNC4/X7h+ASjO9+Ao/Fu9ETl2Ydw/siDeumPhuSlEKph+DHlegMCPk5HvDPgfM4YxDcMuw0dEzoPeKY9pW5hAUpXymgnbCms+so5XPRKjyBIoNaFfCv9VYcLgnYZYPE281CROpn3i1HrQj02H8YbsJFwADGfV9iaw9WaUA4n/ScvmYQrS1hprOOilb4b2O9FGZ5EhX/cmZ10bC5Lo54YX4WouLsNqS8S6PhO7G4wBoEMvY6CdoiDVNGdDJxMaosGNCE2yKHnvNSxBcIS6E67JZYByH9cv3CLZoIyL7762YWh6YcnER3mZL28qxW8UbJBSFWihJzfE8S8r76VnipkSDCFNS/fP6qzWrIreIl3ofolGmEN6IRSfMZ4+TE64Fya0VPIOC8OgEspdTxIOREwgtYA0VYn3skItFtlu9PO3JLcd2qIRmE7d8SWb7nEmM5d2yyH2VqkjG/skCm0E0nr6tOKWnPpQHDagdZvPvLiYsotOHCpbqWoBW5hrQZuVlXcfolIH7Ms4Y/TaGmWcf31Z0BNsKbgn4njBcSjtPGfD1hAhPFHSeA17zfrUX0ywJvhDCTBn2WYXhm8Ao2LC4rHmBqMCHcgD6yDK7jf46WyrISCrIbQWx3q4x40VlPsXidlNA7dOnTJjrxvrA0ACN0zYSIn6NEzo0aEwO4mImzAAtk+wYAgTkJawSmyY36h1SK5Z+nQEdIBsS7hCC+wqwTQo80jKiM2sj/gC8UUu/stmkqeNJQM1DsjHchEchuNiLYD+WMwvn6p6B/LpxOHDtoWeuHoYgOVgOef0F/5CGwDBZfQ47KbICDWZDZ4Wj6K7RhYVDtEZjN2Eg0rB++nlKQS1RnxODHQXSRyMhvKVTkVQP6gtVIwV1pY
+          replicas: 1
+          probes: {path: /healthz}
+          resources:
+            requests: {cpu: 50m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}
