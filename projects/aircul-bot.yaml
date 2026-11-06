@@ -107,6 +107,25 @@ envs:
                   knowledge_path: "/app/prompts/knowledge.md"
                   prompt_path: "/app/prompts/system.md"
 
+                qr_service:
+                  base_url: "https://qr.cu3rd.ru"
+                  timeout: 5s
+
+                minigames:
+                  issuer: "aircul-site"
+                  games:
+                    - { id: boot_sequence, title: "Boot Sequence" }
+                    - { id: hex_patch, title: "Hex Patch" }
+                    - { id: password_guess, title: "Угадай пароль" }
+                    - { id: signal_sync, title: "Signal Sync" }
+                    - { id: logic_terminal, title: "Logic Terminal" }
+                    - { id: minesweeper, title: "Minesweeper" }
+                    - { id: password_terminal, title: "Password Terminal" }
+                    - { id: password_rules, title: "Password Rules" }
+                    - { id: packet_router, title: "Packet Router" }
+                    - { id: stimulation, title: "Stimulation" }
+                    - { id: safe_talk, title: "Safe Talk" }
+
                 qr:
                   bot_username: "central_posvyat_bot"
                   activation_limit: 10
@@ -158,3 +177,12 @@ envs:
                   voice_letter_need_voice: "Письмо принимается только голосовым сообщением, не короче 2 минут."
                   # info — подпись к письму в служебном чате, Sprintf(тег или имя string, id пользователя int64).
                   voice_letter_info: "Автор: %[1]s, id %[2]d"
+                  # Мини-игры сайта (aircul-qr): accepted/duplicate — Sprintf(название игры, прогресс); progress — Sprintf(пройдено, всего, строки игр).
+                  minigame_accepted: "Мини-игра «%[1]s» засчитана!\n\n%[2]s"
+                  minigame_duplicate: "Мини-игра «%[1]s» у вас уже засчитана.\n\n%[2]s"
+                  minigame_taken: "Этот QR-код уже засчитан другому участнику. Пройдите игру сами — и получите свой."
+                  minigame_expired: "Срок действия этого QR-кода истёк. Пройдите игру ещё раз, чтобы получить новый."
+                  minigame_unknown: "Этот QR-код мини-игры не распознан системами убежища."
+                  minigame_progress: "Мини-игры: %[1]d/%[2]d\n\n%[3]s"
+                  minigame_line_done: "✅ %[1]s"
+                  minigame_line_todo: "⬜ %[1]s"
