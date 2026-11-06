@@ -1,0 +1,34 @@
+# Микросервис QR-кодов AirCul: cu3rd/aircul-qr (Rust, axum + SeaORM). Бот «Централь» и сайт ходят в него по JWT.
+# Образ приватный (git.cu3rd.ru/cu3rd-private), pull-токен cu3rd-private-pull запечатан в sealedPullSecret под ns/имя релиза.
+name: aircul-qr
+team: sre
+envs:
+  prod:
+    zone: grm
+    quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
+    # SeaORM/sqlx кэширует подготовленные запросы на соединении — transaction-пулер PgBouncer не подходит
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      pooler: false
+    apps:
+      api:
+        repo: cu3rd/aircul-qr
+        image: git.cu3rd.ru/cu3rd-private/aircul-qr
+        tag: initial
+        ingress:
+          - domain: qr.cu3rd.ru
+            targetPort: 8080
+        secrets:
+          JWT_SECRET: JWT_SECRET
+        variables:
+          # внешний адрес: из него строятся ссылки в QR ({base}/s/{code})
+          PUBLIC_BASE_URL: PUBLIC_BASE_URL
+        values:
+          sealedPullSecret: AgA4K75nyVuKeDWm8wmPNGKV8nXjCMribdwe+irdZISqIaOVw642/U7B4AXMNFxHF/tVAI37tCvJxBLEhSie3518hcP7nltbqPL6RhsbItB483w050HraVs0R9P2lHi+3IiBBr+V1V1z/gfq1BbsOEQOMhzgrpJNurZsh7PFnSs3oBScNbVjGLnxnsC/h+6jfa3aQd16jzvt60gNKw5DZMpJnVU3L4NHhCGTI2eBo+mQ+BCpybTlx8zZDrzKhQyiooWDB+VPeIgGmzorDXDYzq3F6Vf1X/0YXMyICG3slMcqRnRL/Nfan2tdi90bC3v+2y0R4S+04NWl+j8ko4GPJUMB21BWf/g4SSURe/23rauBGcVz3GLer9e1lnQMQEuFh1QM6vVz/F6wfPaDeVfqWUonL6XiIB5kdiu+CDQiZ+Y0uQBxwAqc17ZAiU+wipIAGo5FtgK/KXjE7Yfn6xs997g8PUT8pewirLEWyL7Z6aG75B1n2g+F3aZRO4GX2mVpd6hLyZj95xzCnVIV40EUppRUAHQN3d1cRZeBjHgTz/G68KTYMMh+dPsQludJ48fsQegUdDjXI/hwRdPHLBguc4YFIDmjVog7FL9VXMYAww9GopXStB7YWHb6+cPUx5+ydjm3ho/6QWmIPWQcwyE6D3zb8fj6k92Y8ON52C9LMTA3HznePdhTr+9zPCucBWX+2BIGPbVfyq2JHjS5tVIDB9dWb/Vi8DPoGrxy8O1p0C21dZIf8o7F11lAyPWVubB3eKxKnTQWaiDMPZCOPlvQFR1wwC4U1x4dhBNZUt/IB/QkNMRoHpfZjUZqhuFxCZk7Pcw3fL5BsPDt4zHNqYAcpCqDE7sI7bWWap/vtL30QFWHFgVQLRUQbXrgpLSi9754j5VHJ+56DLB12v+qFAQL77EDtyajTUY2aEZEqETZbwz+LXpQzNdkBPg6/pr/yOy36s6ZqEs3jwNcUXAHF59PCiJ5ISbe
+          replicas: 1
+          probes: {path: /health}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 500m, memory: 192Mi}
