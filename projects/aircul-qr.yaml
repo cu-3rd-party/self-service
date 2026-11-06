@@ -5,7 +5,8 @@ team: sre
 envs:
   prod:
     zone: grm
-    quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
+    # запас под surge-под при RollingUpdate (лимит пода 500m/192Mi)
+    quota: {cpu: 1, memory: 512Mi, storage: 128Mi}
     # SeaORM/sqlx кэширует подготовленные запросы на соединении — transaction-пулер PgBouncer не подходит
     postgres:
       enabled: true

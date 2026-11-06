@@ -6,7 +6,8 @@ team: sre
 envs:
   prod:
     zone: grm
-    quota: {cpu: 2, memory: 1Gi, storage: 128Mi}
+    # запас под surge-под при RollingUpdate: 2 × (бэкенд 1 CPU/512Mi + фронтенд 200m/64Mi)
+    quota: {cpu: 3, memory: 1536Mi, storage: 128Mi}
     # прежняя строка подключения тоже шла через пулер (No Reset On Close)
     postgres:
       enabled: true
