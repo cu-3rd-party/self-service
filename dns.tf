@@ -49,9 +49,3 @@ import {
   to = cloudflare_dns_record.app["lib.cu3rd.ru"]
   id = "${var.cloudflare_zone_id}/c5f8f78b851341db01c885ea451116f9"
 }
-# Запись root-day.cu3rd.ru создана вручную для сайта в homelab (тот же адрес grm).
-# После первого apply блок можно убрать.
-import {
-  to = cloudflare_dns_record.app["root-day.cu3rd.ru"]
-  id = "${var.cloudflare_zone_id}/95a9067ea6b74694333c857b2a92d63c"
-}
