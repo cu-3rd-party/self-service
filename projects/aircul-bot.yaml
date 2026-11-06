@@ -29,10 +29,8 @@ envs:
           OPENROUTER_API_KEY: OPENROUTER_API_KEY
           ADMIN_USER: ADMIN_USER
           ADMIN_PASSWORD: ADMIN_PASSWORD
-          # JWT сервиса QR-кодов (aircul-qr, scope: codes:write codes:read codes:read:any)
-          AIRCUL_QR_TOKEN: AIRCUL_QR_TOKEN
-        variables:
-          AIRCUL_QR_URL: AIRCUL_QR_URL
+          # JWT бота для aircul-qr (scope: codes:write codes:read codes:read:any); бот читает QR_SERVICE_TOKEN
+          QR_SERVICE_TOKEN: AIRCUL_QR_TOKEN
         values:
           # приватный образ: токен cu3rd-private-pull (read:package), запечатан под ns/имя релиза
           sealedPullSecret: AgB9pQzZOmwkNrmn5NCqm40kLtWqRlMo8qjRQE2tzA/nCD8shDSNDkTW0hO5pj7rMHi6Wz0m0tN5eaQuesX4+I8LFBIj53wU7DtO8M3lrxyrdzUTbaSS3TAZ9RKfeKiCuSiQaF7+g5o5c50rQhc3miyGPVWbwrT18AGc/ToRmbKNgye7cCbGRgbomf/C9IFfiwmRxQy2lf3Wjic0xH4WX/pu8WiRNdUYmkGT/Zc+rdtbD6egIxQgnf+fAOgIB8ZlWn2lbLepBVE8wMbNBn498/dnFv2D1afAs1EvWIGbjxEQbY7ns4EAF9U4YuXj/l+DpyP4U/uIRgBxnvIzlww1DGsXivLncVhNZnR86iOovnvd9YhnZUXgCiaSyK8BzobNVG76h0pNB+t1T8Lgtc/LAW8YW35WFYFDLVwUwuYLg+YSmiveJ9nwiKuM4H/i8aPBsoULwZqnwakH9VK9JY3AhfDzgH8/rwHY00dBQjNtmuQH1azZ/9nPD9bm58GAg2z4QbN+02vsG1184Q8xVj2BuWHQnwibi+Yzy1xTHESjV7/UKZr4/ym4iFu/Hjl7ztpui7qHg1Jj26uQCKGPAmdFL0p9dj6Q0LG6bAYk+DJavgWMELzkfdKklsNRVVPLKJyT4sweNY5iYNmZhe/9comUXkbIE5RmV5QgoGd8gUGvIORtUmu07ATcLhDFEg6xJsrDr6vK4CR4xvAo3tvB//mPrWZEsmRp+ISvrr59VfGYZyQnVhFV7j4YKrSYWE/nAlegFGxO61LxQDchh9+KB8lGvkz4F84SrrXU7HD+IpkvEpcjEllQhsGLM494g0AovP59RZ5yfWvY5n6mdhKc9pAWfIsYMRhsLkUP3UR3LCc5wxU/sseC3ZKoqApKs4p6fEKeO79Y1s7H+6akaJzMiJ6TjeqPWEYynZ0E1he4T+brr/1Px06sgXEXzK5HJLlfIKqDAO9CvALrRx7YXhY8l+4X7C8H6fiY

@@ -25,10 +25,12 @@ envs:
         secrets:
           Auth__ServiceAdminLogin: SERVICE_ADMIN_LOGIN
           Auth__ServiceAdminPassword: SERVICE_ADMIN_PASSWORD
-          # JWT сервиса QR-кодов (aircul-qr, scope: codes:write codes:read)
-          AIRCUL_QR_TOKEN: AIRCUL_QR_TOKEN
+          # JWT сайта для aircul-qr (scope: codes:write codes:read); секция QrService бэкенда
+          QrService__Token: AIRCUL_QR_TOKEN
         variables:
-          AIRCUL_QR_URL: AIRCUL_QR_URL
+          QrService__BaseUrl: AIRCUL_QR_URL
+          # бот «Централь» без @: QR за игру ведёт на https://t.me/<бот>?start=mg_<код>
+          QrService__BotUsername: QR_BOT_USERNAME
         values:
           sealedPullSecret: AgBz5UT2ePHOB5L5pld01heeaKAkWO4Li7KKp/a+nHFm+atSiehVXFQkI46+oSx0Lq2hbvLeJ37ALqbxUfZR8MtAHrSlofmuL524GQO7fe7eTcTVfi53E+DalV8kNS5V3ZypVFAkE6TfXZtqRuLVGr/G4SOtdyOJ6dI7I1iDD+cm8pJNaaTuig1hsmvX70xfNWvIriZShUtKRmyZrWc/4mKGSXBq764j2T+676NtZDiuDnv3F9KN4OwSPJVNfMzbx4icQoOWxPGyJhwIm+yCFkM1qPI296cjR3mHrvqUunwOHUdULnfCMWTcpkgap57FI6UgtYXnZhwNJhqnYibOJ0cxYCQR4EPF+iz6zT6fSFgbSTXqwualVgXMKRRunLOd66WV7mJ7s/IVn0r/u6BVmkJjyyFiWnmQbBPfoDZeJ9KiAmrb8H8Oomkja3RpVb+uceWStlyyFAA9eXSr9OyXbNxlGuR5lk1zxKEwOdLiW/012K7HvzjC/KIhH+fsNX7smILA8wB4Tj9ezVRrdhmn49bp9nuVRrtyiJ5IiwwPRbMcDDSx17BQClX6s5EtKsg1SkiMNLd57TQ5YhnWaiXwfa+Myw1cDVa7Z7CEflKi01mdCdrJZaiT2F/1LvaUgtzFgUkhdupBhxXYZVS+DgKO2XPtxS6YchlYRr07K6DlaYZFFdz3awpJfy/VrhHnSJq2ba5LJ28vhXusXcr70drtSq1fma+ydMdeoLqHjDDxnjbRGS+Sv+r2Tw6vx6ab0yuw9D6MAwpyhhR0u+dYKc5TD1oxo/LbWHGW0ISc4Kl/bCSehgP1CXLvoZHSwm3jM9JC5QSni7lpCyHNaxlzFxNdoC3182Bx9HL1JfNUthU1DY+9rmfii6KGmRh3gcxuuPukLKeLYC0DFldOJFIF3KTrXgjiK+j56Jlmj2Qa6XJLfqz5EzZRC9QHYvUIkBZm9iwWelK1Pwm4NgFJQ80xREyS1xVaLeh2
           replicas: 1
