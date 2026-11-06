@@ -132,8 +132,8 @@ def validate_project(p, filename):
             keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "metrics", "secrets", "variables", "values"}, {"repo", "image", "tag"})
             if not isinstance(app["repo"], str) or not re.fullmatch(r"cu3rd/[A-Za-z0-9_.-]+", app["repo"]):
                 raise Invalid("repo must belong to cu3rd")
-            if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/cu3rd/[a-z0-9_.-]+", app["image"]):
-                raise Invalid("image must be in git.cu3rd.ru/cu3rd")
+            if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/cu3rd(?:-private)?/[a-z0-9_.-]+", app["image"]):
+                raise Invalid("image must be in git.cu3rd.ru/cu3rd or git.cu3rd.ru/cu3rd-private")
             if not isinstance(app["tag"], str) or not TAG.fullmatch(app["tag"]):
                 raise Invalid("Invalid image tag")
             port = app.get("port")
