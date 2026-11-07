@@ -2,8 +2,9 @@ name: aircul-bot
 team: sre
 envs:
   prod:
-    # С grm (исходящий 109.120.137.209) LLM-прокси spirit не отвечает с 2026-11-01, с nxs отвечает.
-    zone: nxs
+    # LLM-прокси spirit (llm-proxy.spirit.t-education.com) не отвечает по TCP с grm с 2026-11-01
+    # и с nxs с 2026-11-07; с xgrm отвечает, как и api.telegram.org и qr.cu3rd.ru.
+    zone: xgrm
     quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
     postgres:
       enabled: true
@@ -57,7 +58,7 @@ envs:
                 telegram:
                   mode: "webhook"
                   admin_chat_id: -5177353621
-                  # api_url не задан: с grm api.telegram.org доступен напрямую
+                  # api_url не задан: с xgrm api.telegram.org доступен напрямую
                   send_timeout: 20s
                   send_retries: 4
 
