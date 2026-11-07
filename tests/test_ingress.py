@@ -1,5 +1,6 @@
 import copy
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -23,7 +24,8 @@ class IngressConfiguration(unittest.TestCase):
         self.project['envs']['dev']['zone'] = 'xmsk'
         validate_project(self.project, 'telegram-bot.yaml')
         dns = (ROOT / 'dns.tf').read_text()
-        self.assertRegex(dns, r'xmsk\s*=\s*"85\.192\.48\.255"')
+        addr = lambda zone: re.search(zone + r'\s*=\s*"([0-9.]+)"', dns).group(1)
+        self.assertEqual(addr('xmsk'), addr('nxs'))
     def test_removed_zone_akh_rejected(self):
         self.project['envs']['dev']['zone'] = 'akh'
         with self.assertRaises(Invalid):
