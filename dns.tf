@@ -10,10 +10,11 @@ locals {
   # Multiple paths/apps may share a domain within an environment; one A record.
   domain_zones = { for route in local.ingress_domains : route.domain => route.zone... }
   zone_addresses = {
-    nxs = "85.192.48.255"
+    # 85.192.48.255 (основной адрес nxs) недоступен из РФ с 2026-11-07, 2.26.191.8 — второй адрес nxs
+    nxs = "2.26.191.8"
     grm = "87.120.126.156"
     # xmsk (РФ) без своего Traefik: вход через Traefik nxs, дальше до пода по туннелю (homelab hosts/awgk)
-    xmsk = "85.192.48.255"
+    xmsk = "2.26.191.8"
     # xgrm: своего Traefik нет — вход через Traefik grm
     xgrm = "87.120.126.156"
   }
