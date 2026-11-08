@@ -48,6 +48,15 @@ class PublicPorts(unittest.TestCase):
             (folder / 'other-bot.yaml').write_text(yaml.safe_dump(other))
             with self.assertRaises(Invalid):
                 projects(td)
+    def test_repository_owners(self):
+        self.app['repo'] = 'xfx1337/fastcall'
+        self.app['image'] = 'git.cu3rd.ru/xfx1337/fastcall'
+        validate_project(self.project, 'telegram-bot.yaml')
+        self.app['repo'] = 'stranger/fastcall'
+        self.rejected()
+        self.app['repo'] = 'xfx1337/fastcall'
+        self.app['image'] = 'git.cu3rd.ru/stranger/fastcall'
+        self.rejected()
     def test_chart_and_module_wire_public_ports(self):
         service = (ROOT / 'charts/app/templates/public-service.yaml').read_text()
         self.assertIn('type: NodePort', service)

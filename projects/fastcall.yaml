@@ -6,8 +6,8 @@ envs:
     quota: {cpu: 2, memory: 1Gi, storage: 128Mi}
     apps:
       web:
-        repo: cu3rd/fastcall
-        image: git.cu3rd.ru/cu3rd/fastcall
+        repo: xfx1337/fastcall
+        image: git.cu3rd.ru/xfx1337/fastcall
         tag: initial
         port: 8080
         ingress:
@@ -24,8 +24,8 @@ envs:
             requests: {cpu: 5m, memory: 32Mi}
             limits: {cpu: 200m, memory: 96Mi}
       sfu:
-        repo: cu3rd/fastcall
-        image: git.cu3rd.ru/cu3rd/fastcall-sfu
+        repo: xfx1337/fastcall
+        image: git.cu3rd.ru/xfx1337/fastcall-sfu
         tag: initial
         port: 7880
         ingress:
