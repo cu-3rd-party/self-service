@@ -38,8 +38,14 @@ runs:
       run: |
         python3 -m pip install --target "$RUNNER_TEMP/self-service-python" --disable-pip-version-check -r .self-service/requirements.txt
         echo "PYTHONPATH=$RUNNER_TEMP/self-service-python" >> "$GITHUB_ENV"
+    # kubeseal comes from GitHub releases (or a Go build when GitHub is down):
+    # cache it so a delivery does not wait for either.
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/self-service/kubeseal
+        key: self-service-kubeseal-${{ hashFiles('.self-service/scripts/install-kubeseal.py') }}
     - shell: bash
-      run: python3 .self-service/scripts/install-kubeseal.py
+      run: KUBESEAL_DIR="$HOME/.cache/self-service/kubeseal" python3 .self-service/scripts/install-kubeseal.py
     - shell: bash
       env:
         PROJECT: ${{ inputs.project }}

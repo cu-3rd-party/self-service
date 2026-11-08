@@ -20,8 +20,9 @@ base = f'https://github.com/bitnami-labs/sealed-secrets/releases/download/v{vers
 go_version = '1.27.3'
 go_sha256 = '65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40'
 temp = Path(os.environ.get('RUNNER_TEMP', '/tmp'))
-folder = temp / 'self-service-bin'
-folder.mkdir(exist_ok=True)
+# KUBESEAL_DIR is restored from the Actions cache by actions/deploy.
+folder = Path(os.environ.get('KUBESEAL_DIR') or temp / 'self-service-bin')
+folder.mkdir(parents=True, exist_ok=True)
 
 
 def fetch(url, timeout, attempts=3):
@@ -36,8 +37,9 @@ def fetch(url, timeout, attempts=3):
 
 
 def from_release():
-    blob = fetch(base + name, 60)
-    sums = fetch(base + f'sealed-secrets_{version}_checksums.txt', 30).decode()
+    # Short timeouts: a slow GitHub falls back to the Go proxy quickly.
+    blob = fetch(base + name, 10, attempts=2)
+    sums = fetch(base + f'sealed-secrets_{version}_checksums.txt', 10, attempts=2).decode()
     expected = next(line.split()[0] for line in sums.splitlines() if line.split()[-1] == name)
     if hashlib.sha256(blob).hexdigest() != expected:
         raise SystemExit('kubeseal checksum mismatch')
@@ -61,10 +63,21 @@ def from_go_proxy():
                     f'github.com/bitnami/sealed-secrets/cmd/kubeseal@v{version}'], env=env, check=True)
 
 
+def cached():
+    binary = folder / 'kubeseal'
+    if not binary.exists():
+        return False
+    result = subprocess.run([str(binary), '--version'], capture_output=True, text=True)
+    return result.returncode == 0 and f'v{version}' in result.stdout
+
+
 try:
-    if os.environ.get('KUBESEAL_FROM_GO_PROXY'):
+    if cached():
+        print(f'kubeseal v{version} restored from cache')
+    elif os.environ.get('KUBESEAL_FROM_GO_PROXY'):
         raise OSError('KUBESEAL_FROM_GO_PROXY is set')
-    from_release()
+    else:
+        from_release()
 except OSError as error:
     print(f'kubeseal release download failed ({error}); building v{version} from the Go module proxy')
     from_go_proxy()
