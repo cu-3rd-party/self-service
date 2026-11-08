@@ -1,0 +1,49 @@
+name: fastcall
+team: members
+envs:
+  prod:
+    zone: xmsk
+    quota: {cpu: 2, memory: 1Gi, storage: 128Mi}
+    apps:
+      web:
+        repo: cu3rd/fastcall
+        image: git.cu3rd.ru/cu3rd/fastcall
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: fastcall.cu3rd.ru
+            targetPort: 8080
+        secrets:
+          LK_API_SECRET: LIVEKIT_API_SECRET
+        variables:
+          LK_API_KEY: LIVEKIT_API_KEY
+        values:
+          replicas: 1
+          probes: {path: /api/healthz}
+          resources:
+            requests: {cpu: 5m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 96Mi}
+      sfu:
+        repo: cu3rd/fastcall
+        image: git.cu3rd.ru/cu3rd/fastcall-sfu
+        tag: initial
+        port: 7880
+        ingress:
+          - domain: fastcall.cu3rd.ru
+            targetPort: 7880
+            paths: [/rtc]
+        # WebRTC media connects straight to the node, LiveKit advertises these ports
+        publicPorts:
+          - {name: rtc-udp, port: 31882, protocol: UDP}
+          - {name: rtc-tcp, port: 31881, protocol: TCP}
+        secrets:
+          LIVEKIT_KEYS: LIVEKIT_KEYS
+        variables:
+          NODE_IP: LIVEKIT_NODE_IP
+        values:
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 1500m, memory: 768Mi}

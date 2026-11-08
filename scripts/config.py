@@ -66,6 +66,30 @@ def route_paths(paths):
     if len(set(paths)) != len(paths):
         raise Invalid('Duplicate ingress paths')
 
+def public_ports(app):
+    """Directly reachable NodePorts for protocols that cannot go through Traefik."""
+    ports = app.get('publicPorts', [])
+    if not isinstance(ports, list):
+        raise Invalid('publicPorts must be a list')
+    names, numbers = set(), set()
+    for item in ports:
+        keys(item, {'name', 'port', 'protocol'}, {'name', 'port', 'protocol'})
+        if not isinstance(item['name'], str) or not re.fullmatch(r'[a-z][a-z0-9-]{0,13}[a-z0-9]', item['name']) or item['name'] in {'http', 'metrics'}:
+            raise Invalid('publicPorts name: 2-15 lowercase letters/digits/hyphens, not http or metrics')
+        if type(item['port']) is not int or not 30000 <= item['port'] <= 32767:
+            raise Invalid('publicPorts port must be in NodePort range 30000-32767')
+        if item['protocol'] not in {'TCP', 'UDP'}:
+            raise Invalid('publicPorts protocol must be TCP or UDP')
+        if item['name'] in names or (item['port'], item['protocol']) in numbers:
+            raise Invalid('Duplicate publicPorts name or port')
+        names.add(item['name'])
+        numbers.add((item['port'], item['protocol']))
+    if ports and app.get('port') is None and not ingress_routes(app):
+        raise Invalid('publicPorts require an application port')
+    if names & set(app.get('values', {}).get('extraPorts', {})):
+        raise Invalid('publicPorts name overlaps values.extraPorts')
+    return ports
+
 def validate_project(p, filename):
     keys(p, {"name", "team", "envs"}, {"name", "team", "envs"})
     named(p["name"])
@@ -129,7 +153,7 @@ def validate_project(p, filename):
             named(name)
             if len(p['name'] + '-' + env + '-' + name) > 53:
                 raise Invalid("Combined release name exceeds 53 characters")
-            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "metrics", "secrets", "variables", "values"}, {"repo", "image", "tag"})
+            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "publicPorts", "metrics", "secrets", "variables", "values"}, {"repo", "image", "tag"})
             if not isinstance(app["repo"], str) or not re.fullmatch(r"cu3rd/[A-Za-z0-9_.-]+", app["repo"]):
                 raise Invalid("repo must belong to cu3rd")
             if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/cu3rd(?:-private)?/[a-z0-9_.-]+", app["image"]):
@@ -172,17 +196,24 @@ def validate_project(p, filename):
             if set(secrets) & set(variables) or (set(secrets) | set(variables)) & reserved:
                 raise Invalid("Environment names overlap secrets/variables/generated credentials")
             keys(app.get("values", {}), ALLOWED_VALUES)
+            public_ports(app)
     return p
 
 def projects(root):
     result = {}
     hosts = {}
     routes = set()
+    node_ports = set()
     for path in sorted((Path(root) / "projects").glob("*.yaml")):
         p = validate_project(load(path), path)
         result[p["name"]] = p
         for env, e in p['envs'].items():
             for a in e.get('apps', {}).values():
+                for item in a.get('publicPorts', []):
+                    key = (item['port'], item['protocol'])
+                    if key in node_ports:
+                        raise Invalid('publicPorts port is already claimed by another application')
+                    node_ports.add(key)
                 for route in ingress_routes(a):
                     h = route['domain']
                     owner = (p['name'], env)

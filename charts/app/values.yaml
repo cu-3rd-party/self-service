@@ -71,6 +71,10 @@ ingress:
   # Редирект http -> https
   redirectHttps: true
 
+# NodePorts for protocols that cannot go through Traefik, with containerPort = nodePort:
+# [{name: rtc-udp, port: 31882, protocol: UDP}]
+publicPorts: []
+
 # Managed by self-service; resource credentials never enter Helm values.
 secretRefs: []
 configRevision: ""

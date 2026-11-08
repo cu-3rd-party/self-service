@@ -27,6 +27,7 @@ locals {
     for name, app in local.apps : name => try(yamldecode(file("${var.root}/deployments/${var.config.project}/${var.config.env}/${name}.yaml")), {
     })
   }
+  public_ports  = flatten([for app in values(local.apps) : try(app.publicPorts, [])])
   metrics_ports = toset([for app in values(local.apps) : try(coalesce(try(app.metrics.port, null), try(app.port, null), try(app.ingress[0].targetPort, null)), 9090) if try(app.metrics.enabled, false)])
   resource_secrets = concat(
     try(var.config.postgres.enabled, false) ? ["${var.name}-db"] : [],
@@ -146,6 +147,23 @@ resource "kubernetes_network_policy_v1" "project" {
           content {
             port     = tostring(ports.value)
             protocol = "TCP"
+          }
+        }
+      }
+    }
+    dynamic "ingress" {
+      for_each = length(local.public_ports) > 0 ? [1] : []
+      content {
+        from {
+          ip_block {
+            cidr = "0.0.0.0/0"
+          }
+        }
+        dynamic "ports" {
+          for_each = local.public_ports
+          content {
+            port     = tostring(ports.value.port)
+            protocol = ports.value.protocol
           }
         }
       }
@@ -365,6 +383,7 @@ resource "kubernetes_manifest" "application" {
               enabled = try(each.value.host, "") != "", host = try(each.value.host, ""), paths = try(each.value.paths, ["/"])
             }
             routes      = try(each.value.ingress, [])
+            publicPorts = try(each.value.publicPorts, [])
             selfService = { project = var.config.project, env = var.config.env, application = each.key }
             metrics     = merge({ enabled = false, path = "/metrics", interval = "30s", port = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), 9090) }, try(each.value.metrics, {}))
             port        = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), null)

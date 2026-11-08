@@ -73,6 +73,11 @@ spec:
             - name: {{ $name }}
               containerPort: {{ $p }}
             {{- end }}
+            {{- range .Values.publicPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .port }}
+              protocol: {{ .protocol }}
+            {{- end }}
             {{- end }}
             {{- if and .Values.metrics.enabled (ne (int .Values.metrics.port) (int (.Values.port | default 0))) }}
             - name: metrics
