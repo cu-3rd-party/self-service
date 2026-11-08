@@ -126,6 +126,7 @@ envs:
                     - { id: packet_router, title: "Packet Router" }
                     - { id: stimulation, title: "Stimulation" }
                     - { id: safe_talk, title: "Safe Talk" }
+                    - { id: reactor, title: "Reactor 95" }
 
                 qr:
                   bot_username: "central_posvyat_bot"
