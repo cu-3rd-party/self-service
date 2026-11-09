@@ -6,7 +6,8 @@ team: sre
 envs:
   dev:
     zone: nxs
-    quota: {cpu: 2, memory: 1Gi, storage: 512Mi}
+    # запас под surge при RollingUpdate: на время выката живут две реплики бэкенда
+    quota: {cpu: 3, memory: 1536Mi, storage: 512Mi}
     # sqlx кэширует подготовленные запросы на соединении — transaction-пулер PgBouncer не подходит
     postgres:
       enabled: true
@@ -58,7 +59,7 @@ envs:
             limits: {cpu: 200m, memory: 64Mi}
   prod:
     zone: nxs
-    quota: {cpu: 2, memory: 2Gi, storage: 512Mi}
+    quota: {cpu: 3, memory: 3Gi, storage: 512Mi}
     postgres:
       enabled: true
       targetEnv: DATABASE_URL
