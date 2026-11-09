@@ -5,7 +5,9 @@ name: library
 team: sre
 envs:
   dev:
-    zone: nxs
+    # S3 (storage.cu3rd.ru на xmsk) не отвечает по TCP с nxs с 2026-11-07, а бэкенд на старте ждёт
+    # проверки бакета дольше, чем терпит liveness; с xgrm S3 доступен.
+    zone: xgrm
     # запас под surge при RollingUpdate: на время выката живут две реплики бэкенда
     quota: {cpu: 3, memory: 1536Mi, storage: 512Mi}
     # sqlx кэширует подготовленные запросы на соединении — transaction-пулер PgBouncer не подходит
@@ -58,7 +60,7 @@ envs:
             requests: {cpu: 2m, memory: 16Mi}
             limits: {cpu: 200m, memory: 64Mi}
   prod:
-    zone: nxs
+    zone: xgrm
     quota: {cpu: 3, memory: 3Gi, storage: 512Mi}
     postgres:
       enabled: true
