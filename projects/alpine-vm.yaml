@@ -2,7 +2,7 @@ name: alpine-vm
 team: sre
 envs:
   prod:
-    zone: grm
+    zone: nxs
     quota: {cpu: 1, memory: 512Mi, storage: 4Gi}
     apps:
       # «Виртуальная машина»: Alpine с sshd без root. Вход: ssh -p 8222 alpine-vm@ssh.cu3rd.ru
