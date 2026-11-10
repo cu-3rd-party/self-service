@@ -31,6 +31,7 @@ envs:
           # Bearer-токен приёма донатов POST /api/donations
           DASH_DONATION_WEBHOOK_TOKEN: DASH_DONATION_WEBHOOK_TOKEN
           DASH_CRYPTOBOT_TOKEN: DASH_CRYPTOBOT_TOKEN
+          DASH_CLOUDTIPS_URL: DASH_CLOUDTIPS_URL
         variables:
           DASH_OAUTH_CLIENT_ID: DASH_OAUTH_CLIENT_ID
           # логины Forgejo через запятую — всегда владельцы
