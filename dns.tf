@@ -19,6 +19,17 @@ locals {
     xgrm = "87.120.126.156"
   }
 }
+# Вход SSH-шлюза (homelab ssh-gateway/, hostPort 8222 на grm): ssh -p 8222 <логин>@ssh.cu3rd.ru
+resource "cloudflare_dns_record" "ssh_gateway" {
+  count   = var.cloudflare_zone_id != "" ? 1 : 0
+  zone_id = var.cloudflare_zone_id
+  name    = "ssh.cu3rd.ru"
+  type    = "A"
+  content = local.zone_addresses["grm"]
+  ttl     = 120
+  proxied = false
+  comment = "Managed by cu3rd/self-service; SSH gateway (sshpiper) on grm:8222"
+}
 resource "terraform_data" "dns_configuration" {
   input = sort(keys(local.domain_zones))
   lifecycle {

@@ -51,3 +51,13 @@ variable "cloudflare_zone_id" {
   type        = string
   default     = ""
 }
+# SSH-шлюз ssh.cu3rd.ru:8222 (homelab ssh-gateway/). Публичная часть секрета upstream-key:
+# её чарт кладёт в authorized_keys приложений с блоком ssh.
+variable "ssh_gateway_namespace" {
+  type    = string
+  default = "ssh-gateway"
+}
+variable "ssh_gateway_public_key" {
+  type    = string
+  default = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPOWcaWv0dW4gz7c6HHvLvox69QhCzUg9O9LuWjnRVTY self-service-ssh-gateway"
+}

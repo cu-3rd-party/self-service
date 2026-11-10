@@ -1,0 +1,21 @@
+{{- if .Values.ssh.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-ssh
+  labels: {{- include "app.labels" . | nindent 4 }}
+data:
+  authorized_keys: {{ printf "%s\n" (trim .Values.ssh.authorizedKeys) | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ssh
+  labels: {{- include "app.labels" . | nindent 4 }}
+spec:
+  selector: {{- include "app.selector" . | nindent 4 }}
+  ports:
+    - name: ssh
+      port: {{ .Values.ssh.port }}
+      targetPort: ssh
+{{- end }}

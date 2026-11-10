@@ -18,6 +18,9 @@ variable "root" {
 variable "chart_revision" {
   type = string
 }
+variable "ssh_gateway" {
+  type = object({ namespace = string, public_key = string, key_secret = string })
+}
 locals {
 
   namespace = "cu3rd-${var.name}"
@@ -28,6 +31,8 @@ locals {
     })
   }
   metrics_ports = toset([for app in values(local.apps) : try(coalesce(try(app.metrics.port, null), try(app.port, null), try(app.ingress[0].targetPort, null)), 9090) if try(app.metrics.enabled, false)])
+  ssh_apps      = { for name, app in local.apps : name => app.ssh if try(app.ssh, null) != null }
+  ssh_ports     = toset([for ssh in values(local.ssh_apps) : try(ssh.port, 2222)])
   resource_secrets = concat(
     try(var.config.postgres.enabled, false) ? ["${var.name}-db"] : [],
     try(var.config.s3.enabled, false) ? ["${var.name}-s3"] : [],
@@ -143,6 +148,22 @@ resource "kubernetes_network_policy_v1" "project" {
         }
         dynamic "ports" {
           for_each = local.metrics_ports
+          content {
+            port     = tostring(ports.value)
+            protocol = "TCP"
+          }
+        }
+      }
+    }
+    dynamic "ingress" {
+      for_each = length(local.ssh_ports) > 0 ? [1] : []
+      content {
+        from {
+          namespace_selector { match_labels = { "kubernetes.io/metadata.name" = var.ssh_gateway.namespace } }
+          pod_selector { match_labels = { "app.kubernetes.io/name" = "sshpiper" } }
+        }
+        dynamic "ports" {
+          for_each = local.ssh_ports
           content {
             port     = tostring(ports.value)
             protocol = "TCP"
@@ -368,6 +389,7 @@ resource "kubernetes_manifest" "application" {
             selfService = { project = var.config.project, env = var.config.env, application = each.key }
             metrics     = merge({ enabled = false, path = "/metrics", interval = "30s", port = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), 9090) }, try(each.value.metrics, {}))
             port        = try(coalesce(try(each.value.port, null), try(each.value.ingress[0].targetPort, null)), null)
+            ssh         = { enabled = contains(keys(local.ssh_apps), each.key), port = try(each.value.ssh.port, 2222), authorizedKeys = var.ssh_gateway.public_key }
 
           }))
 
@@ -394,6 +416,36 @@ resource "kubernetes_manifest" "application" {
 
   }
   depends_on = [kubernetes_resource_quota_v1.project, kubernetes_limit_range_v1.project, kubernetes_network_policy_v1.project]
+}
+# Маршрут шлюза ssh.cu3rd.ru:8222 (homelab ssh-gateway/): логин и ключи людей -> sshd приложения.
+# Pipe лежит в namespace шлюза, поэтому приватный ключ шлюза в namespace проекта не попадает.
+resource "kubernetes_manifest" "ssh_pipe" {
+  for_each = local.ssh_apps
+  manifest = {
+    apiVersion = "sshpiper.com/v1beta1"
+    kind       = "Pipe"
+    metadata = {
+      name      = try(each.value.login, "${var.name}-${each.key}")
+      namespace = var.ssh_gateway.namespace
+      labels = {
+        "cu3rd.ru/managed-by"  = "self-service"
+        "cu3rd.ru/project"     = var.config.project
+        "cu3rd.ru/env"         = var.config.env
+        "cu3rd.ru/application" = each.key
+      }
+    }
+    spec = {
+      from = [{
+        username             = try(each.value.login, "${var.name}-${each.key}")
+        authorized_keys_data = base64encode("${join("\n", each.value.authorizedKeys)}\n")
+      }]
+      to = {
+        host               = "${var.name}-${each.key}-ssh.${local.namespace}.svc.cluster.local:${try(each.value.port, 2222)}"
+        username           = each.value.user
+        private_key_secret = { name = var.ssh_gateway.key_secret }
+      }
+    }
+  }
 }
 output "namespace" {
   value = kubernetes_namespace_v1.project.metadata[0].name

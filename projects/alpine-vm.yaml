@@ -1,0 +1,30 @@
+name: alpine-vm
+team: sre
+envs:
+  prod:
+    zone: grm
+    quota: {cpu: 1, memory: 512Mi, storage: 4Gi}
+    apps:
+      # «Виртуальная машина»: Alpine с sshd без root. Вход: ssh -p 8222 alpine-vm@ssh.cu3rd.ru
+      box:
+        repo: cu3rd/alpine-vm
+        image: git.cu3rd.ru/cu3rd/alpine-vm
+        tag: 725b239372312bac3a447d4dbd80148fe705460d
+        ssh:
+          login: alpine-vm
+          user: vm
+          port: 2222
+          # дать доступ ещё кому-то — дописать сюда его публичный ключ
+          authorizedKeys:
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPWyJCme/PgjTcYJadpxqt+q90FdzSN+3lAYUu9Q6999 igor@igor-Vivobook-Go-E1504FA-E1504FA
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDB5rHhig02oiDXAMeWv1m1Am5F2J+stEBSJi27M9me0 igor@fedora
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILUf92Rta9BJl7p97BWoQ2RF1Z82Og8w5a5Plekta6VI igor@fedora
+        values:
+          replicas: 1
+          # том local-path монтируется только в один под
+          strategy: Recreate
+          resources:
+            requests: {cpu: 10m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+          persistence:
+            home: {path: /home/vm, size: 4Gi}

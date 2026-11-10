@@ -64,7 +64,7 @@ spec:
                 name: {{ . }}
             {{- end }}
           {{- end }}
-          {{- if or .Values.port .Values.metrics.enabled }}
+          {{- if or .Values.port .Values.metrics.enabled .Values.ssh.enabled }}
           ports:
             {{- if .Values.port }}
             - name: http
@@ -78,6 +78,10 @@ spec:
             - name: metrics
               containerPort: {{ .Values.metrics.port }}
             {{- end }}
+            {{- if .Values.ssh.enabled }}
+            - name: ssh
+              containerPort: {{ .Values.ssh.port }}
+            {{- end }}
           {{- if and .Values.port .Values.probes.path }}
           readinessProbe:
             httpGet: {path: {{ .Values.probes.path }}, port: http}
@@ -87,7 +91,7 @@ spec:
           {{- end }}
           {{- end }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles }}
+          {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled }}
           volumeMounts:
             {{- range $name, $path := .Values.emptyDirs }}
             - name: {{ $name }}
@@ -103,8 +107,14 @@ spec:
               subPath: {{ $name }}
               readOnly: true
             {{- end }}
+            {{- if .Values.ssh.enabled }}
+            # каталогом, без subPath: смена ключа шлюза доходит без перезапуска пода
+            - name: ssh
+              mountPath: /run/self-service/ssh
+              readOnly: true
+            {{- end }}
           {{- end }}
-      {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles }}
+      {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled }}
       volumes:
         {{- range $name, $_ := .Values.emptyDirs }}
         - name: {{ $name }}
@@ -119,5 +129,10 @@ spec:
         - name: files
           configMap:
             name: {{ .Release.Name }}-files
+        {{- end }}
+        {{- if .Values.ssh.enabled }}
+        - name: ssh
+          configMap:
+            name: {{ .Release.Name }}-ssh
         {{- end }}
       {{- end }}

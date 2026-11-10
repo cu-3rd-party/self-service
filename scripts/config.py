@@ -9,6 +9,10 @@ ENV = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 SOURCE = re.compile(r"^[A-Z_][A-Z0-9_]*$")
 TAG = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$")
 MODEL = re.compile(r"^[a-z0-9][a-z0-9_.-]*/[A-Za-z0-9_.:-]+$")
+SSH_LOGIN = re.compile(r"^[a-z][a-z0-9-]{1,61}[a-z0-9]$")
+SSH_USER = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
+# One public key per entry, no authorized_keys options: the gateway decides who gets in.
+SSH_KEY = re.compile(r"^(?:ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com) [A-Za-z0-9+/]{32,}={0,2}(?: [ -~]{1,100})?$")
 ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts"}
 class Invalid(ValueError):
     pass
@@ -59,6 +63,24 @@ def domain(value):
         raise Invalid('Invalid ingress domain: use lowercase DNS labels, no schemes, wildcards or ports')
     if value in {'git.cu3rd.ru', 'vault.cu3rd.ru', 'argocd.cu3rd.ru', 'grafana.cu3rd.ru'}:
         raise Invalid('Ingress domain is reserved for platform services')
+
+def ssh_login(project, env, name, app):
+    """Name a person passes to the gateway: ssh -p 8222 <login>@ssh.cu3rd.ru."""
+    return app['ssh'].get('login', f"{project}-{env}-{name}")
+
+def ssh_access(ssh):
+    keys(ssh, {'user', 'port', 'login', 'authorizedKeys'}, {'user', 'authorizedKeys'})
+    if not isinstance(ssh['user'], str) or not SSH_USER.fullmatch(ssh['user']) or ssh['user'] == 'root':
+        raise Invalid('ssh.user: the non-root user sshd in the container accepts')
+    if type(ssh.get('port', 2222)) is not int or not 1024 <= ssh.get('port', 2222) <= 65535:
+        raise Invalid('ssh.port must be 1024–65535')
+    if 'login' in ssh and (not isinstance(ssh['login'], str) or not SSH_LOGIN.fullmatch(ssh['login'])):
+        raise Invalid('ssh.login: 3–63 lowercase letters/digits/hyphens, beginning with a letter')
+    listed = ssh['authorizedKeys']
+    if not isinstance(listed, list) or not 1 <= len(listed) <= 50 or any(not isinstance(k, str) or not SSH_KEY.fullmatch(k) for k in listed):
+        raise Invalid('ssh.authorizedKeys: 1–50 public keys, each "<type> <base64> [comment]" without options')
+    if len({k.split()[1] for k in listed}) != len(listed):
+        raise Invalid('Duplicate ssh.authorizedKeys')
 
 def route_paths(paths):
     if not isinstance(paths, list) or not paths or any(not isinstance(x, str) or not x.startswith('/') for x in paths):
@@ -129,7 +151,7 @@ def validate_project(p, filename):
             named(name)
             if len(p['name'] + '-' + env + '-' + name) > 53:
                 raise Invalid("Combined release name exceeds 53 characters")
-            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "metrics", "secrets", "variables", "values"}, {"repo", "image", "tag"})
+            keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "metrics", "ssh", "secrets", "variables", "values"}, {"repo", "image", "tag"})
             if not isinstance(app["repo"], str) or not re.fullmatch(r"cu3rd/[A-Za-z0-9_.-]+", app["repo"]):
                 raise Invalid("repo must belong to cu3rd")
             if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/cu3rd(?:-private)?/[a-z0-9_.-]+", app["image"]):
@@ -166,6 +188,12 @@ def validate_project(p, filename):
                 raise Invalid('metrics.interval must be 15s, 30s or 60s')
             if metrics.get('enabled') and 'metrics' in app.get('values', {}).get('extraPorts', {}):
                 raise Invalid('Port name metrics is reserved when metrics are enabled')
+            if 'ssh' in app:
+                ssh_access(app['ssh'])
+                if 'ssh' in app.get('values', {}).get('extraPorts', {}):
+                    raise Invalid('Port name ssh is reserved when ssh is declared')
+                if app['ssh'].get('port', 2222) in {app.get('port'), metrics.get('port') if metrics.get('enabled') else None, *[r['targetPort'] for r in ingress_routes(app)], *app.get('values', {}).get('extraPorts', {}).values()}:
+                    raise Invalid('ssh.port must differ from the other ports of the application')
             secrets, variables = app.get("secrets", {}), app.get("variables", {})
             mappings(secrets)
             mappings(variables)
@@ -178,11 +206,17 @@ def projects(root):
     result = {}
     hosts = {}
     routes = set()
+    logins = set()
     for path in sorted((Path(root) / "projects").glob("*.yaml")):
         p = validate_project(load(path), path)
         result[p["name"]] = p
         for env, e in p['envs'].items():
-            for a in e.get('apps', {}).values():
+            for name, a in e.get('apps', {}).items():
+                if 'ssh' in a:
+                    login = ssh_login(p['name'], env, name, a)
+                    if login in logins:
+                        raise Invalid('SSH login is already claimed by another application')
+                    logins.add(login)
                 for route in ingress_routes(a):
                     h = route['domain']
                     owner = (p['name'], env)

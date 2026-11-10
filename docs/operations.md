@@ -121,3 +121,17 @@ CODEOWNERS, официальный review и merge защищённого master
 проверяйте CI. Merge whitelist ограничен SRE: членство только в Owners не даёт права
 обычного или force merge через PR. Системные администраторы сохраняют возможность
 менять настройки экземпляра и репозитория.
+
+## SSH-шлюз
+
+`ssh -p 8222 <login>@ssh.cu3rd.ru` → sshpiper в namespace `ssh-gateway` на grm (homelab
+`ssh-gateway/`, hostPort 8222, порт открыт в `hosts/firewall.toml`). На каждое приложение
+с блоком `ssh` tofu создаёт там `Pipe` с именем логина; запись `ssh.cu3rd.ru` — `dns.tf`.
+
+- Диагностика: `kubectl -n ssh-gateway get pipes`, `kubectl -n ssh-gateway logs deploy/sshpiper`.
+  `Permission denied` до входа в контейнер — ключа человека нет в `authorizedKeys` или
+  неверный логин; ошибка после — sshd приложения не принял ключ шлюза или не запущен.
+- Ключи шлюза — SealedSecret'ы `host-key` и `upstream-key`, исходники в `/root/k8s/keys/ssh-gateway-*`
+  на nxs. При замене `upstream-key` обновите `ssh_gateway_public_key` в `variables.tf`: чарт
+  разложит новый ключ по приложениям без перезапуска подов.
+- CRD `pipes.sshpiper.com` ставит homelab; без него `tofu plan` падает на `kubernetes_manifest`.

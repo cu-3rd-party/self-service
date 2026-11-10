@@ -115,6 +115,56 @@ envs:
 обновляет `zone_addresses` в `dns.tf`. Удаление маршрута удаляет его DNS-запись, Ingress, маршрутный Service и сертификат.
 Служебные TLS Secrets очищаются после удаления сертификата.
 
+## SSH-доступ в контейнер
+
+Блок `ssh` у приложения открывает вход в его контейнер через общий шлюз платформы:
+
+```sh
+ssh -p 8222 <login>@ssh.cu3rd.ru
+```
+
+```yaml
+    apps:
+      box:
+        repo: cu3rd/alpine-vm
+        image: git.cu3rd.ru/cu3rd/alpine-vm
+        tag: <тег>
+        ssh:
+          login: alpine-vm          # необязательно; по умолчанию <проект>-<env>-<app>
+          user: vm                  # пользователь внутри контейнера (не root)
+          port: 2222                # порт sshd в контейнере, по умолчанию 2222
+          authorizedKeys:           # кто может войти: публичные ключи людей
+            - ssh-ed25519 AAAA... ivan@laptop
+```
+
+SSH не передаёт имя хоста, поэтому контейнер выбирается именем пользователя: адрес и порт
+у всех одни, `login` уникален на всю платформу. Шлюз (sshpiper, homelab `ssh-gateway/`)
+сверяет ключ человека со списком `authorizedKeys` и сам входит в контейнер своим ключом.
+
+- **Дать или забрать доступ** — PR, меняющий `authorizedKeys`. После merge шлюз подхватывает
+  список за минуту, под не перезапускается. Уже открытые сессии не рвутся.
+- Ключ — одна строка `<тип> <base64> [комментарий]`, без опций; до 50 ключей.
+- Пароли и вход в обход шлюза не поддерживаются: порт sshd доступен только шлюзу
+  (NetworkPolicy) и соседям по namespace.
+
+Что требуется от образа: sshd, работающий без root (UID 10001, без capabilities) на
+`ssh.port`, который пускает `ssh.user` по ключам из файла
+`/run/self-service/ssh/authorized_keys` — туда платформа монтирует публичный ключ шлюза.
+Минимальный `sshd_config`:
+
+```
+Port 2222
+HostKey /home/vm/.sshd/ssh_host_ed25519_key
+PidFile none
+AuthorizedKeysFile /run/self-service/ssh/authorized_keys
+StrictModes no
+PasswordAuthentication no
+```
+
+Готовый образ «виртуальной машины» — [cu3rd/alpine-vm](https://git.cu3rd.ru/cu3rd/alpine-vm)
+(`projects/alpine-vm.yaml`); его `sshd_config` и `entrypoint.sh` можно взять за основу.
+Блок `ssh` сочетается с `port`/`ingress`: sshd можно добавить и в обычное приложение.
+
 ## Метрики и логи
 
 Для **всех приложений**, включая воркеры без HTTP, автоматически доступны:
@@ -237,6 +287,9 @@ API OpenAI-совместимый: любой OpenAI SDK с `base_url=$AI__BASE_
   образ должен поддерживать запуск без root. HTTP-порт: 1024–65535.
 - Между приложениями разрешён доступ внутри своего namespace. Разрешены DNS, Postgres,
   S3 и внешний HTTP(S); private ranges и IP узлов исключены из internet egress.
+- SSH (блок `ssh`): снаружи открыт только шлюз `ssh.cu3rd.ru:8222`; приватный ключ шлюза
+  лежит в его namespace и в namespace проектов не попадает. Вошедший получает оболочку с
+  правами приложения: видит его переменные и секреты, сеть — как у пода.
 - Для каждого окружения создаётся отдельный Argo AppProject с единственным namespace.
 - Actions self-service запускаются на `homelab-docker`: сейчас это `cu3rd-nxs` и
   `cu3rd-grm`, без метки `ru`. Раннер `cu3rd-wrk` с меткой `ru` не подходит под

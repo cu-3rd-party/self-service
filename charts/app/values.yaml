@@ -71,6 +71,14 @@ ingress:
   # Редирект http -> https
   redirectHttps: true
 
+# SSH-доступ через шлюз ssh.cu3rd.ru:8222 (задаётся блоком ssh в projects/*.yaml).
+# Чарт кладёт публичный ключ шлюза в /run/self-service/ssh/authorized_keys и
+# создаёт Service <release>-ssh; sshd в образе должен слушать port без root.
+ssh:
+  enabled: false
+  port: 2222
+  authorizedKeys: ""
+
 # Managed by self-service; resource credentials never enter Helm values.
 secretRefs: []
 configRevision: ""
