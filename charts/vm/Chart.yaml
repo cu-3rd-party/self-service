@@ -1,0 +1,5 @@
+apiVersion: v2
+name: vm
+description: Виртуальная машина KubeVirt с sshd (блок vms в проекте)
+type: application
+version: 0.1.0

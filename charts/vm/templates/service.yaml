@@ -1,0 +1,14 @@
+{{- if .Values.ssh.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ssh
+  labels: {{- include "vm.labels" . | nindent 4 }}
+spec:
+  selector:
+    vm.kubevirt.io/name: {{ .Release.Name }}
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: 22
+{{- end }}

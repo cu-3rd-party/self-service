@@ -1,0 +1,65 @@
+{{- $url := required "unknown os" (get .Values.images .Values.os) }}
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "vm.labels" . | nindent 4 }}
+spec:
+  runStrategy: Always
+  dataVolumeTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-root
+      spec:
+        source:
+          http:
+            url: {{ $url }}
+        storage:
+          resources:
+            requests:
+              storage: {{ .Values.disk }}
+  template:
+    metadata:
+      labels: {{- include "vm.labels" . | nindent 8 }}
+    spec:
+      nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}
+      domain:
+        cpu:
+          cores: {{ .Values.cpu }}
+        memory:
+          guest: {{ .Values.memory }}
+        # с лимитами под ВМ укладывается в квоту limits.* проекта
+        resources:
+          limits:
+            cpu: {{ .Values.cpu | quote }}
+            memory: {{ .Values.memory }}
+        devices:
+          disks:
+            - name: root
+              disk: {bus: virtio}
+            - name: cloudinit
+              disk: {bus: virtio}
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: root
+          dataVolume:
+            name: {{ .Release.Name }}-root
+        - name: cloudinit
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              {{- if .Values.ssh.enabled }}
+              users:
+                - name: {{ .Values.ssh.user }}
+                  shell: /bin/sh
+                  # sshd в Alpine (без PAM) не пускает учётки с паролем "!" даже по ключу
+                  lock_passwd: false
+                  hashed_passwd: "*"
+                  doas: ["permit nopass {{ .Values.ssh.user }}"]
+                  sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+                  ssh_authorized_keys: [{{ trim .Values.ssh.authorizedKeys | quote }}]
+              {{- end }}

@@ -13,6 +13,9 @@ SSH_LOGIN = re.compile(r"^[a-z][a-z0-9-]{1,61}[a-z0-9]$")
 SSH_USER = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
 # One public key per entry, no authorized_keys options: the gateway decides who gets in.
 SSH_KEY = re.compile(r"^(?:ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com) [A-Za-z0-9+/]{32,}={0,2}(?: [ -~]{1,100})?$")
+# Зоны с /dev/kvm, где стоит KubeVirt (homelab kubevirt/), и образы charts/vm/values.yaml.
+KVM_ZONES = {"nxs"}
+VM_OS = {"alpine-3.24"}
 ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts"}
 class Invalid(ValueError):
     pass
@@ -99,7 +102,7 @@ def validate_project(p, filename):
     for env, e in p["envs"].items():
         if env not in {"dev", "prod", "test", "staging"}:
             raise Invalid("Environment: dev/prod/test/staging")
-        keys(e, {"zone", "quota", "postgres", "s3", "ai", "apps"})
+        keys(e, {"zone", "quota", "postgres", "s3", "ai", "apps", "vms"})
         if e.get("zone", "nxs") not in {"nxs", "grm", "xmsk", "xgrm"}:
             raise Invalid("Unknown zone")
         q = e.get("quota", {})
@@ -200,7 +203,34 @@ def validate_project(p, filename):
             if set(secrets) & set(variables) or (set(secrets) | set(variables)) & reserved:
                 raise Invalid("Environment names overlap secrets/variables/generated credentials")
             keys(app.get("values", {}), ALLOWED_VALUES)
+        vms = e.get("vms", {})
+        if not isinstance(vms, dict):
+            raise Invalid("vms must be a mapping")
+        if vms and e.get("zone", "nxs") not in KVM_ZONES:
+            raise Invalid(f"vms need a zone with hardware virtualization: {', '.join(sorted(KVM_ZONES))}")
+        for name, vm in vms.items():
+            validate_vm(p["name"], env, name, vm)
+            if name in e.get("apps", {}):
+                raise Invalid("A VM and an application cannot share a name")
     return p
+
+def validate_vm(project, env, name, vm):
+    named(name)
+    if len(project + '-' + env + '-' + name) > 53:
+        raise Invalid("Combined release name exceeds 53 characters")
+    keys(vm, {"os", "cpu", "memory", "disk", "ssh"})
+    if vm.get("os", "alpine-3.24") not in VM_OS:
+        raise Invalid(f"vm os: one of {', '.join(sorted(VM_OS))}")
+    if type(vm.get("cpu", 1)) is not int or not 1 <= vm.get("cpu", 1) <= 4:
+        raise Invalid("vm cpu: whole cores 1–4")
+    if not 128 <= quantity(vm.get("memory", "512Mi"), "memory") <= 4096:
+        raise Invalid("vm memory: 128Mi–4Gi")
+    if not 1024 <= quantity(vm.get("disk", "2Gi"), "storage") <= 20480:
+        raise Invalid("vm disk: 1Gi–20Gi")
+    if "ssh" in vm:
+        if "port" in vm["ssh"]:
+            raise Invalid("vm ssh listens on 22; ssh.port is for containers")
+        ssh_access(vm["ssh"])
 
 def projects(root):
     result = {}
@@ -211,6 +241,12 @@ def projects(root):
         p = validate_project(load(path), path)
         result[p["name"]] = p
         for env, e in p['envs'].items():
+            for name, vm in e.get('vms', {}).items():
+                if 'ssh' in vm:
+                    login = ssh_login(p['name'], env, name, vm)
+                    if login in logins:
+                        raise Invalid('SSH login is already claimed by another application')
+                    logins.add(login)
             for name, a in e.get('apps', {}).items():
                 if 'ssh' in a:
                     login = ssh_login(p['name'], env, name, a)

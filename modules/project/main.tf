@@ -32,7 +32,9 @@ locals {
   }
   metrics_ports = toset([for app in values(local.apps) : try(coalesce(try(app.metrics.port, null), try(app.port, null), try(app.ingress[0].targetPort, null)), 9090) if try(app.metrics.enabled, false)])
   ssh_apps      = { for name, app in local.apps : name => app.ssh if try(app.ssh, null) != null }
-  ssh_ports     = toset([for ssh in values(local.ssh_apps) : try(ssh.port, 2222)])
+  vms           = try(var.config.vms, {})
+  ssh_vms       = { for name, vm in local.vms : name => vm.ssh if try(vm.ssh, null) != null }
+  ssh_ports     = toset(concat([for ssh in values(local.ssh_apps) : try(ssh.port, 2222)], length(local.ssh_vms) > 0 ? [22] : []))
   resource_secrets = concat(
     try(var.config.postgres.enabled, false) ? ["${var.name}-db"] : [],
     try(var.config.s3.enabled, false) ? ["${var.name}-s3"] : [],
@@ -334,6 +336,9 @@ resource "kubernetes_manifest" "argo_project" {
         },
         {
           group = "traefik.io", kind = "Middleware"
+        },
+        {
+          group = "kubevirt.io", kind = "VirtualMachine"
         }
       ]
 
@@ -428,7 +433,7 @@ resource "kubernetes_manifest" "application" {
 # Маршрут шлюза ssh.cu3rd.ru:8222 (homelab ssh-gateway/): логин и ключи людей -> sshd приложения.
 # Pipe лежит в namespace шлюза, поэтому приватный ключ шлюза в namespace проекта не попадает.
 resource "kubernetes_manifest" "ssh_pipe" {
-  for_each = local.ssh_apps
+  for_each = merge(local.ssh_apps, { for name, ssh in local.ssh_vms : name => merge(ssh, { port = 22 }) })
   manifest = {
     apiVersion = "sshpiper.com/v1beta1"
     kind       = "Pipe"
@@ -457,4 +462,43 @@ resource "kubernetes_manifest" "ssh_pipe" {
 }
 output "namespace" {
   value = kubernetes_namespace_v1.project.metadata[0].name
+}
+# Виртуальные машины KubeVirt (vms в проекте): только зоны с /dev/kvm, проверяет scripts/config.py.
+resource "kubernetes_manifest" "vm_application" {
+  for_each = local.vms
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name       = "cu3rd-${var.name}-${each.key}", namespace = "argocd"
+      finalizers = ["resources-finalizer.argocd.argoproj.io"]
+    }
+    spec = {
+      project = kubernetes_manifest.argo_project.manifest.metadata.name
+      source = {
+        repoURL        = "https://git.cu3rd.ru/cu3rd/self-service.git"
+        targetRevision = var.chart_revision
+        path           = "charts/vm"
+        helm = {
+          releaseName = "${var.name}-${each.key}"
+          values = yamlencode({
+            os           = try(each.value.os, "alpine-3.24")
+            cpu          = try(each.value.cpu, 1)
+            memory       = try(each.value.memory, "512Mi")
+            disk         = try(each.value.disk, "2Gi")
+            nodeSelector = { "homelab/site" = try(var.config.zone, "nxs") }
+            ssh          = { enabled = contains(keys(local.ssh_vms), each.key), user = try(each.value.ssh.user, "vm"), authorizedKeys = var.ssh_gateway.public_key }
+            selfService  = { project = var.config.project, env = var.config.env, application = each.key }
+          })
+        }
+      }
+      destination = {
+        server = "https://kubernetes.default.svc", namespace = local.namespace
+      }
+      syncPolicy = {
+        automated = { prune = true, selfHeal = true }
+        retry     = { limit = 10, backoff = { duration = "15s", maxDuration = "3m" } }
+      }
+    }
+  }
 }

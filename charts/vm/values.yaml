@@ -1,0 +1,16 @@
+# Образ системы из списка ниже. Диск импортируется CDI один раз при создании ВМ.
+os: alpine-3.24
+images:
+  alpine-3.24: https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/cloud/alpine-3.24.2-x86_64-cloudinit-r2.qcow2
+cpu: 1
+memory: 512Mi
+disk: 2Gi
+# Только узлы с /dev/kvm (KubeVirt в homelab стоит на nxs).
+nodeSelector: {}
+# Пользователь с root через doas; входят только через шлюз ssh.cu3rd.ru.
+ssh:
+  enabled: false
+  user: vm
+  # публичный ключ шлюза
+  authorizedKeys: ""
+selfService: {}
