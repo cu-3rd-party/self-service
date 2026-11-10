@@ -4,8 +4,8 @@ envs:
   prod:
     # ВМ — только в зонах с аппаратной виртуализацией (сейчас nxs)
     zone: nxs
-    # ВМ с 512Mi памяти занимает ~940Mi limits.memory (накладные расходы KubeVirt), диск +~6% на CDI
-    quota: {cpu: 2, memory: 2Gi, storage: 5Gi}
+    # ВМ с 512Mi памяти занимает ~940Mi limits.memory (накладные расходы KubeVirt), при импорте диска CDI временно берёт ещё столько же (scratch)
+    quota: {cpu: 2, memory: 2Gi, storage: 10Gi}
     vms:
       # Настоящая ВМ (KubeVirt): Alpine, свой kernel, root через doas.
       # Вход: ssh -p 8222 alpine-kvm@ssh.cu3rd.ru, затем doas -s
