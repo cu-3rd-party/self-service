@@ -48,6 +48,8 @@ emptyDirs: {}
 # Постоянные тома (PVC local-path, данные на диске узла — нужен nodeSelector
 # и strategy: Recreate): {имя: {path: /data, size: 1Gi}}
 persistence: {}
+# Суффикс имён PVC; self-service ставит "-<зона>" после смены зоны окружения.
+persistenceSuffix: ""
 
 # Файлы из values (ConfigMap <release>-files, монтируются по одному через subPath):
 # {имя: {path: /app/config.yaml, content: |...}}

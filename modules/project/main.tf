@@ -341,6 +341,13 @@ resource "kubernetes_manifest" "argo_project" {
 
   }
 }
+# Зона, в которой окружение жило при первом apply. Тома local-path привязаны
+# к диску узла, поэтому при смене зоны PVC получает новое имя с суффиксом
+# зоны: новый том создаётся на новом узле, старый Argo удаляет (prune).
+resource "terraform_data" "storage_zone" {
+  input = try(var.config.zone, "nxs")
+  lifecycle { ignore_changes = [input] }
+}
 resource "kubernetes_manifest" "application" {
 
   for_each = {
@@ -382,6 +389,7 @@ resource "kubernetes_manifest" "application" {
             nodeSelector = {
               "homelab/site" = try(var.config.zone, "nxs")
             }
+            persistenceSuffix = try(var.config.zone, "nxs") == terraform_data.storage_zone.output ? "" : "-${try(var.config.zone, "nxs")}"
             ingress = {
               enabled = try(each.value.host, "") != "", host = try(each.value.host, ""), paths = try(each.value.paths, ["/"])
             }

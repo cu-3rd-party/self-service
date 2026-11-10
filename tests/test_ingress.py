@@ -98,6 +98,18 @@ class RenderIngress(unittest.TestCase):
         self.assertEqual(rules['testcontainer.dev.cu3rd.ru'][0]['path'], '/')
         self.assertTrue(any(d['kind'] == 'Middleware' and d['spec']['redirectScheme']['scheme'] == 'https' for d in manifests))
 
+    def test_persistence_suffix_renames_claim(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml') as f:
+            yaml.safe_dump({'persistence': {'home': {'path': '/home', 'size': '1Gi'}}, 'persistenceSuffix': '-nxs'}, f)
+            f.flush()
+            text = subprocess.check_output(['helm', 'template', 'vm', str(ROOT / 'charts/app'), '-f', f.name], text=True)
+        docs = [d for d in yaml.safe_load_all(text) if d]
+        pvc = next(d for d in docs if d['kind'] == 'PersistentVolumeClaim')
+        self.assertEqual(pvc['metadata']['name'], 'vm-home-nxs')
+        deploy = next(d for d in docs if d['kind'] == 'Deployment')
+        claims = [v['persistentVolumeClaim']['claimName'] for v in deploy['spec']['template']['spec']['volumes'] if 'persistentVolumeClaim' in v]
+        self.assertEqual(claims, ['vm-home-nxs'])
+
     def test_persistent_volume_is_prunable(self):
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml') as f:
             yaml.safe_dump({'persistence': {'scratch': {'path': '/scratch', 'size': '128Mi'}}}, f)

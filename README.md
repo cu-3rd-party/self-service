@@ -261,6 +261,7 @@ API OpenAI-совместимый: любой OpenAI SDK с `base_url=$AI__BASE_
 | `ai` или `enabled: false` | Ключ LiteLLM (сразу перестаёт работать) и Secret; история расходов остаётся в LiteLLM |
 | Элемент `ingress` | Его DNS-запись и маршрутизация; сертификат обновляется/удаляется |
 | Элемент `values.persistence` | PVC и данные тома (для текущего local-path с reclaimPolicy Delete) |
+| Смена `zone` окружения | Тома: данные local-path лежат на диске старого узла, поэтому на новом создаются пустые PVC (имя с суффиксом `-<зона>`), старые удаляются. Нужные данные перенесите заранее |
 | Приложение в `apps` | Argo Application и его Deployment, Service, Ingress, SealedSecret, PVC и сертификаты |
 | Окружение или весь файл проекта | Все его ресурсы, включая namespace и данные |
 
