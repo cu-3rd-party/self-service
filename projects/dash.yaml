@@ -1,0 +1,43 @@
+# Открытые финансы cu3rd: cu3rd/dash (Go, chi + xorm + htmx, как paste и db-access).
+# Публичная страница расходов и донатов, админка со входом через git.cu3rd.ru (OAuth2) и ролями.
+name: dash
+team: sre
+envs:
+  prod:
+    zone: grm
+    # запас под surge при RollingUpdate: на время выката живут две реплики
+    quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
+    # lib/pq готовит запросы отдельным шагом, transaction-пулер PgBouncer
+    # может выполнить его на другом соединении, поэтому напрямую (как paste и db-access)
+    postgres:
+      enabled: true
+      targetEnv: DASH_DB_DSN
+      format: url
+      pooler: false
+    apps:
+      web:
+        repo: cu3rd/dash
+        image: git.cu3rd.ru/cu3rd/dash
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: dash.cu3rd.ru
+            targetPort: 8080
+        secrets:
+          # подпись cookie сессии, от 32 символов
+          DASH_SESSION_SECRET: DASH_SESSION_SECRET
+          # OAuth2-приложение git.cu3rd.ru, redirect https://dash.cu3rd.ru/auth/callback
+          DASH_OAUTH_CLIENT_SECRET: DASH_OAUTH_CLIENT_SECRET
+          # Bearer-токен приёма донатов POST /api/donations
+          DASH_DONATION_WEBHOOK_TOKEN: DASH_DONATION_WEBHOOK_TOKEN
+        variables:
+          DASH_OAUTH_CLIENT_ID: DASH_OAUTH_CLIENT_ID
+          # логины Forgejo через запятую — всегда владельцы
+          DASH_BOOTSTRAP_OWNERS: DASH_BOOTSTRAP_OWNERS
+          DASH_BASE_URL: DASH_BASE_URL
+        values:
+          replicas: 1
+          probes: {path: /api/healthz}
+          resources:
+            requests: {cpu: 5m, memory: 24Mi}
+            limits: {cpu: 200m, memory: 96Mi}
