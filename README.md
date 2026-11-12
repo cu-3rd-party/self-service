@@ -4,6 +4,12 @@
 OpenTofu создаёт namespace, квоты, NetworkPolicy, Postgres, S3 и Argo CD Application.
 Argo CD разворачивает приложения из общего чарта. Инфраструктура homelab остаётся отдельно.
 
+Исходники и образы также могут принадлежать личному аккаунту `Jedi_kitten`.
+Для него используются `repo: Jedi_kitten/<имя>` и
+`image: git.cu3rd.ru/jedi_kitten/<имя>`. Регистрация проходит обычное ревью SRE.
+`team: jedi-kitten` документирует владельца этих проектов. Раннеры и доступы
+к registry для личных репозиториев настраиваются отдельно от организации cu3rd.
+
 ## Завести приложение
 
 1. Скопируйте `examples/telegram-bot.yaml` в `projects/<имя>.yaml`, укажите существующую

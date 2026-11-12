@@ -1,0 +1,75 @@
+# Staging registration. Enable replicas and production ingress after data restore.
+# Owning personal account is Jedi_kitten.
+name: lit-club
+team: jedi-kitten
+envs:
+  prod:
+    zone: nxs
+    quota:
+      cpu: 1
+      memory: 1536Mi
+      storage: 128Mi
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      pooler: false
+    apps:
+      api:
+        repo: Jedi_kitten/lit-club
+        image: git.cu3rd.ru/jedi_kitten/lit-club-api
+        tag: initial
+        port: 8000
+        secrets:
+          SECRET_KEY: SECRET_KEY
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+          GOOGLE_BOOKS_API_KEY: GOOGLE_BOOKS_API_KEY
+        values:
+          replicas: 0
+          strategy: Recreate
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          probes:
+            path: /health
+        variables:
+          TELEGRAM_BOT_USERNAME: TELEGRAM_BOT_USERNAME
+          GOOGLE_BOOKS_BASE_URL: GOOGLE_BOOKS_BASE_URL
+          BOOKS_SEARCH_TIMEOUT: BOOKS_SEARCH_TIMEOUT
+          BOOTSTRAP_SUPERADMIN_TG_ID: BOOTSTRAP_SUPERADMIN_TG_ID
+          OPEN_LIBRARY_BASE_URL: OPEN_LIBRARY_BASE_URL
+          BOOKS_LANGUAGE: BOOKS_LANGUAGE
+          MINIAPP_URL: MINIAPP_URL
+          DISPLAY_TIMEZONE: DISPLAY_TIMEZONE
+      bot:
+        repo: Jedi_kitten/lit-club
+        image: git.cu3rd.ru/jedi_kitten/lit-club-bot
+        tag: initial
+        port: null
+        secrets:
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+          GOOGLE_BOOKS_API_KEY: GOOGLE_BOOKS_API_KEY
+          SECRET_KEY: SECRET_KEY
+        values:
+          replicas: 0
+          strategy: Recreate
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 384Mi
+        variables:
+          BOOKS_SEARCH_TIMEOUT: BOOKS_SEARCH_TIMEOUT
+          BOOTSTRAP_SUPERADMIN_TG_ID: BOOTSTRAP_SUPERADMIN_TG_ID
+          OPEN_LIBRARY_BASE_URL: OPEN_LIBRARY_BASE_URL
+          GOOGLE_BOOKS_BASE_URL: GOOGLE_BOOKS_BASE_URL
+          DISPLAY_TIMEZONE: DISPLAY_TIMEZONE
+          TELEGRAM_BOT_USERNAME: TELEGRAM_BOT_USERNAME
+          MINIAPP_URL: MINIAPP_URL
+          BOOKS_LANGUAGE: BOOKS_LANGUAGE

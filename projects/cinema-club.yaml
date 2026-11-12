@@ -1,0 +1,73 @@
+# Staging registration. Enable replicas and production ingress after data restore.
+# Owning personal account is Jedi_kitten.
+name: cinema-club
+team: jedi-kitten
+envs:
+  prod:
+    zone: nxs
+    quota:
+      cpu: 1
+      memory: 1536Mi
+      storage: 128Mi
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      pooler: false
+    apps:
+      api:
+        repo: Jedi_kitten/cinema-club
+        image: git.cu3rd.ru/jedi_kitten/cinema-club-api
+        tag: initial
+        port: 8000
+        secrets:
+          TMDB_API_TOKEN: TMDB_API_TOKEN
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+          SECRET_KEY: SECRET_KEY
+          KINOPOISK_API_TOKEN: KINOPOISK_API_TOKEN
+        values:
+          replicas: 0
+          strategy: Recreate
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          probes:
+            path: /health
+        variables:
+          DISPLAY_TIMEZONE: DISPLAY_TIMEZONE
+          TELEGRAM_BOT_USERNAME: TELEGRAM_BOT_USERNAME
+          BOOTSTRAP_SUPERADMIN_TG_ID: BOOTSTRAP_SUPERADMIN_TG_ID
+          APP_ENV: APP_ENV
+          MINIAPP_URL: MINIAPP_URL
+          TMDB_LANGUAGE: TMDB_LANGUAGE
+      bot:
+        repo: Jedi_kitten/cinema-club
+        image: git.cu3rd.ru/jedi_kitten/cinema-club-bot
+        tag: initial
+        port: null
+        secrets:
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+          TMDB_API_TOKEN: TMDB_API_TOKEN
+          KINOPOISK_API_TOKEN: KINOPOISK_API_TOKEN
+          SECRET_KEY: SECRET_KEY
+        values:
+          replicas: 0
+          strategy: Recreate
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 384Mi
+        variables:
+          MINIAPP_URL: MINIAPP_URL
+          TMDB_LANGUAGE: TMDB_LANGUAGE
+          TELEGRAM_BOT_USERNAME: TELEGRAM_BOT_USERNAME
+          DISPLAY_TIMEZONE: DISPLAY_TIMEZONE
+          APP_ENV: APP_ENV
+          BOOTSTRAP_SUPERADMIN_TG_ID: BOOTSTRAP_SUPERADMIN_TG_ID

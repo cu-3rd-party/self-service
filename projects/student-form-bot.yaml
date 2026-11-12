@@ -1,0 +1,37 @@
+# Staging registration. Enable replicas and production ingress after data restore.
+# Owning personal account is Jedi_kitten.
+name: student-form-bot
+team: jedi-kitten
+envs:
+  prod:
+    zone: xgrm
+    quota:
+      cpu: 0.5
+      memory: 512Mi
+      storage: 1Gi
+    apps:
+      bot:
+        repo: Jedi_kitten/student-form-bot
+        image: git.cu3rd.ru/jedi_kitten/student-form-bot
+        tag: initial
+        port: null
+        secrets:
+          BOT_TOKEN: BOT_TOKEN
+        values:
+          replicas: 0
+          strategy: Recreate
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          persistence:
+            data:
+              path: /data
+              size: 1Gi
+        variables:
+          ADMIN_THREAD_ID: ADMIN_THREAD_ID
+          ADMIN_CHAT_ID: ADMIN_CHAT_ID
+          DB_PATH: DB_PATH

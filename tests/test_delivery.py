@@ -19,6 +19,20 @@ class DeliveryTests(unittest.TestCase):
         self.app = self.project['envs']['dev']['apps']['bot']
     def test_example(self):
         validate_project(self.project, 'telegram-bot.yaml')
+    def test_personal_source_and_image_owner(self):
+        self.app['repo'] = 'Jedi_kitten/open-pairs-bot'
+        self.app['image'] = 'git.cu3rd.ru/jedi_kitten/open-pairs-bot'
+        validate_project(self.project, 'telegram-bot.yaml')
+    def test_unapproved_source_owner_rejected(self):
+        for owner in ['other-user', 'Jedi_kitten-other', 'cu3rd-other']:
+            self.app['repo'] = owner + '/my-bot'
+            with self.assertRaises(Invalid):
+                validate_project(self.project, 'telegram-bot.yaml')
+    def test_unapproved_image_owner_rejected(self):
+        for owner in ['other-user', 'jedi_kitten-other', 'cu3rd-other']:
+            self.app['image'] = 'git.cu3rd.ru/' + owner + '/my-bot'
+            with self.assertRaises(Invalid):
+                validate_project(self.project, 'telegram-bot.yaml')
     def test_only_mapped_values_and_correct_sealing_scope(self):
         cipher = 'Ag' + 'A' * 700
         with patch('deploy.subprocess.run', return_value=subprocess.CompletedProcess([], 0, cipher.encode(), b'')) as run:
