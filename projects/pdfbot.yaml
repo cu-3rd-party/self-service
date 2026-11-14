@@ -6,13 +6,11 @@ envs:
     # сверх лимитов бота (200m/256Mi) место под под cert-manager ACME-solver (100m/64Mi),
     # иначе квота не пускает его и сертификат не выпускается и не продлевается
     quota: {cpu: 0.3, memory: 320Mi, storage: 64Mi}
-    # очередь страниц; pgx кэширует prepared statements, transaction-пулер PgBouncer
-    # может выполнить их на другом соединении, поэтому напрямую
+    # очередь страниц через transaction-пулер PgBouncer; бот ходит simple protocol без prepared statements
     postgres:
       enabled: true
       targetEnv: DATABASE_URL
       format: url
-      pooler: false
     apps:
       bot:
         repo: cu3rd/pdfbot
