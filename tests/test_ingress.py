@@ -20,12 +20,10 @@ class IngressConfiguration(unittest.TestCase):
         self.project['envs']['prod'] = copy.deepcopy(self.project['envs']['dev'])
         self.project['envs']['prod']['apps']['bot']['ingress'][0]['domain'] = 'testcontainer.cu3rd.ru'
         validate_project(self.project, 'telegram-bot.yaml')
-    def test_xmsk_zone_accepted_and_served_via_nxs(self):
+    def test_removed_zone_xmsk_rejected(self):
         self.project['envs']['dev']['zone'] = 'xmsk'
-        validate_project(self.project, 'telegram-bot.yaml')
-        dns = (ROOT / 'dns.tf').read_text()
-        addr = lambda zone: re.search(zone + r'\s*=\s*"([0-9.]+)"', dns).group(1)
-        self.assertEqual(addr('xmsk'), addr('nxs'))
+        with self.assertRaises(Invalid):
+            validate_project(self.project, 'telegram-bot.yaml')
     def test_removed_zone_akh_rejected(self):
         self.project['envs']['dev']['zone'] = 'akh'
         with self.assertRaises(Invalid):

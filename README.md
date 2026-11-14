@@ -97,8 +97,7 @@ envs:
 После merge в master платформа создаёт:
 
 1. Cloudflare A-запись: `nxs` → `2.26.191.8`, `grm` → `87.120.126.156`,
-   `xmsk` → `2.26.191.8` (у xmsk нет своего входа: запросы принимает Traefik nxs
-   и передаёт поду по туннелю), `xgrm` → `87.120.126.156`.
+   `xgrm` → `87.120.126.156`.
    Режим DNS only (`proxied: false`), TTL 120 секунд. Один домен — одна DNS-запись,
    даже если несколько приложений делят его по путям.
 2. Service с портом **80**, направленным на `targetPort` контейнера (1024–65535).
@@ -262,7 +261,7 @@ namespace/pod и node. Произвольные идентификаторы з�
 | AI `targetEnvPrefix: AI__` | `AI__API_KEY`, `AI__BASE_URL` (`https://ai.cu3rd.ru/v1`), `AI__MODEL` при заданном `model` |
 
 Postgres — существующий кластер `pg-grm` и transaction pooler, независимо от зоны пода.
-S3 — RustFS на https://storage.cu3rd.ru (xmsk), path-style, region `us-east-1`. Квота S3 задаётся в байтах. Доступы общие
+S3 — RustFS на https://storage.cu3rd.ru (grm), path-style, region `us-east-1`. Квота S3 задаётся в байтах. Доступы общие
 для приложений одного окружения; переменные ресурсов нельзя перекрыть mappings.
 Системные пароли лежат в Kubernetes Secrets и зашифрованном OpenTofu state, не в Git
 и не в Forgejo Secrets. Из интерфейса Forgejo их посмотреть нельзя.
