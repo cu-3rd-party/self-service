@@ -65,3 +65,9 @@ import {
   to = cloudflare_dns_record.app["root-day.cu3rd.ru"]
   id = "${var.cloudflare_zone_id}/95a9067ea6b74694333c857b2a92d63c"
 }
+# Запись culc-bot.cu3rd.ru создана вручную для прежнего деплоя lit-club (Jedi_kitten)
+# в docker compose на xgrm. После первого apply блок можно убрать.
+import {
+  to = cloudflare_dns_record.app["culc-bot.cu3rd.ru"]
+  id = "${var.cloudflare_zone_id}/0625914ec227010a91ffb6d904f9f8b5"
+}
