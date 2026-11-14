@@ -5,8 +5,8 @@ envs:
   prod:
     zone: nxs
     quota:
-      cpu: 1
-      memory: 1536Mi
+      cpu: 2
+      memory: 2Gi
       storage: 128Mi
     postgres:
       enabled: true
