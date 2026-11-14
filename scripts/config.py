@@ -14,7 +14,9 @@ SSH_USER = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
 # One public key per entry, no authorized_keys options: the gateway decides who gets in.
 SSH_KEY = re.compile(r"^(?:ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com) [A-Za-z0-9+/]{32,}={0,2}(?: [ -~]{1,100})?$")
 # Зоны с /dev/kvm, где стоит KubeVirt (homelab kubevirt/), и образы charts/vm/values.yaml.
-KVM_ZONES = {"nxs"}
+# KubeVirt выключен 2026-11-14 (homelab kubevirt/ удалён) — ВМ сейчас нигде нельзя.
+# Включить снова: вернуть KubeVirt в homelab и вписать сюда "nxs".
+KVM_ZONES = set()
 VM_OS = {"alpine-3.24"}
 ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts"}
 class Invalid(ValueError):
@@ -207,7 +209,7 @@ def validate_project(p, filename):
         if not isinstance(vms, dict):
             raise Invalid("vms must be a mapping")
         if vms and e.get("zone", "nxs") not in KVM_ZONES:
-            raise Invalid(f"vms need a zone with hardware virtualization: {', '.join(sorted(KVM_ZONES))}")
+            raise Invalid(f"vms need a zone with hardware virtualization: {', '.join(sorted(KVM_ZONES)) or 'none (KubeVirt is off)'}")
         for name, vm in vms.items():
             validate_vm(p["name"], env, name, vm)
             if name in e.get("apps", {}):
