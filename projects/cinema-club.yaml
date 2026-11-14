@@ -1,4 +1,3 @@
-# Staging registration. Enable replicas and production ingress after data restore.
 # Owning personal account is Jedi_kitten.
 name: cinema-club
 team: jedi-kitten
@@ -6,27 +5,29 @@ envs:
   prod:
     zone: nxs
     quota:
-      cpu: 1
-      memory: 1536Mi
+      cpu: 2
+      memory: 2Gi
       storage: 128Mi
     postgres:
       enabled: true
       targetEnv: DATABASE_URL
       format: url
-      pooler: false
     apps:
       api:
         repo: Jedi_kitten/cinema-club
         image: git.cu3rd.ru/jedi_kitten/cinema-club-api
         tag: initial
         port: 8000
+        ingress:
+          - domain: cinema.cu3rd.ru
+            targetPort: 8000
         secrets:
           TMDB_API_TOKEN: TMDB_API_TOKEN
           TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
           SECRET_KEY: SECRET_KEY
           KINOPOISK_API_TOKEN: KINOPOISK_API_TOKEN
         values:
-          replicas: 0
+          replicas: 1
           strategy: Recreate
           resources:
             requests:
@@ -55,7 +56,7 @@ envs:
           KINOPOISK_API_TOKEN: KINOPOISK_API_TOKEN
           SECRET_KEY: SECRET_KEY
         values:
-          replicas: 0
+          replicas: 1
           strategy: Recreate
           resources:
             requests:

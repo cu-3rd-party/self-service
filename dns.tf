@@ -71,3 +71,9 @@ import {
   to = cloudflare_dns_record.app["culc-bot.cu3rd.ru"]
   id = "${var.cloudflare_zone_id}/0625914ec227010a91ffb6d904f9f8b5"
 }
+# Запись cinema.cu3rd.ru создана вручную для прежнего деплоя cinema-club (Jedi_kitten)
+# в docker compose на xgrm. После первого apply блок можно убрать.
+import {
+  to = cloudflare_dns_record.app["cinema.cu3rd.ru"]
+  id = "${var.cloudflare_zone_id}/11930049b034bf980307c7ed7af67a21"
+}
