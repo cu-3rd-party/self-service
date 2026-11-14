@@ -10,12 +10,10 @@ envs:
     zone: xgrm
     # запас под surge при RollingUpdate: на время выката живут две реплики бэкенда
     quota: {cpu: 3, memory: 1536Mi, storage: 512Mi}
-    # sqlx кэширует подготовленные запросы на соединении — transaction-пулер PgBouncer не подходит
     postgres:
       enabled: true
       targetEnv: DATABASE_URL
       format: url
-      pooler: false
     s3:
       enabled: true
       targetEnvPrefix: S3_
