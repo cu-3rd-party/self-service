@@ -9,7 +9,7 @@ envs:
       box:
         repo: cu3rd/alpine-vm
         image: git.cu3rd.ru/cu3rd/alpine-vm
-        tag: 725b239372312bac3a447d4dbd80148fe705460d
+        tag: 0bb630d459cb48d8656a337ee13d7b522ac61d97
         ssh:
           login: alpine-vm
           user: vm
