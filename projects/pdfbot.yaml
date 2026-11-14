@@ -4,6 +4,13 @@ envs:
   prod:
     zone: nxs
     quota: {cpu: 0.2, memory: 256Mi, storage: 64Mi}
+    # очередь страниц; pgx кэширует prepared statements, transaction-пулер PgBouncer
+    # может выполнить их на другом соединении, поэтому напрямую
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+      pooler: false
     apps:
       bot:
         repo: cu3rd/pdfbot
@@ -18,11 +25,11 @@ envs:
         variables:
           WEBHOOK_URL: WEBHOOK_URL
         values:
-          # очередь в памяти, а квота ровно на одну копию
+          # при старте бот возвращает в очередь брошенные сборки, две копии сразу нельзя; и квота на одну
           replicas: 1
           strategy: Recreate
           probes: {path: /healthz}
           resources:
-            # pdf собирается во временный файл, в памяти одна картинка на сборку (до 2 сборок)
+            # pdf стримится из телеграма в телеграм: 100 сборок разом около 30 МБ кучи, GOMEMLIMIT 200MiB
             requests: {cpu: 5m, memory: 16Mi}
             limits: {cpu: 200m, memory: 256Mi}
