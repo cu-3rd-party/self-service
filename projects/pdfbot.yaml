@@ -1,0 +1,28 @@
+name: pdfbot
+team: sre
+envs:
+  prod:
+    zone: nxs
+    quota: {cpu: 0.2, memory: 256Mi, storage: 64Mi}
+    apps:
+      bot:
+        repo: cu3rd/pdfbot
+        image: git.cu3rd.ru/cu3rd/pdfbot
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: pdfbot.cu3rd.ru
+            targetPort: 8080
+        secrets:
+          TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN
+        variables:
+          WEBHOOK_URL: WEBHOOK_URL
+        values:
+          # очередь в памяти, а квота ровно на одну копию
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /healthz}
+          resources:
+            # pdf собирается во временный файл, в памяти одна картинка на сборку (до 2 сборок)
+            requests: {cpu: 5m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 256Mi}
