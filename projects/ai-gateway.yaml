@@ -8,7 +8,6 @@ envs:
       enabled: true
       targetEnv: DATABASE_URL
       format: url
-      # Prisma-миграции LiteLLM не работают через transaction pooler.
     ai: {enabled: true}
     apps:
       litellm:
