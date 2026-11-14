@@ -7,13 +7,10 @@ envs:
     zone: grm
     # запас под surge при RollingUpdate: на время выката живут две реплики
     quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
-    # lib/pq готовит запросы отдельным шагом, transaction-пулер PgBouncer
-    # может выполнить его на другом соединении, поэтому напрямую (как paste и db-access)
     postgres:
       enabled: true
       targetEnv: DASH_DB_DSN
       format: url
-      pooler: false
     apps:
       web:
         repo: cu3rd/dash
