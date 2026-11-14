@@ -4,6 +4,7 @@ envs:
   prod:
     zone: nxs
     quota: {cpu: 1, memory: 512Mi, storage: 128Mi}
+    # метаданные вставок
     postgres:
       enabled: true
       targetEnv: PASTE_DB_DSN

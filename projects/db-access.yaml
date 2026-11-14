@@ -6,13 +6,10 @@ envs:
     # поэтому HTTP этого же домена тоже в зоне grm.
     zone: grm
     quota: {cpu: 1, memory: 256Mi, storage: 128Mi}
-    # Свою базу сервис использует напрямую: lib/pq готовит запросы отдельным шагом,
-    # а в режиме transaction PgBouncer может выполнить его уже на другом соединении.
     postgres:
       enabled: true
       targetEnv: DBACCESS_DB_DSN
       format: url
-      pooler: false
     apps:
       web:
         repo: cu3rd/db-access
