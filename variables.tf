@@ -61,3 +61,22 @@ variable "ssh_gateway_public_key" {
   type    = string
   default = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPOWcaWv0dW4gz7c6HHvLvox69QhCzUg9O9LuWjnRVTY self-service-ssh-gateway"
 }
+# Общий почтовый ящик платформы (секция smtp): Яндекс 360, SMTP с неявным TLS.
+# Пароль приложения Яндекса задаётся вне Git в /etc/cu3rd-self-service/runtime.env на nxs.
+variable "smtp_host" {
+  type    = string
+  default = "smtp.yandex.ru"
+}
+variable "smtp_port" {
+  type    = number
+  default = 465
+}
+variable "smtp_user" {
+  type    = string
+  default = "cu3rd.party@yandex.com"
+}
+variable "smtp_password" {
+  type      = string
+  sensitive = true
+  default   = ""
+}

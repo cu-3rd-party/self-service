@@ -104,7 +104,7 @@ def validate_project(p, filename):
     for env, e in p["envs"].items():
         if env not in {"dev", "prod", "test", "staging"}:
             raise Invalid("Environment: dev/prod/test/staging")
-        keys(e, {"zone", "quota", "postgres", "s3", "ai", "apps", "vms"})
+        keys(e, {"zone", "quota", "postgres", "s3", "ai", "smtp", "apps", "vms"})
         if e.get("zone", "nxs") not in {"nxs", "grm", "xgrm"}:
             raise Invalid("Unknown zone")
         q = e.get("quota", {})
@@ -150,6 +150,15 @@ def validate_project(p, filename):
             raise Invalid("Invalid ai prefix")
         if ai.get("enabled"):
             reserved |= {prefix + x for x in ["API_KEY", "BASE_URL", "MODEL"]}
+        smtp = e.get("smtp", {})
+        keys(smtp, {"enabled", "targetEnvPrefix"})
+        if not isinstance(smtp.get("enabled", False), bool):
+            raise Invalid("smtp.enabled must be boolean")
+        prefix = smtp.get("targetEnvPrefix", "SMTP_")
+        if not isinstance(prefix, str) or (prefix and not ENV.fullmatch(prefix)):
+            raise Invalid("Invalid smtp prefix")
+        if smtp.get("enabled"):
+            reserved |= {prefix + x for x in ["HOST", "PORT", "USER", "PASSWORD"]}
         if not isinstance(e.get("apps", {}), dict):
             raise Invalid("apps must be a mapping")
         for name, app in e.get("apps", {}).items():

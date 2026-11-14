@@ -18,6 +18,9 @@ envs:
       enabled: true
       targetEnvPrefix: S3_
       quotaBytes: 2147483648
+    # коды подтверждения почты
+    smtp:
+      enabled: true
     apps:
       backend:
         repo: cu3rd/3rd-library
@@ -32,10 +35,6 @@ envs:
           port: 9091
         secrets:
           HMAC_KEY: DEV_HMAC_KEY
-          SMTP_PASSWORD: SMTP_PASSWORD
-        variables:
-          SMTP_HOST: SMTP_HOST
-          SMTP_USER: SMTP_USER
         values:
           # ограничение частоты запросов считается в памяти реплики
           replicas: 1
@@ -68,6 +67,8 @@ envs:
       enabled: true
       targetEnvPrefix: S3_
       quotaBytes: 10737418240
+    smtp:
+      enabled: true
     apps:
       backend:
         repo: cu3rd/3rd-library
@@ -82,10 +83,6 @@ envs:
           port: 9091
         secrets:
           HMAC_KEY: PROD_HMAC_KEY
-          SMTP_PASSWORD: SMTP_PASSWORD
-        variables:
-          SMTP_HOST: SMTP_HOST
-          SMTP_USER: SMTP_USER
         values:
           replicas: 1
           probes: {path: /api/health}

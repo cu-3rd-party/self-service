@@ -259,6 +259,7 @@ namespace/pod и node. Произвольные идентификаторы з�
 | Postgres `format: npgsql` | `Host=…;Port=5432;Database=…;Username=…;Password=…;No Reset On Close=true` |
 | S3 `targetEnvPrefix: S3__` | `S3__ACCESS_KEY`, `S3__SECRET_KEY`, `S3__URL` (`https://storage.cu3rd.ru`), `S3__BUCKET_NAME` |
 | AI `targetEnvPrefix: AI__` | `AI__API_KEY`, `AI__BASE_URL` (`https://ai.cu3rd.ru/v1`), `AI__MODEL` при заданном `model` |
+| SMTP `targetEnvPrefix: SMTP_` | `SMTP_HOST` (`smtp.yandex.ru`), `SMTP_PORT` (`465`), `SMTP_USER` (`cu3rd.party@yandex.com`), `SMTP_PASSWORD` |
 
 Postgres — существующий кластер `pg-grm` и transaction pooler, независимо от зоны пода.
 S3 — RustFS на https://storage.cu3rd.ru (grm), path-style, region `us-east-1`. Квота S3 задаётся в байтах. Доступы общие
@@ -293,6 +294,24 @@ API OpenAI-совместимый: любой OpenAI SDK с `base_url=$AI__BASE_
 Ключи для людей (не сервисов) выдают owner'ы платформы в UI LiteLLM.
 
 Пример вызова из Python и подробности подключения — в [cu3rd/ai-gateway](https://git.cu3rd.ru/cu3rd/ai-gateway).
+
+## Почта (SMTP)
+
+Платформа даёт общий ящик `cu3rd.party@yandex.com` в Яндексе, как у `library`:
+
+```yaml
+envs:
+  prod:
+    smtp:
+      enabled: true
+      targetEnvPrefix: SMTP_           # по умолчанию SMTP_
+```
+
+В контейнер попадают `SMTP_HOST=smtp.yandex.ru`, `SMTP_PORT=465` (неявный TLS, не STARTTLS),
+`SMTP_USER` и `SMTP_PASSWORD` (пароль приложения Яндекса). Адрес `From` должен совпадать с
+`SMTP_USER`, иначе Яндекс отклонит письмо. Ящик общий для всех проектов: шлите только
+служебные письма (коды подтверждения, уведомления), без рассылок — лимит Яндекса порядка
+нескольких сотен писем в сутки на весь ящик. Переменные нельзя перекрыть mappings.
 
 ## Удаление и пересоздание
 

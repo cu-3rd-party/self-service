@@ -48,3 +48,24 @@ module "ai" {
   base_url  = "${var.litellm_url}/v1"
   config    = each.value.ai
 }
+locals {
+  smtp_environments = { for k, e in local.environments : k => e.smtp if try(e.smtp.enabled, false) }
+}
+resource "terraform_data" "smtp_configuration" {
+  input = sort(keys(local.smtp_environments))
+  lifecycle {
+    precondition {
+      condition     = length(local.smtp_environments) == 0 || var.smtp_password != ""
+      error_message = "smtp requires TF_VAR_smtp_password in /etc/cu3rd-self-service/runtime.env on nxs."
+    }
+  }
+}
+module "smtp" {
+  source     = "./modules/smtp"
+  for_each   = local.smtp_environments
+  name       = each.key
+  namespace  = module.project[each.key].namespace
+  mailbox    = { host = var.smtp_host, port = var.smtp_port, user = var.smtp_user, password = var.smtp_password }
+  config     = each.value
+  depends_on = [terraform_data.smtp_configuration]
+}
