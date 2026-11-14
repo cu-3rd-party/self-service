@@ -4,13 +4,10 @@ envs:
   prod:
     zone: nxs
     quota: {cpu: 1, memory: 512Mi, storage: 128Mi}
-    # метаданные вставок; lib/pq готовит запросы отдельным шагом, transaction-пулер PgBouncer
-    # может выполнить его на другом соединении, поэтому напрямую
     postgres:
       enabled: true
       targetEnv: PASTE_DB_DSN
       format: url
-      pooler: false
     # содержимое вставок: квота бакета ограничивает общий объём, а не диск pg-grm
     s3:
       enabled: true
