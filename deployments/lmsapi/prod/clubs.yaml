@@ -1,0 +1,6 @@
+repository: cu3rd/lmsapi
+tag: 76f2fb7217e10eedd3c61ba9682c4c20fd51a08f
+env:
+  CLUBS_CALENDAR_EVENTS_URL: https://docs.google.com/spreadsheets/d/13wgwaYGiovRIFkboDnmRLfhR44NNNMktuPhdsyi-X48/export?format=csv&gid=2091647137
+  CLUBS_REGULAR_EVENTS_URL: https://docs.google.com/spreadsheets/d/13wgwaYGiovRIFkboDnmRLfhR44NNNMktuPhdsyi-X48/export?format=csv&gid=1204464627
+sealedEnv: {}
