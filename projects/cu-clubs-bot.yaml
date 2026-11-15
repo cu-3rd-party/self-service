@@ -1,0 +1,68 @@
+name: cu-clubs-bot
+team: jedi-kitten
+envs:
+  test:
+    zone: xgrm
+    quota:
+      cpu: 1
+      memory: 1Gi
+      storage: 4Gi
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+    apps:
+      api:
+        repo: Jedi_kitten/cu-clubs-bot
+        image: git.cu3rd.ru/jedi_kitten/cu-clubs-bot
+        tag: initial
+        port: 8000
+        ingress:
+        - domain: clubs-api.cu3rd.ru
+          targetPort: 8000
+        ssh:
+          login: cu-clubs-test
+          user: app
+          port: 2222
+          authorizedKeys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeGVOCQeA9+2b97yiVAKamNQ1LFMk66omCw/WjWxZGM
+        secrets:
+          CU_CLUBS_TELEGRAM_BOT_TOKEN: CU_CLUBS_TELEGRAM_BOT_TOKEN
+          CU_CLUBS_TELEGRAM_WEBHOOK_SECRET: CU_CLUBS_TELEGRAM_WEBHOOK_SECRET
+          CU_CLUBS_VERIFICATION_SECRET: CU_CLUBS_VERIFICATION_SECRET
+          CU_CLUBS_GOOGLE_CREDENTIALS_JSON: CU_CLUBS_GOOGLE_CREDENTIALS_JSON
+          CU_CLUBS_GOOGLE_SPREADSHEET_ID: CU_CLUBS_GOOGLE_SPREADSHEET_ID
+          CU_CLUBS_CALENDAR_TEST_SPREADSHEET_ID: CU_CLUBS_CALENDAR_TEST_SPREADSHEET_ID
+          CU_CLUBS_BACKUP_RECIPIENT_TELEGRAM_ID: CU_CLUBS_BACKUP_RECIPIENT_TELEGRAM_ID
+        variables:
+          CU_CLUBS_ENVIRONMENT: CU_CLUBS_ENVIRONMENT
+          CU_CLUBS_HOST: CU_CLUBS_HOST
+          CU_CLUBS_TELEGRAM_BOT_USERNAME: CU_CLUBS_TELEGRAM_BOT_USERNAME
+          CU_CLUBS_TELEGRAM_TRANSPORT: CU_CLUBS_TELEGRAM_TRANSPORT
+          CU_CLUBS_EXTERNAL_DELIVERY_ENABLED: CU_CLUBS_EXTERNAL_DELIVERY_ENABLED
+          CU_CLUBS_TEST_ALLOW_UNVERIFIED_LEADERS: CU_CLUBS_TEST_ALLOW_UNVERIFIED_LEADERS
+          CU_CLUBS_TEST_SELF_REGISTRATION_ENABLED: CU_CLUBS_TEST_SELF_REGISTRATION_ENABLED
+          CU_CLUBS_GOOGLE_AUTH_MODE: CU_CLUBS_GOOGLE_AUTH_MODE
+          CU_CLUBS_GOOGLE_SHEET_NAME: CU_CLUBS_GOOGLE_SHEET_NAME
+          CU_CLUBS_CALENDAR_SYNC_ENABLED: CU_CLUBS_CALENDAR_SYNC_ENABLED
+          CU_CLUBS_CALENDAR_ALLOW_WRITES: CU_CLUBS_CALENDAR_ALLOW_WRITES
+          CU_CLUBS_BACKUP_DIRECTORY: CU_CLUBS_BACKUP_DIRECTORY
+          CU_CLUBS_BACKUPS_ENABLED: CU_CLUBS_BACKUPS_ENABLED
+          SELF_SERVICE_WORKER_ENABLED: SELF_SERVICE_WORKER_ENABLED
+          SELF_SERVICE_SSH_ENABLED: SELF_SERVICE_SSH_ENABLED
+        values:
+          replicas: 1
+          strategy: Recreate
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              cpu: '1'
+              memory: 768Mi
+          probes:
+            path: /health/ready
+          persistence:
+            data:
+              path: /data
+              size: 4Gi
