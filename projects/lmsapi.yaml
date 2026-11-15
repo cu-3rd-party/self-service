@@ -1,0 +1,105 @@
+# Проект lmsapi в cu3rd/self-service (projects/lmsapi.yaml): бекенды расширения
+# CU LMS Enhancer, переписанные на Go. Работает параллельно со старыми бекендами
+# на xmsk (lms.exams/lms.swap/lms.workshop/api.lms/feedback.cu3rd.ru), расширение
+# пока ходит туда; у каждого сервиса свой поддомен lmsapi.cu3rd.ru с прежними путями.
+# Postgres один на всех: каждому приложению он приходит в DATABASE_URL, таблицы
+# разведены префиксами (exams_, swap_, workshop_, feedback_).
+name: lmsapi
+team: sre
+envs:
+  prod:
+    # рядом с primary pg-grm; из РФ grm доступен
+    zone: grm
+    quota: {cpu: 2, memory: 1Gi, storage: 8Gi}
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+    apps:
+      exams:
+        repo: cu3rd/lmsapi
+        image: git.cu3rd.ru/cu3rd/lmsapi-exams
+        tag: initial
+        ingress:
+          - domain: exams.lmsapi.cu3rd.ru
+            targetPort: 8081
+        secrets:
+          EXAMS_ADMIN_PASSWORD: EXAMS_ADMIN_PASSWORD
+        values:
+          replicas: 1
+          probes: {path: /healthz}
+          resources:
+            requests: {cpu: 2m, memory: 16Mi}
+            limits: {cpu: 250m, memory: 64Mi}
+      swap:
+        repo: cu3rd/lmsapi
+        image: git.cu3rd.ru/cu3rd/lmsapi-swap
+        tag: initial
+        ingress:
+          - domain: swap.lmsapi.cu3rd.ru
+            targetPort: 8082
+        variables:
+          SWAP_ENABLED: SWAP_ENABLED
+        values:
+          replicas: 1
+          probes: {path: /api/v1/health}
+          resources:
+            requests: {cpu: 2m, memory: 16Mi}
+            limits: {cpu: 250m, memory: 64Mi}
+      workshop:
+        repo: cu3rd/lmsapi
+        image: git.cu3rd.ru/cu3rd/lmsapi-workshop
+        tag: initial
+        ingress:
+          - domain: workshop.lmsapi.cu3rd.ru
+            targetPort: 8083
+        secrets:
+          WORKSHOP_ADMIN_PASSWORD: WORKSHOP_ADMIN_PASSWORD
+          WORKSHOP_ADMIN_SECRET: WORKSHOP_ADMIN_SECRET
+        values:
+          replicas: 1
+          # картинки тем на локальном томе: две копии одновременно его не делят
+          strategy: Recreate
+          probes: {path: /api/v1/health}
+          persistence:
+            data: {path: /data, size: 5Gi}
+          resources:
+            # публикация - до 64 МБ multipart, часть держится в памяти
+            requests: {cpu: 5m, memory: 24Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+      clubs:
+        repo: cu3rd/lmsapi
+        image: git.cu3rd.ru/cu3rd/lmsapi-clubs
+        tag: initial
+        ingress:
+          - domain: clubs.lmsapi.cu3rd.ru
+            targetPort: 8084
+          # мероприятия форма фидбека берёт со своего домена, как было на feedback.cu3rd.ru
+          - domain: feedback.lmsapi.cu3rd.ru
+            targetPort: 8084
+            paths: [/api/v1/events, /events]
+        variables:
+          CLUBS_CALENDAR_EVENTS_URL: CLUBS_CALENDAR_EVENTS_URL
+          CLUBS_REGULAR_EVENTS_URL: CLUBS_REGULAR_EVENTS_URL
+        values:
+          replicas: 1
+          probes: {path: /health}
+          resources:
+            requests: {cpu: 2m, memory: 16Mi}
+            limits: {cpu: 250m, memory: 64Mi}
+      feedback:
+        repo: cu3rd/lmsapi
+        image: git.cu3rd.ru/cu3rd/lmsapi-feedback
+        tag: initial
+        ingress:
+          - domain: feedback.lmsapi.cu3rd.ru
+            targetPort: 8085
+        values:
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /healthz}
+          persistence:
+            data: {path: /data, size: 1Gi}
+          resources:
+            requests: {cpu: 2m, memory: 16Mi}
+            limits: {cpu: 250m, memory: 96Mi}
