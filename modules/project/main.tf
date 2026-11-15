@@ -68,13 +68,16 @@ resource "kubernetes_resource_quota_v1" "project" {
   }
   spec {
 
+    # services: на HTTP-приложение два Service (свой и маршрута) плюс запас под
+    # временные Service солверов cert-manager: без него пятое приложение выбирало
+    # всю квоту и сертификат последнего домена не выпускался
     hard = {
 
       "limits.cpu"             = try(var.config.quota.cpu, "2")
       "limits.memory"          = try(var.config.quota.memory, "4Gi")
       "requests.storage"       = try(var.config.quota.storage, "5Gi")
       "pods"                   = "20"
-      "services"               = "10"
+      "services"               = tostring(max(10, 2 * length(local.apps) + 5))
       "persistentvolumeclaims" = "10"
 
     }
