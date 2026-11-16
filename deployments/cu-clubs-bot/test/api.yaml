@@ -1,5 +1,5 @@
 repository: Jedi_kitten/cu-clubs-bot
-tag: 091de0d851a6c8adcf1e4fe1fb1d7b4333c6d529
+tag: ad15101257eb977d1e91ad17b0a117db2a08db17
 env:
   CU_CLUBS_ENVIRONMENT: test
   CU_CLUBS_HOST: 0.0.0.0
