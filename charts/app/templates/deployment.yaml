@@ -85,9 +85,15 @@ spec:
           {{- if and .Values.port .Values.probes.path }}
           readinessProbe:
             httpGet: {path: {{ .Values.probes.path }}, port: http}
+          # Медленный старт (тяжёлые импорты, воркер рядом) не должен убиваться liveness'ом -
+          # startupProbe даёт до 3 минут на подъём, после его успеха liveness работает как раньше.
+          startupProbe:
+            httpGet: {path: {{ .Values.probes.path }}, port: http}
+            periodSeconds: 5
+            failureThreshold: 36
           livenessProbe:
             httpGet: {path: {{ .Values.probes.path }}, port: http}
-            initialDelaySeconds: 20
+            initialDelaySeconds: 0
           {{- end }}
           {{- end }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
