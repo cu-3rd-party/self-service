@@ -23,7 +23,7 @@ envs:
         ingress:
           - domain: cats-challenge.dev.cu3rd.ru
             targetPort: 8080
-            paths: [/health, /cats_challenge, /api, /ws]
+            paths: [/health, /cats_challenge, /cats_challenge., /api, /ws]
         variables:
           WORKER_ENABLED: WORKER_ENABLED
         values:
