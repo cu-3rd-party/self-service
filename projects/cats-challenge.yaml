@@ -50,6 +50,11 @@ envs:
           sealedPullSecret: AgCcMWBq08pQoPwlnF2CVaxbn+gzq+6DVv0rjwOyzGXxEb4lMnHTBLPFt95aAFsPMMkYaHRKQpWqBLEShaD4aQ6cOtyE7Dr5z2Xvo4SevlbENWPy2NEENQrFa+GWx/bUysXYV6IpPPy8/GIb0oS4geZFBlbVTwuJT/jgDkH/sYF/JltoOnp6Oi8xp8BLl5qk/wyMRB7torNDECBxnnyj+2B3su3tmRFfDlQ6kX/BCG7VPu+V9beRJKIlaldY7FlgakQaqAYzfUoeBsHYDj0A2RGpp6Nyu13S+1khnzHBkk2CH4uBod8HVgqbNZg8v9TR4Ub/x28V1kau7nf7q3Dq4uzQ8X1R0sCd49+OdzHOHDDwhN5BoBKYHWihutICqDx3OQmpnYxynj2n8Hi5Qrum/XRvVhlWKLrzoi7JqjGKv4HhRXc8LqCNgGrRHAdBpxHruTrpsVUu+WCU2+xQvT3x55aoz4nb+NAwohS2SqIfXaeLOPyPwDbeyX6ZuB/AnyQ0u9PRCVM+Bf8bbbGtOOuncAGx96Yb0xTDcIP7/r7cJlP9wMO5zK4jgYhkBf34fH4l9onFrKbLTpEnwr0OqMFkuRz6d6mJYh4TCntNqvb7xpILlndrtdMuYeTQlJf/EXxYmCiEin+b+uXiUpkR9capYAwzQxeDS8fgeUVo1beEsST1/uY8azrwfov0Jr0BaUtZdDcTcFLC7yB+txbigMYok1Aq0ecf+jyWp/wSifIXU8LDBfPAy5i+D2ZlWyUZDQSVoNkqmumTG6BkH89MLuc8l4o+KiUWKSJCEN25Q5hN4iZDAezmnOyt9BrFBbmSVaJ7O6XJPO53PA89UxwkQGEv1OwjvXKkpgeipzly
           replicas: 1
           probes: {path: /}
+          # nginx в образе зрителя ждёт запись в /var/cache/nginx и /var/run,
+          # а поды крутятся как uid 10001 (restricted PSA) — даём tmpfs-тома.
+          emptyDirs:
+            nginx-cache: /var/cache/nginx
+            nginx-run: /var/run
           resources:
             requests: {cpu: 20m, memory: 16Mi}
             limits: {cpu: 200m, memory: 64Mi}
