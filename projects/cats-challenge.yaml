@@ -42,10 +42,10 @@ envs:
         repo: cu3rd-private/cats-challenge
         image: git.cu3rd.ru/cu3rd-private/cats-challenge-viewer
         tag: initial
-        port: 80
+        port: 8080
         ingress:
           - domain: cats-challenge.dev.cu3rd.ru
-            targetPort: 80
+            targetPort: 8080
         values:
           sealedPullSecret: AgCeGeg9WF4V3AN6KdKtDp6oXimZ7VRvq+9hOgcVH44erAa2cY24/TU4AdkhgxOGofh28CJXin09Sjxp60ldMODKaK5Z+azX55ptWT46p+yvCkeROa4EHL1GGH+0asArLO9AE3+x2rezpiq8Rj+Gl8V06gT7/BA+15dBRXY9L/dFJJtVGWM0+99HupTT5NzfBQbs5s63ztemeNzZtf01KkdcUuTaWcP4LApOzDp7fsCnMuEISe/JofBnNYhmOg0sqzeXCt2brlafI4IhWVVOfgTb3AYHFiM691kU4wNU18dkF0nm8GlE4FmErPmzKvfjmscp8Vmnl9Q0XlmMJVcqA/Bj2dAz/+XGo3/DraAUj2jAvzKcvBuzrBGSSQ/hd+lqr2ZznUzYlu7aEuM9FJn2bcJdU0UW3kHnxPW3BGS90GQkCnfoWRG5q6L4Tp3PFzKiXkAek80o5KSedXhNuyJ9qgTmtv2AgpTdaL/LkWEOg8N6OmN8tMm9QaGT2DRgoNq2jMaBysK6Myb6CZ117R+AYWi31+/JnfoZfkHd4KrpHSHxE5zkO8qrgsxB56XLHw1UhyytxuJO8QZPY5gv3YOUNCgEo2nJmAVZdM4SaBgyi1mtekM22XWz/J+Rwx4lENa062+CuHQw/+iMMuUuRHPQhd8VfO8XskseVj5tLGyugKEBpcqDmaRwcIrhkZooQ4Y3qjOD8gdm/G7TALjKeW9BqRto3AFnPHjHQgRVN+KYmL3AgqV3fj42bInadbnCC0myVtGPqvCSzyGmFfHnYtu8ciHZ8dSbYs/i/V25LHzyBdzRaX2qKoM3uujOX+mYDPZ3vdlEFv+BfKDr4aEELOejTw4fWTSPC2H7h+E87bq4AcyqB2Bp5GMWD08lRx59u3lkYeMx5w==
           replicas: 1
