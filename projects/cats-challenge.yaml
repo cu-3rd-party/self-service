@@ -26,6 +26,7 @@ envs:
             paths: [/health, /cats_challenge, /cats_challenge., /api, /ws]
         variables:
           WORKER_ENABLED: WORKER_ENABLED
+          DEMO_ENABLED: DEMO_ENABLED
         values:
           sealedPullSecret: AgB8intATJ/K1uAvYVvmAlnNbgqSZu53sxxQhy2r5q6bqbG/+gHArpA8BDz0a6XLOwnrj89ICeFoEMS9cM5/qyX/WiwrvX2XGhcTxUZBUFNFiGcxYEMxHfFXCoIB2pcg04j+gUYzzxOwr4QUc4wL0jgGAjMxmpbp4IcPaZhiBc+zL1s4PST9VL9bcRS+5KZ7Z/ZKrS3Xq/fJSyvGf2BWcckdT3elHNUgT7H7SGLimUDO87N/VnyEuoq1BmfT/MdSgHw52+5qj45psSovpd7+CBM/xrrsfkOz44hbHuJR7p1gJlixm+3N8r/eIGHNtp/fJiF9DG3EgkcLtkp0Eo8CDvIOUQtZy8XBfctrmDV1F++nVqDaFxZDG/AqO/77TI0dNZgTnyRfOCeuWSNk3p+7uO4RoyGT2qd934xNctsqm0DWBzC5ZsCEFseMVi/UQ1s2M4h5OyQiqiqOiu0Lu25Hsak0reb4Um8ykqXS+idDu4z2gywNmx5mdsVeX2srNT3L0fbgB+wFhJ0oGZY02uNMnx+bWxlSIYTzYV4EAutNOS7OPvBS84Ac59f8pDIat0wWNyWelJPQO3c/ao8lur6d6qQKmVTVFzrEjiNXMfB8PYcaZKPoxABo/42ptfYybIOLftklER77P/WJuGwqHPTciwXKJeoQI/Tt29N2RwSaTp6w09AwdTqF2QcBGF+9Vy6tprwNPdkoi/G+x6E+doqVzhvqOtOmVMjRlmrrwEmz3M0+Qlxhs6dyDjDcWw9h3qdOzF5L509OH3uSaaKK7q4k0oLFAg2C0K/EhzPrPGPChRj3Ayd19YCruIvjZtbENbcvlSJKhb4XYAY42aAYB+trVKa/pzwcu8XG9AaC
           replicas: 1
