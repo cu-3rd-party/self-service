@@ -1,5 +1,5 @@
 repository: cu3rd-private/cats-challenge
-tag: c3772a12fbd1e2191263766b5bc79c86be36a01d
+tag: 123847e4575bce5c69e7eb8b4a4426d4c52d2e69
 env:
   WORKER_ENABLED: 'true'
   DEMO_ENABLED: 'true'
