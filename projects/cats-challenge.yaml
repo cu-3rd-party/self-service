@@ -41,7 +41,7 @@ envs:
             replays: {path: /data/replays, size: 2Gi}
           resources:
             requests: {cpu: 500m, memory: 256Mi}
-            limits: {cpu: 3500m, memory: 3500Mi}
+            limits: {cpu: 3000m, memory: 3500Mi}
       viewer:
         repo: cu3rd-private/cats-challenge
         image: git.cu3rd.ru/cu3rd-private/cats-challenge-viewer
