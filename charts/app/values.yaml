@@ -9,6 +9,9 @@ imagePullSecrets: []
 # <release>-pull и сам добавит его в imagePullSecrets.
 sealedPullSecret: ""
 
+# Аннотации главного Service (например h2c для нативного gRPC за Traefik).
+serviceAnnotations: {}
+
 replicas: 1
 # RollingUpdate или Recreate (Recreate — если две копии одновременно
 # работать не могут, например Telegram-бот в режиме polling).
@@ -72,6 +75,8 @@ ingress:
   portByHost: {}
   # Редирект http -> https
   redirectHttps: true
+  # Дополнительные аннотации Ingress (например traefik-опции).
+  extraAnnotations: {}
 
 # SSH-доступ через шлюз ssh.cu3rd.ru:8222 (задаётся блоком ssh в projects/*.yaml).
 # Чарт кладёт публичный ключ шлюза в /run/self-service/ssh/authorized_keys и

@@ -4,6 +4,9 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
   labels: {{- include "app.labels" . | nindent 4 }}
+  {{- with .Values.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   selector: {{- include "app.selector" . | nindent 4 }}
   ports:
