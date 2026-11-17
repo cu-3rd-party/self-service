@@ -1,4 +1,4 @@
-repository: cu3rd-private/cats-challenge
+repository: cu3rd/cats-challenge
 tag: 4a1b03e9767d3cb1ba444c02cb46adb5c84f77ed
 env:
   WORKER_ENABLED: 'true'

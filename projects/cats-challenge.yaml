@@ -1,4 +1,4 @@
-# cats-challenge: симулятор боёв (cu3rd-private/cats-challenge) — Rust gRPC-бэкенд
+# cats-challenge: симулятор боёв (cu3rd/cats-challenge) — Rust gRPC-бэкенд
 # (axum+tonic+SeaORM) + Godot wasm-зритель. Один домен: /cats_challenge (gRPC-пути),
 # /api, /ws — бэкенд; остальное — wasm-зритель. Нативный gRPC требует h2c к бэкенду
 # (serviceAnnotations) и более длинный префикс пути, чем / у зрителя.
@@ -19,7 +19,7 @@ envs:
       format: url
     apps:
       backend:
-        repo: cu3rd-private/cats-challenge
+        repo: cu3rd/cats-challenge
         image: git.cu3rd.ru/cu3rd-private/cats-challenge-backend
         tag: initial
         port: 8080
@@ -43,7 +43,7 @@ envs:
             requests: {cpu: 500m, memory: 256Mi}
             limits: {cpu: 3000m, memory: 3500Mi}
       viewer:
-        repo: cu3rd-private/cats-challenge
+        repo: cu3rd/cats-challenge
         image: git.cu3rd.ru/cu3rd-private/cats-challenge-viewer
         tag: initial
         port: 8080
