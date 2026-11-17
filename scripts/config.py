@@ -18,7 +18,7 @@ SSH_KEY = re.compile(r"^(?:ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)|s
 # Включить снова: вернуть KubeVirt в homelab и вписать сюда "nxs".
 KVM_ZONES = set()
 VM_OS = {"alpine-3.24"}
-ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts"}
+ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts", "serviceAnnotations"}
 class Invalid(ValueError):
     pass
 class UniqueLoader(yaml.SafeLoader):
@@ -166,7 +166,7 @@ def validate_project(p, filename):
             if len(p['name'] + '-' + env + '-' + name) > 53:
                 raise Invalid("Combined release name exceeds 53 characters")
             keys(app, {"repo", "image", "tag", "port", "host", "paths", "ingress", "metrics", "ssh", "secrets", "variables", "values"}, {"repo", "image", "tag"})
-            if not isinstance(app["repo"], str) or not re.fullmatch(r"(?:cu3rd|Jedi_kitten)/[A-Za-z0-9_.-]+", app["repo"]):
+            if not isinstance(app["repo"], str) or not re.fullmatch(r"(?:cu3rd|cu3rd-private|Jedi_kitten)/[A-Za-z0-9_.-]+", app["repo"]):
                 raise Invalid("repo must belong to cu3rd or Jedi_kitten")
             if not isinstance(app["image"], str) or not re.fullmatch(r"git\.cu3rd\.ru/(?:cu3rd(?:-private)?|jedi_kitten)/[a-z0-9_.-]+", app["image"]):
                 raise Invalid("image must be in an approved git.cu3rd.ru namespace")

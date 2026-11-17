@@ -1,0 +1,55 @@
+# cats-challenge: симулятор боёв (cu3rd-private/cats-challenge) — Rust gRPC-бэкенд
+# (axum+tonic+SeaORM) + Godot wasm-зритель. Один домен: /cats_challenge (gRPC-пути),
+# /api, /ws — бэкенд; остальное — wasm-зритель. Нативный gRPC требует h2c к бэкенду
+# (serviceAnnotations) и более длинный префикс пути, чем / у зрителя.
+# Образы приватные (cu3rd-private) — pull-токен запечатан в sealedPullSecret.
+name: cats-challenge
+team: sre
+envs:
+  dev:
+    zone: nxs
+    # бэкенд с headless-воркером симуляции: лимит 3.5 CPU / 3.5Gi, запас на surge
+    quota: {cpu: 4, memory: 4Gi, storage: 4Gi}
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+    apps:
+      backend:
+        repo: cu3rd-private/cats-challenge
+        image: git.cu3rd.ru/cu3rd-private/cats-challenge-backend
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: cats-challenge.dev.cu3rd.ru
+            targetPort: 8080
+            paths: [/cats_challenge, /api, /ws]
+        variables:
+          WORKER_ENABLED: WORKER_ENABLED
+        values:
+          sealedPullSecret: AgB+MAw8jbrIsqleEfbw0s0dBAd5JWLnqQz0d8mfU0N89sU0thcDQiDRbis4oN+Us8mu0qDQLyOHuyTphmjgldSUcit5364AdMsRR/MUOQHA1MnLm+9POglRkAJ+TMcEEojct0FrfCMQz9bFHxu56OyRa26XTjtZQqUzKcPSAe6HdYSc+EnmFveBYqmWEPYVTiiUyjmi/bIicoD+Pp+U8jieL65tZAf5pQwvIygH+osibhMtIqrSKv/XKSJXZ0eSir2OmUHTkmecFfqTExwUB6yM4E7GEuRvmmgOfgX5FD/RFhPLD07QKNaW58jyaHQ6CQqnwxeXs6Zltr5Rpg5QICsHq7s5Y8Fq+7Sq9yrUWYTct+dyOYFyaVqwCz2FUu378zzPI5E9D3/DbsnKjGfHzCC9f4R83AnDrASTD9e/7rxHDpZ3wdjtQEvEXr6N43DrsS0WZLPIGu2hod9JF3cHuvwvRcLbYzI1e++oiT0i4gdvpWROp2xvoRiT5Dlx4eF/GJYYIuKrK3PJTRYtU3zZWBJDY8qnQxZ3hJagP8sXyMxXWJI7+qRvo8f868Up+qU+f1ycY0KeLiVilB/3ZfGrgeom6vbHAxgcLQZyielIcvOFfqGMKxk9cxT2tAkOYz2ZuVJ3s5RJyNgGK9l6S/27IA3APwh79/2rR/HBeC/taqGzWGWKFsq+q5EEF+b8901aBEXlAlScY4Piz6f6QCvfAomr0Ws4YqR3jZaUaMvk00cFDzPO8DEW9itoSrDdZ97RxUkCK7VXZMrfcovD5cy/6QM5oDVSUEnDvjfHQH+K8V1JN8xhB8aa6aP6iloO+q5Dk3qJXz7uqiNdznmfWxiM3awvqfg60GIhQ0X691H61nL2YCRwDYZq7l75ET46tgWHWtyOAg==
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /health}
+          serviceAnnotations:
+            traefik.ingress.kubernetes.io/service.serversscheme: h2c
+          persistence:
+            replays: {path: /data/replays, size: 2Gi}
+          resources:
+            requests: {cpu: 500m, memory: 256Mi}
+            limits: {cpu: 3500m, memory: 3500Mi}
+      viewer:
+        repo: cu3rd-private/cats-challenge
+        image: git.cu3rd.ru/cu3rd-private/cats-challenge-viewer
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: cats-challenge.dev.cu3rd.ru
+            targetPort: 8080
+        values:
+          sealedPullSecret: AgCeGeg9WF4V3AN6KdKtDp6oXimZ7VRvq+9hOgcVH44erAa2cY24/TU4AdkhgxOGofh28CJXin09Sjxp60ldMODKaK5Z+azX55ptWT46p+yvCkeROa4EHL1GGH+0asArLO9AE3+x2rezpiq8Rj+Gl8V06gT7/BA+15dBRXY9L/dFJJtVGWM0+99HupTT5NzfBQbs5s63ztemeNzZtf01KkdcUuTaWcP4LApOzDp7fsCnMuEISe/JofBnNYhmOg0sqzeXCt2brlafI4IhWVVOfgTb3AYHFiM691kU4wNU18dkF0nm8GlE4FmErPmzKvfjmscp8Vmnl9Q0XlmMJVcqA/Bj2dAz/+XGo3/DraAUj2jAvzKcvBuzrBGSSQ/hd+lqr2ZznUzYlu7aEuM9FJn2bcJdU0UW3kHnxPW3BGS90GQkCnfoWRG5q6L4Tp3PFzKiXkAek80o5KSedXhNuyJ9qgTmtv2AgpTdaL/LkWEOg8N6OmN8tMm9QaGT2DRgoNq2jMaBysK6Myb6CZ117R+AYWi31+/JnfoZfkHd4KrpHSHxE5zkO8qrgsxB56XLHw1UhyytxuJO8QZPY5gv3YOUNCgEo2nJmAVZdM4SaBgyi1mtekM22XWz/J+Rwx4lENa062+CuHQw/+iMMuUuRHPQhd8VfO8XskseVj5tLGyugKEBpcqDmaRwcIrhkZooQ4Y3qjOD8gdm/G7TALjKeW9BqRto3AFnPHjHQgRVN+KYmL3AgqV3fj42bInadbnCC0myVtGPqvCSzyGmFfHnYtu8ciHZ8dSbYs/i/V25LHzyBdzRaX2qKoM3uujOX+mYDPZ3vdlEFv+BfKDr4aEELOejTw4fWTSPC2H7h+E87bq4AcyqB2Bp5GMWD08lRx59u3lkYeMx5w==
+          replicas: 1
+          probes: {path: /}
+          resources:
+            requests: {cpu: 20m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}

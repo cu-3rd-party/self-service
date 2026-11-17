@@ -13,13 +13,16 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   labels: {{- include "app.labels" . | nindent 4 }}
-  {{- if or (and $ing.tls (not $ing.tlsSecret)) $mws }}
+  {{- if or (and $ing.tls (not $ing.tlsSecret)) $mws $ing.extraAnnotations }}
   annotations:
     {{- if and $ing.tls (not $ing.tlsSecret) }}
     cert-manager.io/cluster-issuer: letsencrypt
     {{- end }}
     {{- with $mws }}
     traefik.ingress.kubernetes.io/router.middlewares: {{ join "," . }}
+    {{- end }}
+    {{- range $k, $v := $ing.extraAnnotations }}
+    {{ $k }}: {{ $v | quote }}
     {{- end }}
   {{- end }}
 spec:
