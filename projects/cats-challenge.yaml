@@ -8,6 +8,9 @@ team: sre
 envs:
   dev:
     zone: nxs
+    # endpoint-политики на раннере grm (скоринг 50061, demo-evo svc 50062)
+    extraEgress:
+      - {cidr: 109.120.137.209/32, ports: [50061, 50062]}
     # бэкенд с headless-воркером симуляции: лимит 3.5 CPU / 3.5Gi, запас на surge
     quota: {cpu: 4, memory: 4Gi, storage: 4Gi}
     postgres:

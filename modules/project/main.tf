@@ -18,6 +18,15 @@ variable "root" {
 variable "chart_revision" {
   type = string
 }
+variable "extra_egress" {
+  description = "Дополнительные egress-правила isolate: [{cidr, ports}]"
+  type = list(object({
+    cidr  = string
+    ports = list(number)
+  }))
+  default = []
+}
+
 variable "ssh_gateway" {
   type = object({ namespace = string, public_key = string, key_secret = string })
 }
@@ -294,6 +303,24 @@ resource "kubernetes_network_policy_v1" "project" {
 
       }
 
+    }
+    dynamic "egress" {
+      for_each = var.extra_egress
+      iterator = extra
+      content {
+        to {
+          ip_block {
+            cidr = extra.value.cidr
+          }
+        }
+        dynamic "ports" {
+          for_each = extra.value.ports
+          content {
+            port     = tostring(ports.value)
+            protocol = "TCP"
+          }
+        }
+      }
     }
 
   }
