@@ -13,6 +13,9 @@ kind: Service
 metadata:
   name: {{ $root.Release.Name }}-p{{ $key }}
   labels: {{- include "app.labels" $root | nindent 4 }}
+  {{- with $root.Values.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   selector: {{- include "app.selector" $root | nindent 4 }}
   ports:
