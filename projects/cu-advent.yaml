@@ -1,0 +1,28 @@
+name: cu-advent
+team: culture
+envs:
+  prod:
+    zone: xgrm
+    quota: {cpu: 1, memory: 1Gi, storage: 1Gi}
+    smtp: {enabled: true, targetEnvPrefix: SMTP_}
+    apps:
+      web:
+        repo: culture/cu-advent
+        image: git.cu3rd.ru/culture/cu-advent-web
+        tag: fa6721a195e1d174a4ea13683cc2f290d6d5a70c
+        ingress: [{domain: advent.cu3rd.ru, targetPort: 8080}]
+        secrets: {TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN, SESSION_SECRET: SESSION_SECRET}
+        variables: {PUBLIC_ORIGIN: PUBLIC_ORIGIN}
+        values:
+          strategy: Recreate
+          replicas: 1
+          probes: {path: /}
+          persistence: {data: {path: /data, size: 1Gi}}
+      bot:
+        repo: culture/cu-advent
+        image: git.cu3rd.ru/culture/cu-advent-bot
+        tag: fa6721a195e1d174a4ea13683cc2f290d6d5a70c
+        port: null
+        secrets: {TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN}
+        variables: {PUBLIC_ORIGIN: PUBLIC_ORIGIN}
+        values: {replicas: 1, strategy: Recreate}
