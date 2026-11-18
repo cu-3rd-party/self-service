@@ -1,5 +1,5 @@
-repository: Jedi_kitten/lit-club
-tag: 092b2ba84326f4af91bd479a474ce782d22f5352
+repository: culture/lit-club
+tag: ecec94d29eb5ed584a43b2ad7becceb601302ef6
 env:
   BOOKS_SEARCH_TIMEOUT: '8.0'
   BOOTSTRAP_SUPERADMIN_TG_ID: '8113733234'

@@ -19,17 +19,17 @@ class DeliveryTests(unittest.TestCase):
         self.app = self.project['envs']['dev']['apps']['bot']
     def test_example(self):
         validate_project(self.project, 'telegram-bot.yaml')
-    def test_personal_source_and_image_owner(self):
-        self.app['repo'] = 'Jedi_kitten/open-pairs-bot'
-        self.app['image'] = 'git.cu3rd.ru/jedi_kitten/open-pairs-bot'
+    def test_client_source_and_image_owner(self):
+        self.app['repo'] = 'culture/open-pairs-bot'
+        self.app['image'] = 'git.cu3rd.ru/culture/open-pairs-bot'
         validate_project(self.project, 'telegram-bot.yaml')
     def test_unapproved_source_owner_rejected(self):
-        for owner in ['other-user', 'Jedi_kitten-other', 'cu3rd-other']:
+        for owner in ['other-user', 'culture-other', 'cu3rd-other']:
             self.app['repo'] = owner + '/my-bot'
             with self.assertRaises(Invalid):
                 validate_project(self.project, 'telegram-bot.yaml')
     def test_unapproved_image_owner_rejected(self):
-        for owner in ['other-user', 'jedi_kitten-other', 'cu3rd-other']:
+        for owner in ['other-user', 'culture-other', 'cu3rd-other']:
             self.app['image'] = 'git.cu3rd.ru/' + owner + '/my-bot'
             with self.assertRaises(Invalid):
                 validate_project(self.project, 'telegram-bot.yaml')

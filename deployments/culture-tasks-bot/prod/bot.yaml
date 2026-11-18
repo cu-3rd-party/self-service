@@ -1,5 +1,5 @@
-repository: Jedi_kitten/culture-tasks-bot
-tag: afc0014d3c60b3ae36831501be63d83968da54c7
+repository: culture/culture-tasks-bot
+tag: 84bf09070a28abc76c39231502436bb52c2a6ec0
 env:
   ADMINS: 8113733234, 823954075, 464835654, 817258582
   TIMEZONE: Europe/Moscow

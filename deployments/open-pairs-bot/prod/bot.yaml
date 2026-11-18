@@ -1,5 +1,5 @@
-repository: Jedi_kitten/open-pairs-bot
-tag: d17b92d223a3bbcee9c95e5c9cf79746ec7270c9
+repository: culture/open-pairs-bot
+tag: f5a3313b2ced5f2e87951424eae5a3c1b8d90b69
 env:
   REMIND_DAY_BEFORE: '10:00'
   REMIND_BEFORE_MIN: '60'

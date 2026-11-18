@@ -1,6 +1,6 @@
-# Owning personal account is Jedi_kitten.
+# Owning organization is culture (ex Jedi_kitten).
 name: student-form-bot
-team: jedi-kitten
+team: culture
 envs:
   prod:
     zone: xgrm
@@ -10,8 +10,8 @@ envs:
       storage: 1Gi
     apps:
       bot:
-        repo: Jedi_kitten/student-form-bot
-        image: git.cu3rd.ru/jedi_kitten/student-form-bot
+        repo: culture/student-form-bot
+        image: git.cu3rd.ru/culture/student-form-bot
         tag: initial
         port: null
         secrets:

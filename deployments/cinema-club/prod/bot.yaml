@@ -1,5 +1,5 @@
-repository: Jedi_kitten/cinema-club
-tag: 4164c219b10e508df776bfd2c8d3c267f374e896
+repository: culture/cinema-club
+tag: 81ac35e9b79da6876607ac07efd6b99ef69d0aa8
 env:
   MINIAPP_URL: https://cinema.cu3rd.ru
   TMDB_LANGUAGE: ru-RU

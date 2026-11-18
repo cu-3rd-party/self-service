@@ -1,6 +1,6 @@
-# Owning personal account is Jedi_kitten.
+# Owning organization is culture (ex Jedi_kitten).
 name: lit-club
-team: jedi-kitten
+team: culture
 envs:
   prod:
     zone: nxs
@@ -14,8 +14,8 @@ envs:
       format: url
     apps:
       api:
-        repo: Jedi_kitten/lit-club
-        image: git.cu3rd.ru/jedi_kitten/lit-club-api
+        repo: culture/lit-club
+        image: git.cu3rd.ru/culture/lit-club-api
         tag: initial
         port: 8000
         ingress:
@@ -47,8 +47,8 @@ envs:
           MINIAPP_URL: MINIAPP_URL
           DISPLAY_TIMEZONE: DISPLAY_TIMEZONE
       bot:
-        repo: Jedi_kitten/lit-club
-        image: git.cu3rd.ru/jedi_kitten/lit-club-bot
+        repo: culture/lit-club
+        image: git.cu3rd.ru/culture/lit-club-bot
         tag: initial
         port: null
         secrets:

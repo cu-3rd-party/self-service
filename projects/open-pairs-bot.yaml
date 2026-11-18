@@ -1,6 +1,6 @@
-# Owning personal account is Jedi_kitten.
+# Owning organization is culture (ex Jedi_kitten).
 name: open-pairs-bot
-team: jedi-kitten
+team: culture
 envs:
   prod:
     zone: xgrm
@@ -10,8 +10,8 @@ envs:
       storage: 1Gi
     apps:
       bot:
-        repo: Jedi_kitten/open-pairs-bot
-        image: git.cu3rd.ru/jedi_kitten/open-pairs-bot
+        repo: culture/open-pairs-bot
+        image: git.cu3rd.ru/culture/open-pairs-bot
         tag: initial
         port: null
         secrets:

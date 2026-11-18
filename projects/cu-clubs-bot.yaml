@@ -1,5 +1,5 @@
 name: cu-clubs-bot
-team: jedi-kitten
+team: culture
 envs:
   test:
     zone: xgrm
@@ -13,8 +13,8 @@ envs:
       format: url
     apps:
       api:
-        repo: Jedi_kitten/cu-clubs-bot
-        image: git.cu3rd.ru/jedi_kitten/cu-clubs-bot
+        repo: culture/cu-clubs-bot
+        image: git.cu3rd.ru/culture/cu-clubs-bot
         tag: initial
         port: 8000
         ingress:

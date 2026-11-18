@@ -1,5 +1,5 @@
-repository: Jedi_kitten/student-form-bot
-tag: 4cc4f6da24ce6f18d2bfaf9147724cf81b2b65d9
+repository: culture/student-form-bot
+tag: d8e3c271284f2e272f90d17c94a35983f6bfe722
 env:
   ADMIN_THREAD_ID: '102'
   ADMIN_CHAT_ID: '-1004331525635'

@@ -1,5 +1,5 @@
-repository: Jedi_kitten/lit-club
-tag: 092b2ba84326f4af91bd479a474ce782d22f5352
+repository: culture/lit-club
+tag: ecec94d29eb5ed584a43b2ad7becceb601302ef6
 env:
   TELEGRAM_BOT_USERNAME: CUliteratureclub_bot
   GOOGLE_BOOKS_BASE_URL: https://www.googleapis.com/books/v1
