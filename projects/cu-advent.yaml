@@ -1,4 +1,3 @@
-# Owning organization is culture (ex Pagerka). Minimal quota: polling bot + sqlite web.
 name: cu-advent
 team: culture
 envs:
@@ -11,15 +10,12 @@ envs:
         repo: culture/cu-advent
         image: git.cu3rd.ru/culture/cu-advent-web
         tag: initial
-        ingress: [{domain: cu-advent.cu3rd.ru, targetPort: 8080}]
-        secrets: {TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN, SESSION_SECRET: SESSION_SECRET, CU_CLIENT_SECRET: CU_CLIENT_SECRET}
-        variables: {PUBLIC_ORIGIN: PUBLIC_ORIGIN, CU_ISSUER: CU_ISSUER, CU_CLIENT_ID: CU_CLIENT_ID, MAIL_FROM: MAIL_FROM}
+        ingress: [{domain: advent.cu3rd.ru, targetPort: 8080}]
+        secrets: {TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN, SESSION_SECRET: SESSION_SECRET}
+        variables: {PUBLIC_ORIGIN: PUBLIC_ORIGIN}
         values:
           strategy: Recreate
           replicas: 1
-          resources:
-            requests: {cpu: 10m, memory: 128Mi}
-            limits: {cpu: 500m, memory: 512Mi}
           probes: {path: /}
           persistence: {data: {path: /data, size: 1Gi}}
       bot:
@@ -28,10 +24,5 @@ envs:
         tag: initial
         port: null
         secrets: {TELEGRAM_BOT_TOKEN: TELEGRAM_BOT_TOKEN}
-        variables: {PUBLIC_ORIGIN: PUBLIC_ORIGIN, TELEGRAM_DEMO_CHAT_ID: TELEGRAM_DEMO_CHAT_ID}
-        values:
-          strategy: Recreate
-          replicas: 1
-          resources:
-            requests: {cpu: 5m, memory: 64Mi}
-            limits: {cpu: 250m, memory: 256Mi}
+        variables: {PUBLIC_ORIGIN: PUBLIC_ORIGIN}
+        values: {replicas: 1, strategy: Recreate}
