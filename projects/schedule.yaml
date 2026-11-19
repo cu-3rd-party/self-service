@@ -1,0 +1,26 @@
+# Расписание с клеймами кабинетов: cu3rd/schedule (Go + htmx, Postgres).
+name: schedule
+team: sre
+envs:
+  dev:
+    zone: grm
+    quota: {cpu: 1, memory: 512Mi, storage: 2Gi}
+    postgres:
+      enabled: true
+      targetEnv: DATABASE_URL
+      format: url
+    apps:
+      web:
+        repo: cu3rd/schedule
+        image: git.cu3rd.ru/cu3rd/schedule
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: schedule.dev.cu3rd.ru
+            targetPort: 8080
+        values:
+          replicas: 1
+          probes: {path: /healthz}
+          resources:
+            requests: {cpu: 5m, memory: 32Mi}
+            limits: {cpu: 500m, memory: 256Mi}
