@@ -18,6 +18,7 @@ envs:
             targetPort: 5173
             paths: [/]
         values:
+          strategy: Recreate
           replicas: 1
           probes: {path: /}
           resources:
@@ -45,6 +46,7 @@ envs:
           STORE_BACKEND: STORE_BACKEND
           OCR_SERVICE_URL: OCR_SERVICE_URL
         values:
+          strategy: Recreate
           replicas: 1
           probes: {path: /api/health}
           resources:
@@ -107,6 +109,7 @@ envs:
           OCR_PROVIDER: OCR_PROVIDER
           OCR_LOG_LEVEL: OCR_LOG_LEVEL
         values:
+          strategy: Recreate
           replicas: 1
           emptyDirs:
             tmp: /app/tmp
