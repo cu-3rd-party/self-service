@@ -22,7 +22,7 @@ envs:
           probes: {path: /}
           resources:
             requests: {cpu: 10m, memory: 64Mi}
-            limits: {cpu: 500m, memory: 512Mi}
+            limits: {cpu: 250m, memory: 512Mi}
           sealedPullSecret: AgAvlwrZwcDP0ot/xv0X4A8BU72fMKEWDq9C0zTSJYOn+UbQWWqXj0sJogSDUktS+Z1l/+kukP29NfptQ6H3+UM0lkK0P52kopfkDPsbohWwQfiPLc+A6M9n/lgJ99kcFJrwOqY8JAA99t5ryarxMBFJcs/MXedbozjxXNetTkKtMCc/Q+2H5l3tHIIRM9uuWsVhvv0ubK2a8k/3v6SQ1+TWrSX5Jv46KgEpj5YzAT7aSJetYTj8Ne7k9ygv1SkHCCjcRGeQSDaaCxOdXxLiPGLvmDOBCz0HlYOwFOUR8igzdNPiscqJHXGCwZJ3xpRAtcNXFJbJ/7xdAqE119uU6Y2DUTLWpQnOsOtXiEKwwV22iZ1cjVxSGKep3J5raJziVbHdaPeM+nVDE0ug/v3+ceDOUZClMmkoyqH4cyyWADDPUH14Jh1xR/kS0TQnuDmrJ3OCBpEMY0kckyxMv53WdYmqyJ9+WV+BIMtbWKcYcxdBfdzMVQi/or846nL4VaLGAFbfXlCN+4nOwvBowAGcqPVtkBZO9MQK0p3XGXLX+uqHpkOOBGpRY/vdVcbAkIWSfVqrOxazH16dhrHYn2Dyt5ZJ47kqL3ppnsxdj/fFbwYPl0f5/t0USylPY3kvLwTzAs1V9ToBN5CHB0XFAN+AFdQyNnSAyJrb5BgIz392ZbzZ59uZcN4bY7BeqhYmiBwASZgSz/urw6g94hl0DWbHkLY+qHHmyHvIORGQcTG/8qmEavjgUfVY/M48YzkSgzqv4y6FD9G8iI8gdJo3wno0LxvOPKgjX9KX/v+06p5YCjG+rl8ODxZtor+S+6j19s/r8kis7EHXAZSTOMr+jmixMojfJXH+Qq25ahpT/rEAyTYtMm1pwmg+ZmUs7WQaSPcLhQRtb9RqoRAu4Yl9b4uJxn6Z5vqiS+tTR6tcl7Cb9PJFKZKCjyHJN3qFEMKyUj3G3uECMR+f1FllAqnUc5iQ
       api:
         repo: cu3rd/yc-hack-letopis
@@ -48,7 +48,7 @@ envs:
           probes: {path: /api/health}
           resources:
             requests: {cpu: 50m, memory: 128Mi}
-            limits: {cpu: "1", memory: 512Mi}
+            limits: {cpu: 500m, memory: 512Mi}
           sealedPullSecret: AgAR7o91T4aNROPMilEEmZaoVVjmlwZSAxw63ODn0gkWVCBw0mzXGQOPhjG5BYaIDa8BZ7rFPzG+fc8Ova8AhSg9ZYUwQPhjf59tF+kNQU6p3CyEJ6yPtxbzTE7QnoMYSs0i2NLhdI0rOeRiGiWoN3WtDkpNwIPyebtulmWQA3KOI6x0GLOPhrFlOPn4vuaaHIrnPPWq8+0YJYfbFihN74U43bsu3fb9yCl/ad5NMV4FD+Hze3VC4839eQkHS349/54DkjlL9TYXJEN6NXeY3lTvPoWPlTmHcTaYGnVX8ZHCBWXrS5nzBzvf5x8pEz74dqA5DfqmxRHZESXdugegW+1ykRONbDTQ2326UfqQaA3sJVpRm0mzFXKABAJHTpGRBzvTfpipxAqMbVmyn4Oym2JqXWKl0nGQXD6CzH0+USqGonNe4ZG8PKkGWQVY2BuUFY78eZ0HM19vbDKvAsxNwQ7Ds0xox73ePVR6b+/mDUH7LPkwaBosrampOSLWb2K5jwxMTp1PD8KPtGIZ0jaJscn+b4F53cpXC4bxL9hRT1I1Mfrmy9QIpc7gsWBFiNOLxrOWON1J21K7LxD2EISG9r1oCNyqiGrjdqw1xyzhclVCesoyslR0kzUeAkPIMoR6rrwnEy4sgWNhEOQvGq+K2AF6M1aL05xNxX4Kd300vOrMsR2V1V6KLSpp11mPikeqwi8zIOFoyC7YXPiEuoAgR1V+JmdnZPODZduQ8IWW0rwwZN3FEQYOiAtiBgZQm33rKfY+FfW5HCzmrhaqyZ8dQlJuBTYGFhsZE57+BibRCtJ5Tsu7xUWdHm9JQ5B5ImqXgzctXSSTyiYDHcISULDzemKA71JeNu6OXXPxUyuSfeNNLU+j8hCayLGxKgBAdaxxp7CJMuMiCQA0RK5I+R1wAjnqjj1ECP2nPHxYtmOZ23aTIVoJedjpRQmy05/bqcWiRt26Q7JeL2tNz0TEA3qD
       lightrag:
         repo: cu3rd/yc-hack-letopis
@@ -93,7 +93,7 @@ envs:
             data: {path: /app/data, size: 1Gi}
           resources:
             requests: {cpu: 10m, memory: 128Mi}
-            limits: {cpu: 500m, memory: 512Mi}
+            limits: {cpu: 250m, memory: 512Mi}
           sealedPullSecret: AgBeR8expUvC6Xd8w26GlugWT8VXqlNonLJoickp7/IhPLAhP/ocf4wV9lkHZjlrbDEqqIxCe476Z8/woqkLc+8JhL7XUTO1POSuO/q5rOFICucNpeX3nh/SIyq+DAudQS0zGwchW7cPOO1SqD13clxedvWJZb9cWUIn99H5lTey+jCtVOYrsdV6hfofJFc3LK+5TFuV/XpNta08iIkayCEdW2/bAUeMsAJvK78N6xYFuWZvuQN67bY+44/u5R7imjCX8X3CKVC79pfd2kOI0p7o697miElYIbiQ/YssP9igs95gGJEX+9bh000Bt9Zu5MeeoLBAJ4a/G9QK299Gwhjq5dXhM5BSamutXTUssESiv9oqG6VQnb+RZXjoMisMJS3LURQiXiztt01/tpKTSwy7I9+HhXpjwzr4ecTroF44WYMb87hNKrmOmfMqB9du2TiBs+zl5/Z04XV8Z9cdpswYK8koYbNVuRAkJhXlH96usOh0lBErWh4ZKXecCbnd++dEKH1+bDtHNRBIvNMNJ71C7i8P+wJO2lpS0xp3djXqBVMozGvPtGLePAHuEGIofBPkb129EqsSF3bND1Cub3ve7Yuo9pKuW1AvVV9nTZDTbSEaWh5Mx0rZPYkpLdn8qAny/Mo6wYQPnDIpOnwPEhur1A5G9BQa9yUyY8KGAT4rHfwFBVJCBly+8IamfQteV0j+3uWg4uklJCdS9k1J6WL2zWjQxEbP2ssYX+WqWCA5gwosy927pDkhQA8Is3vnBMgbDd6beRpiacXEtGwmjxfNoG7L9UeW1cV6H6iAM0aiEHG8vb111F/BdwrxNuDOPfcOWx/Rt1ZQu4hb2G4GJtl/UEM16r2tRtNQNHptWzJpV65gB2HLeUrhNM6lWkGiwCuXuHF7SyhVtgLXad2m4YxXJGAPzaXvOd1xpY8WhrVys16MWKw15rEU4GrG77V0a822MIVqlyc+g1QNVdXM
       ocr:
         repo: cu3rd/yc-hack-letopis
@@ -111,7 +111,7 @@ envs:
             tmp: /app/tmp
           resources:
             requests: {cpu: 10m, memory: 128Mi}
-            limits: {cpu: 500m, memory: 512Mi}
+            limits: {cpu: 250m, memory: 512Mi}
           sealedPullSecret: AgCgEeIh6nhbJbfoFMrFhd/lMe2eR5dvyWTvW1zd+91TgLxw8Y+sY9vu2xWQew4S524FjIdGlbBs6cO+TA8KTbHJv7u8j0qyRffpyZ6EMTa2M+3LFLEX49CSlwZATY8FjhF+XL2ncRINsuQdr9Bu/r8ANk07U97x0X2go7OBeiaZf+YeCe28R+SzE5er/uAxXz9pPi0XXDqVx5ABDfB04uiGwEj2U06wSwL35iPFF/5hED1bu4a2cxnN0NUbswde9wllA1nJW3RSfqYL7BlnPHcnwnPY0zGZijLBK6rKRERq1fRCrvCDilnNFn6xmw6FM8cDTUiBxPIaLSW+yi2H69v04WAkmaYFUvaXyIq/LrTgZNbP2F8TE7uYcAQQ7e0X3Sb+Ei2wnrDsPXTgBeTOLYfOA3fzKj3BK9o9vy80sgpn8F7EB92k/bZTtf95sSamc9TqsxQWCrSquODnlYnR1Txvsg4MhQcCSjTL36X7NDDp51BG1bs2iLv3oZwQ5KP9DfUFJLyYgoyOIw9cs+lrrq05qsvYtShXeUyizNqNfMk5hgp9WZV36p9jbUMGJxVq+TuQVP89xqizj8qPqqXz2tmLSqfwrBeOXMphreHNVgkPDxLPYNxlRx3rLXSL26mdI9dSsLSxUh58VnUIoMYtMH3Nub9DXF2QrGDt5Spp26DKjSe++2eghRKTzDZjK538rkAzOEQeNgwWqJ9aIZNfwJADgBcuQYNQj5IUDOiBVhJI8lo0aJA0x1X9t086A7xoqj80K0WTqBllKf0gv6Dp72r6Ek1vXjeVSZuBBnh4JcDkfSOjGQ+JcbbVZWdfzg2o0Nw40biiep7joPYUdkR7VTJi3n90XpINcpzbhYPy1Vmew1lVIen0wVu1MLkM3fQ9xaTwMh0arc0IVE36VZA+U1fU0IlWb4s+06vdAMIXv1sxsZpQjRljCdjHt8IoNUvrMLGkQSwarET4RJywhndx
       pgdb:
         repo: cu3rd/yc-hack-letopis
@@ -131,4 +131,4 @@ envs:
           resources:
             requests: {cpu: 50m, memory: 256Mi}
             limits: {cpu: 500m, memory: 1Gi}
-          sealedPullSecret: AgCvKF462schEqmd+CLimSpeaLg8Hj6rA0bhxdw41Df4u6YkUBLDTOFkhC6ejm/GTllxLHYGv6ubcRcV9UV/YqCNHdt/+4YFZkBAmgp9FP2roRwTbhCdwrGwtmM3O6DtJ//KdTvyMrgN9LM+7fK4P+KNyLZ9jFdw5Xx0Ok4k0L8akqJmhK33WVwR76vioFAJQ9sgdC8Qc2fd0S2v2vCeJHlVlkFMIa7hkcANDZtDz7n6oBxXMViEG3yQwvyGqv+L8MY0iNk+gj5wDdpd4AgROG0oulhU598kdPx5cMo3nkyXOnBaUsWOzlXCSYbiu65l7uNG4rE1RU78jYDQJvyTKD1TJ7cw7ftgDgICoJ04u0Dr62NLg49U+RnfPowiYl12KRl7tregDba1O5KRZs9VwdBZmSi8uNIjJWHBn03eHdnsb4SZHIUDS3eux2LACeGKf8JahVX/mzgDqymXpNT1FQlwTkt5fWQML01u8yMYRnbz7jB0Gf1VAm4AoAnmnZKijTVlseRh5mjyyWYvU/nbUFpNLWDJSdT+Zf8aKgkjn72CgoT0pT5C2dOA3gDkP6SyE5ny8yY5GrG1Fvehp2D655RNfHd6zHIYogo9EuZqTAVZODs+gOGStyDohTx2cE7LXDBA947UNaQdJ/HYVkCKPAYOSYJ1QPPwqFE9dZi5+ZHcYop1xKek6vwaHWi19g9iDBnj5zW2TaPNZylRd6JNrR+x0eenbl2XWGnd3SlAR+kBVfJgy7euQEWsYRrUEo0U1ktrGO264BLRogRydDjgVIIzuV4zUU7X2LC0kshpid5XHrLXWT23Ub8F8wD2jCgUqWQWVLHWSOxoso9d0No89+mw5OdswkdHBML74Hy56OOKW847ER9RGxJnjPVxMVK80TVG5i2rPEJVJBNAFTlW3TIvfdc3NJQtnTGXd6Dpb6xQjHdJIjmTE37MoEYPOAckSLNcyr0GF+5lkRod+SxR
+          sealedPullSecret: AgBOnSOJWbPY+FYsWTS+bD/JmEw7egBIxNvuZNmznIqYD84R/dBgBctsnaNiCglePYYTDS3zgTFLQbQAXbEmWi/v58DREfSAaVEbdBjbfhQtDCEjXmrxQc/lBP9pMBZR1OR+XYQVAkhNJqW4xLXxUq+yqAKjVMMqUMeiYQ9xpS7j5AsxnmlhsxY08keZ6hZFB5u+Gt6JM1MR7DLjtS2bGwXLpBa1IdI4xduP9Zd5dMUY1VrN0gUDXZDETdwaaXGJOKtjnd1R4gXZ56IjaWEWRkpYsn4bbY0H8U/0JUxJQCk+Z9S+yMHmrM1xVkKpqjbxY+uUsV/Te+9awNM5q7ZzIp4xuAio3B1btDDqJ3zFi8Z/RqAb6QY5g8X4TqpeSFGSxPYGaFCiiCem3P52hDuzCh2tF7AedJHoIC5xJ0lPMjHep1dCo0MZA9lRIFwY89PTFF3fZEfHFljcWdPplUGmc741qF4DnPbPa5m+VTeGy+HQOVHF/Bc71XgJ5tWNHG6FaHskWmN+W/soUnmJwn4c68hWElSJCI5AUWLvoRosJSxLTsi+iK8YOwUHrFfgM8d/RO022dqGyvgVEcfvvkqsiIw4el+Z9ONPo4WiS4POcDZGdmhSJzE+0lmKbDgnJDmBknu7Hv23UbPQjfvVhZVtyscZU0Bn0p4nWrvafVI7ZhpxVmqi69XX08LN6UkTMFhlkb0EuZOq67FE+HY2YKrcBIKim7POsl8aai4PuadpOy6lnyowVmwMQnVw+0Wo6y9ugEzLL/Q2IltmtlQfJ6JvEEWlyXx09xmmEcVaY2HpCvpibCzX0IctbmtHeOGEfqTrrj57DCFOUT3RK9gvPNR3lBQUaU+mUp1lAd9gCF9+2oEi6mDsCq3LqkUbbFF/Wtm9nlT7dBhZUrq3eqn25L38eQUbhi2NqTBcyWMY5LVoN3f1bBkB2H4JfWpHHLk8s4Q2Jqu11FjZnqvP6DQf2gXx
