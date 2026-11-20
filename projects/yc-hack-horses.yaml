@@ -12,15 +12,14 @@ envs:
     apps:
       web:
         repo: cu3rd/yc-hack-horses
-        # Репо приватное — образ в cu3rd-private, pull-токен запечатан под ns/имя релиза
-        image: git.cu3rd.ru/cu3rd-private/yc-hack-horses
+                # Публичный пакет — runner и чарт тянут без pull-секрета.
+        image: git.cu3rd.ru/cu3rd/yc-hack-horses
         tag: initial
         port: 8080
         ingress:
           - domain: yc-hack-horses.cu3rd.ru
             targetPort: 8080
         values:
-          sealedPullSecret: AgAnkp0a+y6x2T1pkGArivTYcrE23jIKrZFKbnPnU9F5IesoAY6sj+lPr009vO1AgV8SRU13I4NzpvBc2u/5qwjGNjh6DJzQ9jMg6tmZGO8x/XMNm+qgu3VWMr8OW+TTOJXWP4bW1rjTliiL11huTcCNcPCSjhfTiSGjyg7hzofNLbPI694uDp2sp6pgWWPWRRCecA2jZ+E3SJh7tZmvX5k/Ozk3MF0BwLPjhGC8Ts6RQ9X9c1qokhP4NPswfmlloaZn6kfOmHJqLQ8Q+udev6gw0RnxaedOIvl+ldb4gjMkiaQnmWIUJPzDYt8IRawNPRBEr4FPE+/pDxgU6nkhL1Qv6kpmU5p4j8J9maMOVs6H0A17Gu1ZZL8s/AAElH0y0wepO3O4NSSk+cP16nRYyASdvLRY8BgOMlwQD7CeedDJ7IglLTv1Jy790guWroXQtnNRZQHMQjYqjGd4Ysjem4oGf7L5kMKSLRGA4bS/IIRBzVeNhUoaRpV5X6gR5bemzPHBIA+dJRP/rukQyi+BYQaWOiAqTP5qw5wsrtZg5/PZinsQ1LYxlJiugS8R7VBBbz7eipL4llxb0sWVR6G2bFTz6PnF2bebF97O5qm2MxA43R04yQC3TVJMHYf9gbZruP5Kn7HevxxyUp4UfGOQEn1fuJRtO7h4F5FxxdguJItBZv60mDnxsTOcgMMMv6GRyBk6iuuc7UWvSUwjZnMVCecmMNf5mchgpgVVIT1C8nDpBiAzEsIkt1F/X75/uB8zEC8tT0XyFN7dYIBOihJjj1du6QXilOkQ7MnKIBcGtMewKAQrbDSWK4tu3IjWazFTS3Gk0ymS0pPP8yeG
           replicas: 1
           probes: {path: /health}
           serviceAnnotations:
