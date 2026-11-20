@@ -3,6 +3,7 @@ tag: 5e05704c291a14fc9a3bb2c0e623aafa1c158978
 env:
   LOG_LEVEL: info
   LISTEN_ADDR: :8080
+  STORAGE_DRIVER: postgres
   NODE_CERT_FILE: /run/secrets/node.crt
   NODE_KEY_FILE: /run/secrets/node.key
   CA_FILE: /run/secrets/ca.crt
