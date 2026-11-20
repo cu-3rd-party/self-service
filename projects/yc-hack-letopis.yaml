@@ -116,6 +116,7 @@ envs:
           OCR_API_PREFIX: OCR_API_PREFIX
           OCR_PROVIDER: OCR_PROVIDER
           OCR_LOCAL_BASE_URL: OCR_LOCAL_BASE_URL
+          OCR_LOCAL_TIMEOUT_SECONDS: OCR_LOCAL_TIMEOUT_SECONDS
           OCR_LOG_LEVEL: OCR_LOG_LEVEL
         values:
           strategy: Recreate
