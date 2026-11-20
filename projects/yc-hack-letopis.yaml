@@ -7,6 +7,9 @@ envs:
   prod:
     zone: home
     quota: {cpu: 2, memory: 4Gi, storage: 20Gi}
+    extraEgress:
+      - cidr: 192.168.198.73/32
+        ports: [8300]
     apps:
       web:
         repo: cu3rd/yc-hack-letopis
