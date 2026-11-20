@@ -115,6 +115,7 @@ envs:
           OCR_TEMP_DIR: OCR_TEMP_DIR
           OCR_API_PREFIX: OCR_API_PREFIX
           OCR_PROVIDER: OCR_PROVIDER
+          OCR_LOCAL_BASE_URL: OCR_LOCAL_BASE_URL
           OCR_LOG_LEVEL: OCR_LOG_LEVEL
         values:
           strategy: Recreate
