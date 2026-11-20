@@ -1,0 +1,9 @@
+repository: cu3rd/yc-hack-horses
+tag: d487238f6f5491bef19a72ac3fa5485b600d06b6
+env:
+  LOG_LEVEL: info
+  LISTEN_ADDR: ::8080
+  NODE_CERT_FILE: /run/secrets/node.crt
+  NODE_KEY_FILE: /run/secrets/node.key
+  CA_FILE: /run/secrets/ca.crt
+sealedEnv: {}
