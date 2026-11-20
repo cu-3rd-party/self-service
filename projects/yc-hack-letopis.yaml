@@ -7,9 +7,17 @@ envs:
   prod:
     zone: home
     quota: {cpu: 2, memory: 4Gi, storage: 20Gi}
+    # ai: ключ LiteLLM-гейтвея (ai.cu3rd.ru) с бюджетом 5$/30д; Secret prod-ai
+    # (AI_API_KEY/AI_BASE_URL/AI_MODEL) попадает envFrom во все поды проекта.
+    ai:
+      enabled: true
+      budgetUsd: 5
+      model: z-ai/glm-5.3-flash
+      models: [z-ai/glm-5.3-flash, z-ai/glm-5.3]
     extraEgress:
+      # 8300 — GPU OCR, 8019 — локальный сервер эмбеддингов bge-m3 (llama-server)
       - cidr: 192.168.198.73/32
-        ports: [8300]
+        ports: [8300, 8019]
     apps:
       web:
         repo: cu3rd/yc-hack-letopis
