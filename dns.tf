@@ -15,6 +15,8 @@ locals {
     grm = "87.120.126.156"
     # xgrm: своего Traefik нет — вход через Traefik grm
     xgrm = "87.120.126.156"
+    # home: своего Traefik нет — вход через Traefik nxs
+    home = "85.192.48.255"
   }
 }
 # Вход SSH-шлюза (homelab ssh-gateway/, hostPort 8222 на grm): ssh -p 8222 <логин>@ssh.cu3rd.ru
