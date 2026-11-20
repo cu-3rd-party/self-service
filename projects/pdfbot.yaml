@@ -2,7 +2,7 @@ name: pdfbot
 team: sre
 envs:
   prod:
-    zone: nxs
+    zone: grm
     # сверх лимитов бота (200m/256Mi) место под под cert-manager ACME-solver (100m/64Mi),
     # иначе квота не пускает его и сертификат не выпускается и не продлевается
     quota: {cpu: 0.3, memory: 320Mi, storage: 64Mi}

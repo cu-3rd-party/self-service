@@ -3,7 +3,7 @@ name: lit-club
 team: culture
 envs:
   prod:
-    zone: nxs
+    zone: grm
     quota:
       cpu: 2
       memory: 2Gi
