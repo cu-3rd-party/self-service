@@ -25,6 +25,9 @@ envs:
           serviceAnnotations:
             # Нативный gRPC (HTTP/2) за Traefik без h2c к бэкенду падает
             traefik.ingress.kubernetes.io/service.serversscheme: h2c
+          # Поды чарта работают под UID 10001 — blob store пишет в writable /tmp (emptyDir)
+          emptyDirs:
+            tmp: /tmp
           resources:
             # квота зоны grm: cpu 2, memory 2Gi — оставляем запас
             requests: {cpu: 5m, memory: 32Mi}
@@ -32,6 +35,7 @@ envs:
         variables:
           LOG_LEVEL: LOG_LEVEL
           LISTEN_ADDR: LISTEN_ADDR
+          DATA_DIR: DATA_DIR
           # центральная нода ходит в платформенный Postgres
           STORAGE_DRIVER: STORAGE_DRIVER
           NODE_CERT_FILE: NODE_CERT_FILE
