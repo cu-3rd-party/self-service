@@ -36,6 +36,8 @@ envs:
           LOG_LEVEL: LOG_LEVEL
           LISTEN_ADDR: LISTEN_ADDR
           DATA_DIR: DATA_DIR
+          # без mTLS-сертификатов gRPC допускается только на loopback (ADR-0007/0008)
+          GRPC_LISTEN_ADDR: GRPC_LISTEN_ADDR
           # центральная нода ходит в платформенный Postgres
           STORAGE_DRIVER: STORAGE_DRIVER
           NODE_CERT_FILE: NODE_CERT_FILE
