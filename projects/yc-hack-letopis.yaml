@@ -5,7 +5,7 @@ name: yc-hack-letopis
 team: sre
 envs:
   prod:
-    zone: xgrm
+    zone: home
     quota: {cpu: 2, memory: 4Gi, storage: 20Gi}
     apps:
       web:
