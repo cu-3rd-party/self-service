@@ -369,6 +369,9 @@ resource "kubernetes_manifest" "argo_project" {
           group = "traefik.io", kind = "Middleware"
         },
         {
+          group = "traefik.io", kind = "TLSOption"
+        },
+        {
           group = "kubevirt.io", kind = "VirtualMachine"
         }
       ]
