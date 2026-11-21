@@ -22,9 +22,9 @@ envs:
         values:
           replicas: 1
           probes: {path: /health}
-          serviceAnnotations:
-            # Нативный gRPC (HTTP/2) за Traefik без h2c к бэкенду падает
-            traefik.ingress.kubernetes.io/service.serversscheme: h2c
+          # serviceAnnotations h2c НЕ ставим: gRPC сейчас на loopback, Go net/http
+          # без h2c-обработчика отвечает 500 на HTTP/2 от Traefik; включить, когда
+          # бэкенд научится h2c (нативный gRPC за ingress).
           # Поды чарта работают под UID 10001 — blob store пишет в writable /tmp (emptyDir)
           emptyDirs:
             tmp: /tmp
