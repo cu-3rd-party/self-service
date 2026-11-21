@@ -92,6 +92,13 @@ ingress:
   redirectHttps: true
   # Дополнительные аннотации Ingress (например traefik-опции).
   extraAnnotations: {}
+# extraMiddlewares — дополнительные Traefik-middleware, дописываемые в
+# traefik.ingress.kubernetes.io/router.middlewares (формат <ns>-<name>@kubernetescrd).
+extraMiddlewares: []
+# grpcClientCertPassthrough — рендерит Middleware passTLSClientCert (pem: true)
+# и TLSOption clientAuth RequestClientCert, подключает их к роутеру ingress
+# (прокидывание клиентского серта бэкенду за ingress; проверку выполняет бэкенд).
+grpcClientCertPassthrough: false
 
 # SSH-доступ через шлюз ssh.cu3rd.ru:8222 (задаётся блоком ssh в projects/*.yaml).
 # Чарт кладёт публичный ключ шлюза в /run/self-service/ssh/authorized_keys и

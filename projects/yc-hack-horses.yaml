@@ -21,6 +21,16 @@ envs:
             targetPort: 8080
         values:
           replicas: 1
+          # gRPC центральной ноды за ingress: бэкенду Traefik говорит h2c (HTTP/2
+          # cleartext) — REST и gRPC мультиплексируются в приложении (GRPC_MULTIPLEX).
+          serviceAnnotations:
+            traefik.ingress.kubernetes.io/service.serversscheme: h2c
+          # Прокидывание клиентского TLS-серта бэкенду (mTLS через ingress):
+          # Middleware passTLSClientCert (pem: true) + TLSOption clientAuth
+          # RequestClientCert. Traefik выставляет X-Forwarded-Tls-Client-Cert из
+          # TLS-соединения, значение от клиента перезаписывается (подделка
+          # заголовка identity не подделывает); perms в Traefik CRD v3.7 нет.
+          grpcClientCertPassthrough: true
           probes: {path: /health}
           # serviceAnnotations h2c НЕ ставим: gRPC сейчас на loopback, Go net/http
           # без h2c-обработчика отвечает 500 на HTTP/2 от Traefik; включить, когда
@@ -50,6 +60,9 @@ envs:
           DATA_DIR: DATA_DIR
           # gRPC mTLS внутри пода (0.0.0.0:9443, наружу не открывается); серт+CA из /run/secrets
           GRPC_LISTEN_ADDR: GRPC_LISTEN_ADDR
+          # h2c-мультиплекс REST+gRPC на listen_addr; аутентификация gRPC —
+          # по серту из X-Forwarded-Tls-Client-Cert против CA_FILE
+          GRPC_MULTIPLEX: GRPC_MULTIPLEX
           # центральная нода ходит в платформенный Postgres
           STORAGE_DRIVER: STORAGE_DRIVER
           NODE_CERT_FILE: NODE_CERT_FILE

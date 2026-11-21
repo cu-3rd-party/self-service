@@ -31,7 +31,17 @@ metadata:
   labels: {{- include "app.labels" . | nindent 4 }}
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-%s-routes-https@kubernetescrd" .Release.Namespace .Release.Name | quote }}
+    {{- $mwNames := list (printf "%s-%s-routes-https@kubernetescrd" .Release.Namespace .Release.Name) }}
+    {{- if .Values.grpcClientCertPassthrough }}
+    {{- $mwNames = append $mwNames (printf "%s-%s-routes-client-cert@kubernetescrd" .Release.Namespace .Release.Name) }}
+    {{- end }}
+    {{- with .Values.extraMiddlewares }}
+    {{- $mwNames = concat $mwNames . }}
+    {{- end }}
+    {{- if .Values.grpcClientCertPassthrough }}
+    traefik.ingress.kubernetes.io/router.tls.options: {{ printf "%s-%s-routes-client-auth@kubernetescrd" .Release.Namespace .Release.Name | quote }}
+    {{- end }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ join "," $mwNames | quote }}
 spec:
   ingressClassName: traefik
   tls:
@@ -62,4 +72,30 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
+{{- end }}
+{{- if .Values.grpcClientCertPassthrough }}
+---
+# passTLSClientCert (pem: true) прокидывает клиентский TLS-серт в заголовок
+# X-Forwarded-Tls-Client-Cert. Traefik выставляет заголовок из состояния
+# TLS-соединения: значение, подделанное самим клиентом, перезаписывается
+# (в CRD Traefik v3.7 опции perms нет, подмена отсекается перезаписью).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-routes-client-cert
+spec:
+  passTLSClientCert:
+    pem: true
+---
+# Без clientAuth Traefik не запрашивает клиентский серт и passTLSClientCert
+# передаёт пустой заголовок. RequestClientCert: серт запрашивается, но не
+# обязателен (REST-клиенты без серта работают); проверку серта выполняет бэкенд.
+apiVersion: traefik.io/v1alpha1
+kind: TLSOption
+metadata:
+  name: {{ .Release.Name }}-routes-client-auth
+spec:
+  minVersion: VersionTLS12
+  clientAuth:
+    clientAuthType: RequestClientCert
 {{- end }}

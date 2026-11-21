@@ -18,7 +18,7 @@ SSH_KEY = re.compile(r"^(?:ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)|s
 # Включить снова: вернуть KubeVirt в homelab и вписать сюда "nxs".
 KVM_ZONES = set()
 VM_OS = {"alpine-3.24"}
-ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts", "serviceAnnotations", "sealedFiles"}
+ALLOWED_VALUES = {"replicas", "strategy", "resources", "probes", "persistence", "emptyDirs", "configFiles", "imagePullSecrets", "sealedPullSecret", "extraPorts", "serviceAnnotations", "sealedFiles", "extraMiddlewares", "grpcClientCertPassthrough"}
 class Invalid(ValueError):
     pass
 class UniqueLoader(yaml.SafeLoader):
