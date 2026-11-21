@@ -17,7 +17,7 @@ spec:
       annotations:
         self-service/config-revision: {{ .Values.configRevision | quote }}
         # перезапуск подов при смене секретов/переменных
-        checksum/env: {{ toJson (concat (list .Values.env .Values.sealedEnv) (ternary (list .Values.configFiles) list (not (empty .Values.configFiles)))) | sha256sum }}
+        checksum/env: {{ toJson (concat (list .Values.env .Values.sealedEnv) (ternary (list .Values.configFiles) list (not (empty .Values.configFiles))) (ternary (list .Values.sealedFiles.keys) list (not (empty .Values.sealedFiles.keys)))) | sha256sum }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -97,7 +97,7 @@ spec:
           {{- end }}
           {{- end }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled }}
+          {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled .Values.sealedFiles.keys }}
           volumeMounts:
             {{- range $name, $path := .Values.emptyDirs }}
             - name: {{ $name }}
@@ -113,6 +113,12 @@ spec:
               subPath: {{ $name }}
               readOnly: true
             {{- end }}
+            {{- range $name, $v := .Values.sealedFiles.mounts }}
+            - name: sfiles
+              mountPath: {{ $v.path }}
+              subPath: {{ $name }}
+              readOnly: true
+            {{- end }}
             {{- if .Values.ssh.enabled }}
             # каталогом, без subPath: смена ключа шлюза доходит без перезапуска пода
             - name: ssh
@@ -120,7 +126,7 @@ spec:
               readOnly: true
             {{- end }}
           {{- end }}
-      {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled }}
+      {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled .Values.sealedFiles.keys }}
       volumes:
         {{- range $name, $_ := .Values.emptyDirs }}
         - name: {{ $name }}
@@ -135,6 +141,11 @@ spec:
         - name: files
           configMap:
             name: {{ .Release.Name }}-files
+        {{- end }}
+        {{- if .Values.sealedFiles.keys }}
+        - name: sfiles
+          secret:
+            secretName: {{ .Release.Name }}-files
         {{- end }}
         {{- if .Values.ssh.enabled }}
         - name: ssh

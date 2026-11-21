@@ -27,6 +27,21 @@ env: {}
 # Секретные переменные: значения зашифрованы kubeseal (scripts/seal.sh).
 sealedEnv: {}
 
+# Секретные файлы: kubeseal-шифрованные содержимое файлов в SealedSecret
+# <release>-files, монтируются по одному через subPath (read-only).
+# keys:   {имя файла: зашифрованный blob}   -> ключи data секрета
+# mounts: {имя файла: {path: /run/secrets/x}} -> куда смонтировать
+# Пример (mTLS-сертификаты центральной ноды):
+#   sealedFiles:
+#     keys: {node.crt: AgB..., node.key: AgB..., ca.crt: AgB...}
+#     mounts:
+#       node.crt: {path: /run/secrets/node.crt}
+#       node.key: {path: /run/secrets/node.key}
+#       ca.crt: {path: /run/secrets/ca.crt}
+sealedFiles:
+  keys: {}
+  mounts: {}
+
 # Ресурсы: requests — обычное потребление (по нему планировщик раскладывает поды,
 # сумма requests = сколько узел реально занят), limits — потолок с запасом.
 # Правило для приложений: memory request ≈ p90 × 1.1, memory limit ≈ пик × 2–2.5,
