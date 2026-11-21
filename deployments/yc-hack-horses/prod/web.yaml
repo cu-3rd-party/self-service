@@ -4,6 +4,7 @@ env:
   LOG_LEVEL: info
   LISTEN_ADDR: :8080
   DATA_DIR: /tmp/data
+  GRPC_LISTEN_ADDR: 127.0.0.1:9443
   STORAGE_DRIVER: postgres
   NODE_CERT_FILE: /run/secrets/node.crt
   NODE_KEY_FILE: /run/secrets/node.key
