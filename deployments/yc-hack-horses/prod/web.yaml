@@ -1,13 +1,15 @@
 repository: cu3rd/yc-hack-horses
-tag: 442373267a5a1beab4fe9ba8374a80fe653959a8
+tag: c1d683c042e47c4e1ba2740799930d4ff8947881
 env:
   LOG_LEVEL: info
   LISTEN_ADDR: :8080
   DATA_DIR: /tmp/data
-  GRPC_LISTEN_ADDR: 127.0.0.1:9443
+  GRPC_LISTEN_ADDR: 0.0.0.0:9443
   STORAGE_DRIVER: postgres
   NODE_CERT_FILE: /run/secrets/node.crt
   NODE_KEY_FILE: /run/secrets/node.key
+  CERT_FILE: /run/secrets/node.crt
+  KEY_FILE: /run/secrets/node.key
   CA_FILE: /run/secrets/ca.crt
   API_DOCS_ENABLED: 'true'
 sealedEnv: {}
