@@ -1,5 +1,5 @@
 repository: cu3rd/yc-hack-horses
-tag: fb19fa96e28caad86bab04e0bb717248d91c43c4
+tag: 545950ff01337de0a8d0113e3a487f97a7b78344
 env:
   LOG_LEVEL: info
   LISTEN_ADDR: :8080
