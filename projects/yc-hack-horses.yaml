@@ -43,3 +43,5 @@ envs:
           NODE_CERT_FILE: NODE_CERT_FILE
           NODE_KEY_FILE: NODE_KEY_FILE
           CA_FILE: CA_FILE
+          # Scalar UI (/api/scalar) — только у центральной ноды
+          API_DOCS_ENABLED: API_DOCS_ENABLED
