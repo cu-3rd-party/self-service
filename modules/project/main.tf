@@ -425,9 +425,11 @@ resource "kubernetes_manifest" "application" {
             })
             secretRefs     = local.resource_secrets
             configRevision = sha256(jsonencode(local.deliveries[each.key]))
-            nodeSelector = {
+            # Приложение может переопределить закрепление за зоной (например, hostPath
+            # со статикой на конкретном узле): values.nodeSelector сильнее зонального.
+            nodeSelector = try(each.value.values.nodeSelector, {
               "homelab/site" = try(var.config.zone, "nxs")
-            }
+            })
             persistenceSuffix = try(var.config.zone, "nxs") == terraform_data.storage_zone.output ? "" : "-${try(var.config.zone, "nxs")}"
             ingress = {
               enabled = try(each.value.host, "") != "", host = try(each.value.host, ""), paths = try(each.value.paths, ["/"])

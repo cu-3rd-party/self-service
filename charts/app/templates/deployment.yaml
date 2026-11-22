@@ -97,11 +97,15 @@ spec:
           {{- end }}
           {{- end }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
-          {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled .Values.sealedFiles.keys }}
+          {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled .Values.sealedFiles.keys .Values.hostPaths }}
           volumeMounts:
             {{- range $name, $path := .Values.emptyDirs }}
             - name: {{ $name }}
               mountPath: {{ $path }}
+            {{- end }}
+            {{- range $name, $v := .Values.hostPaths }}
+            - name: {{ $name }}
+              mountPath: {{ $v.mountPath }}
             {{- end }}
             {{- range $name, $v := .Values.persistence }}
             - name: {{ $name }}
@@ -126,11 +130,15 @@ spec:
               readOnly: true
             {{- end }}
           {{- end }}
-      {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled .Values.sealedFiles.keys }}
+      {{- if or .Values.emptyDirs .Values.persistence .Values.configFiles .Values.ssh.enabled .Values.sealedFiles.keys .Values.hostPaths }}
       volumes:
         {{- range $name, $_ := .Values.emptyDirs }}
         - name: {{ $name }}
           emptyDir: {}
+        {{- end }}
+        {{- range $name, $v := .Values.hostPaths }}
+        - name: {{ $name }}
+          hostPath: {path: {{ $v.path }}, type: Directory}
         {{- end }}
         {{- range $name, $_ := .Values.persistence }}
         - name: {{ $name }}

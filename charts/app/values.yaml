@@ -63,6 +63,10 @@ nodeSelector: {}
 # Пустые каталоги внутри пода: {имя: путь}
 emptyDirs: {}
 
+# HostPath-тома с узла (read-only статика): {имя: {path: /path/on/node, mountPath: /data}}.
+# Требует values.nodeSelector — под обязан оказаться на узле с этим путём.
+hostPaths: {}
+
 # Постоянные тома (PVC local-path, данные на диске узла — нужен nodeSelector
 # и strategy: Recreate): {имя: {path: /data, size: 1Gi}}
 persistence: {}
