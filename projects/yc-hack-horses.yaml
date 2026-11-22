@@ -2,7 +2,7 @@ name: yc-hack-horses
 team: sre
 envs:
   prod:
-    zone: home
+    zone: nxs
     quota: {cpu: 4, memory: 16Gi, storage: 10Gi}
     # Central нода: postgres платформенный ресурс, DATABASE_URL приходит из него
     postgres:
