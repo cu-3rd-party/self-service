@@ -1,9 +1,9 @@
 repository: cu3rd/yc-hack-horses
-tag: 991f8b8d174a5b873b61d78cbc2c6e7537c9bb57
+tag: 1680ae0e1a7d36369fe9bdd41c8e635739044c8f
 env:
   LOG_LEVEL: info
   LISTEN_ADDR: :8080
-  DATA_DIR: /tmp/data
+  DATA_DIR: /data
   GRPC_LISTEN_ADDR: 0.0.0.0:9443
   GRPC_MULTIPLEX: 'true'
   STORAGE_DRIVER: postgres
