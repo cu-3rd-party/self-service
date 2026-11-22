@@ -41,7 +41,7 @@ envs:
           resources:
             # квота зоны grm: cpu 2, memory 2Gi — оставляем запас
             requests: {cpu: 5m, memory: 32Mi}
-            limits: {cpu: "1", memory: 1Gi}
+            limits: {cpu: "2", memory: 2Gi}
           # mTLS-сертификаты (dev CA, development-only): SealedSecret <release>-files,
           # ключи node.crt/node.key/ca.crt монтируются в /run/secrets (ADR-0007/0008)
           sealedFiles:
