@@ -78,24 +78,3 @@ envs:
           ENROLLMENT_ENABLED: ENROLLMENT_ENABLED
           ENROLLMENT_TOKEN: ENROLLMENT_TOKEN
           ENROLLMENT_CA_KEY_FILE: ENROLLMENT_CA_KEY_FILE
-      # Статика хакатона с узла nxs (hostPath /home/zap/yc-hack-horses/data):
-      # nginx-unprivileged на порту 8080, автоиндекс, dotfiles скрыты.
-      # values.nodeSelector сильнее зонального pin'а (env prod = grm) — под обязан
-      # оказаться на nxs, где лежат файлы.
-      data:
-        repo: cu3rd/yc-hack-horses
-        image: git.cu3rd.ru/cu3rd/yc-hack-horses-data
-        tag: initial
-        port: 8080
-        ingress:
-          - domain: data.yc-hack-horses.cu3rd.ru
-            targetPort: 8080
-        values:
-          replicas: 1
-          probes: {path: /}
-          nodeSelector: {homelab/site: nxs}
-          hostPaths:
-            data: {path: /home/zap/yc-hack-horses/data, mountPath: /data}
-          resources:
-            requests: {cpu: 10m, memory: 32Mi}
-            limits: {cpu: 200m, memory: 64Mi}
