@@ -58,9 +58,10 @@ resource "kubernetes_namespace_v1" "project" {
     name = local.namespace
     labels = {
 
-      "cu3rd.ru/project"                           = var.config.project
-      "cu3rd.ru/env"                               = var.config.env
-      "pod-security.kubernetes.io/enforce"         = "restricted"
+      "cu3rd.ru/project" = var.config.project
+      "cu3rd.ru/env"     = var.config.env
+      # hostPath-статика требует privileged; считаем по наличию hostPaths в values
+      "pod-security.kubernetes.io/enforce"         = length([for name, app in local.apps : 1 if length(try(app.values.hostPaths, {})) > 0]) > 0 ? "privileged" : "restricted"
       "pod-security.kubernetes.io/enforce-version" = "latest"
 
     }
