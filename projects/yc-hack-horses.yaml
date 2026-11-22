@@ -2,8 +2,8 @@ name: yc-hack-horses
 team: sre
 envs:
   prod:
-    zone: grm
-    quota: {cpu: 2, memory: 2Gi, storage: 10Gi}
+    zone: home
+    quota: {cpu: 4, memory: 16Gi, storage: 10Gi}
     # Central нода: postgres платформенный ресурс, DATABASE_URL приходит из него
     postgres:
       enabled: true
@@ -39,9 +39,9 @@ envs:
           emptyDirs:
             tmp: /tmp
           resources:
-            # квота зоны grm: cpu 2, memory 2Gi — оставляем запас
+            # квота зоны home: cpu 4, memory 16Gi
             requests: {cpu: 5m, memory: 32Mi}
-            limits: {cpu: "2", memory: 2Gi}
+            limits: {cpu: "4", memory: 16Gi}
           # mTLS-сертификаты (dev CA, development-only): SealedSecret <release>-files,
           # ключи node.crt/node.key/ca.crt монтируются в /run/secrets (ADR-0007/0008)
           sealedFiles:

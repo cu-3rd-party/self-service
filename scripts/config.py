@@ -109,8 +109,8 @@ def validate_project(p, filename):
             raise Invalid("Unknown zone")
         q = e.get("quota", {})
         keys(q, {"cpu", "memory", "storage"})
-        if not 0 < float(q.get("cpu", 2)) <= 4 or quantity(q.get("memory", "4Gi"), "memory") > 8192 or quantity(q.get("storage", "5Gi"), "storage") > 20480:
-            raise Invalid("Quota limit: 4 CPU, 8Gi memory, 20Gi storage")
+        if not 0 < float(q.get("cpu", 2)) <= 4 or quantity(q.get("memory", "4Gi"), "memory") > 16384 or quantity(q.get("storage", "5Gi"), "storage") > 20480:
+            raise Invalid("Quota limit: 4 CPU, 16Gi memory, 20Gi storage")
         reserved = set()
         db = e.get("postgres", {})
         keys(db, {"enabled", "targetEnv", "format", "pooler"})
