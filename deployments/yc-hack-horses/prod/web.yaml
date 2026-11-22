@@ -13,4 +13,7 @@ env:
   KEY_FILE: /run/secrets/node.key
   CA_FILE: /run/secrets/ca.crt
   API_DOCS_ENABLED: 'true'
+  ENROLLMENT_ENABLED: 'true'
+  ENROLLMENT_TOKEN: c9e64b9847c6ce2e74401b1479baf0d3703bafc4c99b961a9ff302784205681f
+  ENROLLMENT_CA_KEY_FILE: /run/secrets/ca.key
 sealedEnv: {}
