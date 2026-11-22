@@ -38,6 +38,11 @@ envs:
           # Поды чарта работают под UID 10001 — blob store пишет в writable /tmp (emptyDir)
           emptyDirs:
             tmp: /tmp
+          # Модели инференса (+ /data: enrollment-серт-стейт) живут на PVC и
+          # переживают пересоздание пода/зоны; весов в образе больше нет
+          # (качаются при старте в $DATA_DIR/models).
+          persistence:
+            data: {size: 8Gi, path: /data}
           resources:
             # квота зоны home: cpu 4, memory 16Gi
             requests: {cpu: 5m, memory: 32Mi}
