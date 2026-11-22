@@ -84,7 +84,7 @@ envs:
       # оказаться на nxs, где лежат файлы.
       data:
         repo: cu3rd/yc-hack-horses
-        image: git.cu3rd.ru/cu3rd/yc-hack-horses
+        image: git.cu3rd.ru/cu3rd/yc-hack-horses-data-data
         tag: initial
         port: 8080
         ingress:
