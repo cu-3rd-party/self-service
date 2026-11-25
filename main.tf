@@ -13,6 +13,7 @@ module "project" {
   chart_revision = var.chart_revision
   ssh_gateway    = { namespace = var.ssh_gateway_namespace, public_key = var.ssh_gateway_public_key, key_secret = "upstream-key" }
   extra_egress   = try(each.value.extraEgress, [])
+  extra_ingress  = try(each.value.extraIngress, [])
 }
 module "postgres" {
   source    = "./modules/postgres"
