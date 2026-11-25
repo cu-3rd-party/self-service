@@ -1,0 +1,40 @@
+name: mail
+team: sre
+envs:
+  prod:
+    zone: home
+    # почтовый сервер с hostPath-данными на NVME home; storage-квота не используется
+    quota: {cpu: 1, memory: 1Gi, storage: 1Gi}
+    apps:
+      mail:
+        repo: cu3rd/mail
+        image: git.cu3rd.ru/cu3rd/mail
+        tag: initial
+        # HTTP-админка/веб-порт контейнера (наружу — hostPort 443 из extraPorts)
+        port: 8080
+        secrets:
+          # STALWART_RECOVERY_ADMIN — аварийный доступ к админке (recovery mode)
+          STALWART_RECOVERY_ADMIN: STALWART_RECOVERY_ADMIN
+        variables:
+          # наружный URL: клиенты ходят на hostPort 443, контейнер слушает 8443
+          STALWART_PUBLIC_URL: STALWART_PUBLIC_URL
+        values:
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /healthz/live}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: 1, memory: 1Gi}
+          nodeSelector: {homelab/site: home}
+          hostPaths:
+            etc: {path: /mnt/NVME/mail-stalwart/etc, mountPath: /etc/stalwart}
+            data: {path: /mnt/NVME/mail-stalwart/data, mountPath: /var/lib/stalwart}
+          extraPorts:
+            smtp: {port: 1025, hostPort: 25}
+            submission: {port: 1587, hostPort: 587}
+            submissions: {port: 1465, hostPort: 465}
+            imap: {port: 1143, hostPort: 143}
+            imaps: {port: 1993, hostPort: 993}
+            pop3s: {port: 1995, hostPort: 995}
+            sieve: {port: 4190, hostPort: 4190}
+            https: {port: 8443, hostPort: 443}
