@@ -10,8 +10,11 @@ envs:
         repo: cu3rd/mail
         image: git.cu3rd.ru/cu3rd/mail
         tag: initial
-        # HTTP-админка/веб-порт контейнера (наружу — hostPort 443 из extraPorts)
+        # HTTP-админка/веб-порт контейнера; наружу — через traefik (ingress ниже)
         port: 8080
+        ingress:
+          - domain: mail.cu3rd.ru
+            targetPort: 8080
         secrets:
           # STALWART_RECOVERY_ADMIN — аварийный доступ к админке (recovery mode)
           STALWART_RECOVERY_ADMIN: STALWART_RECOVERY_ADMIN
@@ -37,4 +40,4 @@ envs:
             imaps: {port: 1993, hostPort: 993}
             pop3s: {port: 1995, hostPort: 995}
             sieve: {port: 4190, hostPort: 4190}
-            https: {port: 8443, hostPort: 443}
+            https: {port: 8443, hostPort: 8443}
