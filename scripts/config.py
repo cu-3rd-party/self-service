@@ -200,13 +200,26 @@ def validate_project(p, filename):
                 raise Invalid('metrics.path must start with /')
             if metrics.get('interval', '30s') not in {'15s', '30s', '60s'}:
                 raise Invalid('metrics.interval must be 15s, 30s or 60s')
-            if metrics.get('enabled') and 'metrics' in app.get('values', {}).get('extraPorts', {}):
+            extra_ports = app.get('values', {}).get('extraPorts', {})
+            if not isinstance(extra_ports, dict):
+                raise Invalid('extraPorts must be a mapping')
+            for v in extra_ports.values():
+                if isinstance(v, dict):
+                    if set(v) - {'port', 'hostPort'}:
+                        raise Invalid('extraPorts {port, hostPort} only')
+                    if type(v.get('port')) is not int or not 1024 <= v['port'] <= 65535:
+                        raise Invalid('extraPorts port must be 1024-65535')
+                    if type(v.get('hostPort')) is not int or not 1 <= v['hostPort'] <= 65535:
+                        raise Invalid('extraPorts hostPort must be 1-65535')
+                elif type(v) is not int or not 1024 <= v <= 65535:
+                    raise Invalid('extraPorts port must be 1024-65535')
+            if metrics.get('enabled') and 'metrics' in extra_ports:
                 raise Invalid('Port name metrics is reserved when metrics are enabled')
             if 'ssh' in app:
                 ssh_access(app['ssh'])
-                if 'ssh' in app.get('values', {}).get('extraPorts', {}):
+                if 'ssh' in extra_ports:
                     raise Invalid('Port name ssh is reserved when ssh is declared')
-                if app['ssh'].get('port', 2222) in {app.get('port'), metrics.get('port') if metrics.get('enabled') else None, *[r['targetPort'] for r in ingress_routes(app)], *app.get('values', {}).get('extraPorts', {}).values()}:
+                if app['ssh'].get('port', 2222) in {app.get('port'), metrics.get('port') if metrics.get('enabled') else None, *[r['targetPort'] for r in ingress_routes(app)], *[v['port'] if isinstance(v, dict) else v for v in extra_ports.values()]}:
                     raise Invalid('ssh.port must differ from the other ports of the application')
             secrets, variables = app.get("secrets", {}), app.get("variables", {})
             mappings(secrets)

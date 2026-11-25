@@ -71,7 +71,12 @@ spec:
               containerPort: {{ .Values.port }}
             {{- range $name, $p := .Values.extraPorts }}
             - name: {{ $name }}
+              {{- if kindIs "map" $p }}
+              containerPort: {{ $p.port }}
+              hostPort: {{ $p.hostPort }}
+              {{- else }}
               containerPort: {{ $p }}
+              {{- end }}
             {{- end }}
             {{- end }}
             {{- if and .Values.metrics.enabled (ne (int .Values.metrics.port) (int (.Values.port | default 0))) }}

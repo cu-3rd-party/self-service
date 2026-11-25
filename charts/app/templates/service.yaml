@@ -15,7 +15,11 @@ spec:
       targetPort: http
     {{- range $name, $p := .Values.extraPorts }}
     - name: {{ $name }}
+      {{- if kindIs "map" $p }}
+      port: {{ $p.port }}
+      {{- else }}
       port: {{ $p }}
+      {{- end }}
       targetPort: {{ $name }}
     {{- end }}
 {{- end }}
