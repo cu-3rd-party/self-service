@@ -4,7 +4,7 @@ envs:
   prod:
     zone: home
     # почтовый сервер с hostPath-данными на NVME home; storage-квота не используется
-    quota: {cpu: 1, memory: 1Gi, storage: 1Gi}
+    quota: {cpu: 2, memory: 2Gi, storage: 1Gi}
     apps:
       mail:
         repo: cu3rd/mail
