@@ -88,17 +88,16 @@ spec:
               containerPort: {{ .Values.ssh.port }}
             {{- end }}
           {{- if and .Values.port .Values.probes.path }}
-          readinessProbe:
-            httpGet: {path: {{ .Values.probes.path }}, port: http}
+          readinessProbe: {httpGet: {path: {{ .Values.probes.path }}, port: http}, timeoutSeconds: {{ .Values.probes.timeoutSeconds }}}
           # Медленный старт (тяжёлые импорты, воркер рядом) не должен убиваться liveness'ом -
           # startupProbe даёт до 3 минут на подъём, после его успеха liveness работает как раньше.
           startupProbe:
             httpGet: {path: {{ .Values.probes.path }}, port: http}
             periodSeconds: 5
             failureThreshold: 36
-          livenessProbe:
-            httpGet: {path: {{ .Values.probes.path }}, port: http}
-            initialDelaySeconds: 0
+          # liveness можно развести с readiness (например /health/live, независимый от БД),
+          # чтобы недоступная зависимость снимала под с роутинга, но не рестартит его.
+          livenessProbe: {httpGet: {path: {{ default .Values.probes.path .Values.probes.livenessPath }}, port: http}, initialDelaySeconds: 0, timeoutSeconds: {{ .Values.probes.timeoutSeconds }}}
           {{- end }}
           {{- end }}
           resources: {{- toYaml .Values.resources | nindent 12 }}

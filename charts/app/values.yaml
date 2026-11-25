@@ -56,6 +56,9 @@ resources:
 # HTTP-пробы (нужен port). Пусто — без проб.
 probes:
   path: ""
+  # Отдельный путь для liveness (по умолчанию = path); таймаут пробы, с.
+  livenessPath: ""
+  timeoutSeconds: 1
 
 # Закрепить поды за узлом, например {homelab/site: nxs} — рядом с Postgres.
 nodeSelector: {}

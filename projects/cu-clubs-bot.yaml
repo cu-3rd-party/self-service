@@ -62,6 +62,10 @@ envs:
               memory: 768Mi
           probes:
             path: /health/ready
+            # readiness зависит от Postgres (xgrm -> pg-grm), liveness — нет:
+            # недоступная БД снимает под с роутинга, но не рестартит его.
+            livenessPath: /health/live
+            timeoutSeconds: 5
           persistence:
             data:
               path: /data
