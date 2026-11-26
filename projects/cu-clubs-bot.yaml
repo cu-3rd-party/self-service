@@ -60,7 +60,7 @@ envs:
               memory: 128Mi
             limits:
               cpu: '1'
-              memory: 768Mi
+              memory: 1Gi
           probes:
             path: /health/ready
             # readiness зависит от Postgres (xgrm -> pg-grm), liveness — нет:
