@@ -3,6 +3,12 @@ team: sre
 envs:
   prod:
     zone: home
+    # hostPort-порты принимают трафик напрямую от внешних клиентов (роутер →
+    # DNAT в под): источник не под и не traefik, без этого правила isolate
+    # дропает их. Мир пускаем только на опубликованные hostPort-порты.
+    extraIngress:
+      - cidr: 0.0.0.0/0
+        ports: [1025, 1587, 1465, 1143, 1993, 1995, 8443, 4190]
     # почтовый сервер с hostPath-данными на NVME home; storage-квота не используется
     quota: {cpu: 2, memory: 2Gi, storage: 1Gi}
     apps:
@@ -41,9 +47,3 @@ envs:
             pop3s: {port: 1995, hostPort: 995}
             sieve: {port: 4190, hostPort: 4190}
             https: {port: 8443, hostPort: 8443}
-          # hostPort-порты принимают трафик напрямую от внешних клиентов (роутер →
-          # DNAT в под): источник не под и не traefik, без этого правила isolate
-          # дропает их. Мир пускаем только на опубликованные hostPort-порты.
-          extraIngress:
-            - cidr: 0.0.0.0/0
-              ports: [1025, 1587, 1465, 1143, 1993, 1995, 8443, 4190]
