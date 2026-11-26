@@ -5,7 +5,8 @@ on:
     branches: [master]
 jobs:
   check:
-    runs-on: homelab-docker
+    # grm-раннер: с home реестр tofu провайдеров отдаёт 403 (Cloudflare-блок), из-за этого tofu init падает на холодном кэше
+    runs-on: selfservice
     container: ghcr.io/catthehacker/ubuntu:act-24.04
     steps:
       - uses: actions/checkout@v4
