@@ -2,7 +2,7 @@ name: cu-clubs-bot
 team: culture
 envs:
   test:
-    zone: xgrm
+    zone: grm
     quota:
       cpu: 1
       memory: 1Gi
