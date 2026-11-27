@@ -1,0 +1,33 @@
+name: platform-smoke
+team: members
+envs:
+  dev:
+    zone: nxs
+    quota: {cpu: 1, memory: 1Gi, storage: 2Gi}
+    postgres:
+      enabled: true
+      targetEnv: DB_CONNSTRING
+      format: url
+    s3:
+      enabled: true
+      targetEnvPrefix: S3__
+    apps:
+      probe:
+        repo: cu3rd/self-service
+        image: git.cu3rd.ru/cu3rd/self-service-smoke
+        tag: initial
+        port: 8080
+        ingress:
+          - domain: platform-smoke.dev.cu3rd.ru
+            targetPort: 8080
+        secrets:
+          SMOKE_TOKEN: SMOKE_TOKEN
+        variables:
+          SMOKE_NAME: SMOKE_NAME
+        values:
+          replicas: 1
+          strategy: Recreate
+          probes: {path: /}
+          resources:
+            requests: {cpu: 2m, memory: 32Mi}
+            limits: {cpu: 100m, memory: 128Mi}
