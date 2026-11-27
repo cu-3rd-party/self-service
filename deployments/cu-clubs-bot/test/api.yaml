@@ -1,5 +1,5 @@
 repository: culture/cu-clubs-bot
-tag: 95589e0782e42c44720e88d87b81c82c1fb6b577
+tag: d7fd7dac607ba15884db4058ed2ea0fd27cc82e5
 env:
   CU_CLUBS_ENVIRONMENT: test
   CU_CLUBS_HOST: 0.0.0.0
