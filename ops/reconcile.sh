@@ -18,10 +18,10 @@ revision=$(git rev-parse HEAD)
 # Reconcile every hour too, so external drift is eventually repaired.
 last=$(cat /var/lib/cu3rd-self-service/applied-revision 2>/dev/null || true)
 if [[ "$revision" == "$last" ]] && find /var/lib/cu3rd-self-service/applied-revision -mmin -60 | read -r _; then
-  /opt/cu3rd-self-service/venv/bin/python scripts/cleanup-tls.py
+  /opt/cu3rd-self-service/bin/validator tls-collect
   exit 0
 fi
-/opt/cu3rd-self-service/venv/bin/python scripts/validate.py
+/opt/cu3rd-self-service/bin/validator validate .
 export TF_VAR_chart_revision="$revision"
 export TF_VAR_postgres_host=$(kubectl -n postgres get service pg-grm-rw -o jsonpath='{.spec.clusterIP}')
 export TF_VAR_postgres_port=5432
@@ -29,7 +29,7 @@ trap 'rm -f /var/lib/cu3rd-self-service/apply.tfplan' EXIT
 tofu init -input=false -backend-config=/etc/cu3rd-self-service/backend.hcl
 tofu validate
 tofu plan -lock-timeout=60s -out=/var/lib/cu3rd-self-service/apply.tfplan
-tofu show -json /var/lib/cu3rd-self-service/apply.tfplan | /opt/cu3rd-self-service/venv/bin/python scripts/check-plan.py
+tofu show -json /var/lib/cu3rd-self-service/apply.tfplan | /opt/cu3rd-self-service/bin/validator plan-audit
 tofu apply -input=false -lock-timeout=60s /var/lib/cu3rd-self-service/apply.tfplan
-/opt/cu3rd-self-service/venv/bin/python scripts/cleanup-tls.py
+/opt/cu3rd-self-service/bin/validator tls-collect
 printf '%s\n' "$revision" > /var/lib/cu3rd-self-service/applied-revision

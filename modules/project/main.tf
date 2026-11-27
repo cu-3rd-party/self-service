@@ -527,7 +527,7 @@ resource "kubernetes_manifest" "ssh_pipe" {
 output "namespace" {
   value = kubernetes_namespace_v1.project.metadata[0].name
 }
-# Виртуальные машины KubeVirt (vms в проекте): только зоны с /dev/kvm, проверяет scripts/config.py.
+# Виртуальные машины KubeVirt (vms в проекте): только зоны с /dev/kvm, проверяет validator.
 resource "kubernetes_manifest" "vm_application" {
   for_each = local.vms
   manifest = {

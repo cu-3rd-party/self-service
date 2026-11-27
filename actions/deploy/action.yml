@@ -32,20 +32,22 @@ runs:
         ref: master
         path: .self-service
         persist-credentials: false
-    # The runner image already has Python 3.12 and pip; actions/setup-python would
-    # download Python from GitHub releases on every run.
+    # Static Go validator from the pinned self-service-validator release.
     - shell: bash
       run: |
-        python3 -m pip install --target "$RUNNER_TEMP/self-service-python" --disable-pip-version-check -r .self-service/requirements.txt
-        echo "PYTHONPATH=$RUNNER_TEMP/self-service-python" >> "$GITHUB_ENV"
+        cd "$RUNNER_TEMP"
+        curl -fsSL -o validator.tar.gz https://git.cu3rd.ru/cu3rd/self-service-validator/releases/download/v1.0.0/validator-v1.0.0-linux-amd64.tar.gz
+        tar -xzf validator.tar.gz
+        chmod +x validator-linux-amd64
+        install -m 755 validator-linux-amd64 /usr/local/bin/validator
     # kubeseal comes from GitHub releases (or a Go build when GitHub is down):
     # cache it so a delivery does not wait for either.
     - uses: actions/cache@v4
       with:
         path: ~/.cache/self-service/kubeseal
-        key: self-service-kubeseal-${{ hashFiles('.self-service/scripts/install-kubeseal.py') }}
+        key: self-service-kubeseal-${{ hashFiles('.self-service/ops/install-kubeseal.py') }}
     - shell: bash
-      run: KUBESEAL_DIR="$HOME/.cache/self-service/kubeseal" python3 .self-service/scripts/install-kubeseal.py
+      run: KUBESEAL_DIR="$HOME/.cache/self-service/kubeseal" python3 .self-service/ops/install-kubeseal.py
     - shell: bash
       env:
         PROJECT: ${{ inputs.project }}
@@ -60,5 +62,5 @@ runs:
         SOURCE_EVENT: ${{ github.event_name }}
         SOURCE_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       run: |
-        python3 .self-service/scripts/deploy.py --root .self-service \
+        validator deploy --root .self-service \
           --project "$PROJECT" --environment "$ENVIRONMENT" --app "$APPLICATION" --tag "$IMAGE_TAG"

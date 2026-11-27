@@ -5,6 +5,5 @@
 *.tfvars.json
 !*.example.tfvars
 __pycache__/
-.venv/
 .env
 dist/

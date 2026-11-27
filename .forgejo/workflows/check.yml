@@ -13,17 +13,18 @@ jobs:
         with:
           persist-credentials: false
       - run: |
-          python3 -m pip install --target "$RUNNER_TEMP/self-service-python" --disable-pip-version-check -r requirements.txt
-          echo "PYTHONPATH=$RUNNER_TEMP/self-service-python" >> "$GITHUB_ENV"
-      - run: python3 scripts/validate.py
+          cd "$RUNNER_TEMP"
+          curl -fsSL -o validator.tar.gz https://git.cu3rd.ru/cu3rd/self-service-validator/releases/download/v1.0.0/validator-v1.0.0-linux-amd64.tar.gz
+          tar -xzf validator.tar.gz
+          install -m 755 validator-linux-amd64 /usr/local/bin/validator
+      - run: validator validate .
       - uses: azure/setup-helm@v4
         with:
           version: v3.22.0
       - run: helm lint charts/app
-      - run: python3 -m unittest discover -s tests -v
       # No cluster, database, state or S3 administration credentials in Actions.
       # The dedicated reconciler on nxs plans/applies reviewed master.
-      - run: python3 scripts/install-tofu.py
+      - run: python3 ops/install-tofu.py
       - name: Validate OpenTofu without infrastructure credentials
         env:
           TF_VAR_state_passphrase: ci-validation-only-never-a-production-key

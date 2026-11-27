@@ -41,7 +41,7 @@ kubectl -n argocd get applications | grep cu3rd
 RustFS admin и Postgres superuser нужен только процессу apply. Postgres подключается
 к ClusterIP сервиса `pg-grm-rw`, TLS require; клиентские URL направлены в pooler.
 
-В PR выполняются schema/semantic checks и unit tests. Привилегированный tofu plan
+В PR выполняются schema/semantic checks (валидатор self-service-validator) и helm lint. Привилегированный tofu plan
 не запускается на коде PR. Полный план доступен в журнале apply после merge; plaintext
 JSON плана передаётся проверке через pipe и не сохраняется. Sensitive значения скрыты
 провайдерами, state и saved plans обязательно шифруются AES-GCM/PBKDF2.
